@@ -462,4 +462,171 @@ function makeOptGroup(label, options, selected, onSelect) {
   div.innerHTML = "<div class='opt-label'>" + label + "</div>";
   const row = document.createElement("div");
   row.className = "opt-row";
-  for
+  for(const opt of options) {
+    const val = typeof opt === "object" ? opt.label : opt;
+    const sub = typeof opt === "object" && opt.surcharge > 0 ? " +£" + opt.surcharge.toFixed(2) : "";
+    const btn = document.createElement("button");
+    btn.className = "opt-btn" + (selected === val ? " selected" : "");
+    btn.textContent = val + sub;
+    btn.addEventListener("click", () => onSelect(val));
+    row.appendChild(btn);
+  }
+  div.appendChild(row);
+  return div;
+}
+
+function updateModalPrice() {
+  const p = calcPrice(modalItem, modalOpts);
+  document.getElementById("opt-price").textContent = "£" + p.toFixed(2);
+  document.getElementById("opt-add").textContent = "Add £" + p.toFixed(2);
+}
+
+function confirmAdd() {
+  addLine(modalItem, { size: modalOpts.size, bread: modalOpts.bread, garnish: modalOpts.garnish, milk: modalOpts.milk });
+  closeModal();
+}
+
+function closeModal() {
+  document.getElementById("opt-overlay").classList.remove("show");
+}
+
+function addLine(item, opts) {
+  const price = calcPrice(item, opts);
+  const key = lineKey(item.name, opts);
+  const idx = lines.findIndex(l => l.key === key);
+  
+  const isBreakfastItem = DATASETS.morning.breakfast.sections[0].items.some(i => i.name === item.name);
+  const isLunchFood = DATASETS.lunch.food.sections.some(s => s.items.some(i => i.name === item.name));
+  const categorisedAsFood = isBreakfastItem || isLunchFood;
+
+  if (idx >= 0) {
+    lines[idx].qty++;
+  } else {
+    lines.push({ key, name: item.name, price, qty: 1, opts, food: categorisedAsFood });
+  }
+  updateOrderBtn();
+}
+
+function removeLineAtIndex(index) {
+  lines.splice(index, 1);
+  updateOrderBtn();
+  renderOrderSheet();
+}
+
+function updateLineQtyAtIndex(index, value) {
+  const qty = parseInt(value);
+  if (isNaN(qty) || qty < 0) return;
+  if (qty === 0) {
+    removeLineAtIndex(index);
+    return;
+  }
+  lines[index].qty = qty;
+  updateOrderBtn();
+  renderOrderSheet();
+}
+
+function updateOrderBtn() {
+  const btn = document.getElementById("order-btn");
+  const label = document.getElementById("order-btn-label");
+  const tot = document.getElementById("order-btn-total");
+  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  const count = lines.reduce((s, l) => s + l.qty, 0);
+  if (lines.length > 0) {
+    btn.classList.add("has-items");
+    label.textContent = "VIEW ORDER (" + count + " items)";
+    tot.textContent = "£" + total.toFixed(2);
+  } else {
+    btn.classList.remove("has-items");
+    label.textContent = "VIEW ORDER";
+    tot.textContent = "";
+  }
+}
+
+function openOrder() {
+  renderOrderSheet();
+  document.getElementById("order-overlay").classList.add("show");
+}
+
+function closeOrder() {
+  document.getElementById("order-overlay").classList.remove("show");
+}
+
+function clearAll() {
+  lines = [];
+  updateOrderBtn();
+  closeOrder();
+}
+
+function renderOrderSheet() {
+  const body = document.getElementById("order-body");
+  const totalBar = document.getElementById("order-total-bar");
+  const totalAmt = document.getElementById("order-total-amt");
+  body.innerHTML = "";
+
+  if (lines.length === 0) {
+    body.innerHTML = "<div class='empty-msg'>Nothing added yet</div>";
+    totalBar.style.display = "none";
+    return;
+  }
+
+  const lineItemsWithIndex = lines.map((line, originalIndex) => ({ ...line, originalIndex }));
+  const foodLines = lineItemsWithIndex.filter(l => l.food);
+  const drinkLines = lineItemsWithIndex.filter(l => !l.food);
+
+  if (foodLines.length > 0) {
+    const title = document.createElement("div");
+    title.className = "order-section-title";
+    title.textContent = "FOOD ITEMS";
+    body.appendChild(title);
+    foodLines.forEach(l => body.appendChild(createLineRowElement(l, l.originalIndex)));
+  }
+
+  if (drinkLines.length > 0) {
+    const title = document.createElement("div");
+    title.className = "order-section-title";
+    title.textContent = "BEVERAGES & SNACKS";
+    body.appendChild(title);
+    drinkLines.forEach(l => body.appendChild(createLineRowElement(l, l.originalIndex)));
+  }
+
+  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  totalAmt.textContent = "£" + total.toFixed(2);
+  totalBar.style.display = "flex";
+}
+
+function createLineRowElement(l, realIdx) {
+  const div = document.createElement("div");
+  div.className = "order-line";
+
+  const remBtn = document.createElement("button");
+  remBtn.className = "remove";
+  remBtn.textContent = "✕";
+  remBtn.addEventListener("click", () => removeLineAtIndex(realIdx));
+
+  const textLabel = document.createElement("span");
+  textLabel.className = "lname";
+  textLabel.textContent = lineLabel(l.name, l.opts);
+
+  const numInput = document.createElement("input");
+  numInput.type = "number";
+  numInput.min = "0";
+  numInput.value = l.qty;
+  numInput.addEventListener("change", (e) => updateLineQtyAtIndex(realIdx, e.target.value));
+
+  const priceLabel = document.createElement("span");
+  priceLabel.className = "lprice";
+  priceLabel.textContent = "£" + (l.price * l.qty).toFixed(2);
+
+  div.appendChild(remBtn);
+  div.appendChild(textLabel);
+  div.appendChild(numInput);
+  div.appendChild(priceLabel);
+
+  return div;
+}
+
+// Global initialization sequence trigger step
+switchMainMenu("morning");
+</script>
+</body>
+</html>
