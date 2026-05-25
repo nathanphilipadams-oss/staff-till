@@ -30,16 +30,21 @@
   .lock-progress { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255, 153, 0, 0.3); width: 0%; transition: width 0.1s linear; }
 
   /* Main Scrollable Content Area */
-  .scroll-container { flex: 1; overflow-y: auto; display: none; background: #111; }
+  .scroll-container { flex: 1; overflow-y: auto; display: none; background: #111; padding-bottom: 20px; }
   .scroll-container.active { display: block; }
 
-  /* Accordion Layout Components */
-  .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: none; cursor: pointer; background: #1e1e1e; border-bottom: 1px solid #2e2e2e; color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
-  .acc-btn.open { background: #1a3f6a; }
-  .acc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 6px; background: #161616; border-bottom: 1px solid #2e2e2e; }
+  /* FIX: Highly Visible Accordion Category Header Bars */
+  .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border: none; cursor: pointer; background: #222; border-bottom: 2px solid #111; color: #fff; font-weight: 800; font-size: 13px; letter-spacing: 1px; }
+  .acc-btn .arrow-icon { color: #3b9eff; font-size: 14px; }
+  .acc-btn.open { background: #1a3f6a; border-bottom: 2px solid #3b9eff; }
+  .acc-btn.open .arrow-icon { color: #fff; }
+  
+  /* Menu Grid Items Container */
+  .acc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px; background: #161616; border-bottom: 2px solid #222; }
   
   /* Menu Grid Items */
-  .item-btn { padding: 10px 5px; background: #1e1e1e; border: 1px solid #2e2e2e; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; min-height: 54px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .item-btn { padding: 10px 5px; background: #222; border: 1px solid #333; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; min-height: 58px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .item-btn:active { background: #333; }
   .item-name { display: block; font-weight: 600; }
   .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
 
@@ -147,7 +152,7 @@
 </div>
 
 <script>
-// Combined Centralized Database Structure
+// Centralized Database Structure matching image assets exactly
 const MENU = {
   morning: {
     food: [
@@ -160,7 +165,7 @@ const MENU = {
       ]}
     ],
     drinks: [
-      { label: "Hot Drinks", items: [
+      { label: "Hot Beverages", items: [
         { name: "Americano", price: 3.60 }, { name: "Cafe Latte", price: 3.80 },
         { name: "Macchiato", price: 3.80 }, { name: "Cappuccino", price: 3.80 },
         { name: "Flat White", price: 3.80 }, { name: "Mocha", price: 4.15 },
@@ -248,7 +253,7 @@ const HOLD_DURATION = 1000;
 function calculateDefaultServiceShift() {
   const now = new Date();
   const mins = (now.getHours() * 60) + now.getMinutes();
-  return mins < 705 ? "morning" : "main"; // 11:45 AM threshold
+  return mins < 705 ? "morning" : "main"; 
 }
 
 function trySwitchService(targetMode) {
@@ -344,7 +349,7 @@ function renderColumn(category, container) {
     
     const accBtn = document.createElement("button");
     accBtn.className = "acc-btn" + (isSectionOpen ? " open" : "");
-    accBtn.innerHTML = "<span>" + section.label.toUpperCase() + "</span><span>" + (isSectionOpen ? "▲" : "▼") + "</span>";
+    accBtn.innerHTML = "<span>" + section.label.toUpperCase() + "</span><span class='arrow-icon'>" + (isSectionOpen ? "▲" : "▼") + "</span>";
     accBtn.onclick = () => {
       openSections[category] = openSections[category] === section.label ? null : section.label;
       renderActiveViewLayouts();
@@ -391,9 +396,4 @@ function renderModal() {
   groups.innerHTML = "";
 
   if (modalItem.askSize) groups.appendChild(makeOptGroup("SIZE", SIZES.map(s => ({ label: s, surcharge: 0 })), modalOpts.size, s => { modalOpts.size = s; renderModal(); }));
-  if (modalItem.askBread) groups.appendChild(makeOptGroup("BREAD", BREAD, modalOpts.bread, b => { modalOpts.bread = b; renderModal(); }));
-  if (modalItem.askGarnish) groups.appendChild(makeOptGroup("SERVED WITH", GARNISH.map(g => ({ label: g, surcharge: 0 })), modalOpts.garnish, g => { modalOpts.garnish = g; renderModal(); }));
-}
-
-function makeOptGroup(label, options, selected, onSelect) {
-  
+  if (modalItem.askBread) groups.appendChild(makeOptGroup("BREAD", BREAD, modalOpts.bread, b => { modalOpts.bread = b; render
