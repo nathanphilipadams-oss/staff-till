@@ -7,14 +7,54 @@
 <style>
   /* Global Layout Styles */
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #111; color: #f0f0f0; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  body { background: #111; color: #f0f0f0; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; user-select: none; -webkit-user-select: none; }
   button { font-family: inherit; }
 
-  /* Main Menu Toggle Bar (Morning vs Lunch) */
+  /* Main Menu Toggle Bar (with hold feature) */
   .menu-toggle-container { display: flex; background: #1a1a1a; border-bottom: 2px solid #2e2e2e; flex-shrink: 0; }
-  .menu-toggle-btn { flex: 1; padding: 14px 0; border: none; cursor: pointer; font-weight: 900; font-size: 14px; letter-spacing: 2px; background: transparent; color: #888; text-align: center; }
+  
+  .menu-toggle-btn { 
+    flex: 1; 
+    padding: 14px 0; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: 900; 
+    font-size: 14px; 
+    letter-spacing: 2px; 
+    background: transparent; 
+    color: #888; 
+    text-align: center; 
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Visual Progress Bar Layer */
+  .menu-toggle-btn::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: rgba(0, 168, 255, 0.15);
+    transition: width 0s linear;
+    z-index: 1;
+  }
+  
+  /* When holding down, animate the width over 1s */
+  .menu-toggle-btn.holding::before {
+    width: 100%;
+    transition: width 1s linear;
+  }
+  
+  .menu-toggle-btn span {
+    position: relative;
+    z-index: 2;
+  }
+
   .menu-toggle-btn.active { background: #262626; color: #00a8ff; border-bottom: 3px solid #00a8ff; }
   #menu-toggle-lunch.active { color: #20bf6b; border-bottom: 3px solid #20bf6b; }
+  #menu-toggle-lunch.holding::before { background: rgba(32, 191, 107, 0.15); }
 
   /* Sub Navigation Tabs */
   .tabs-container { display: flex; background: #000; flex-shrink: 0; }
@@ -81,8 +121,8 @@
 <body>
 
 <div class="menu-toggle-container">
-  <button class="menu-toggle-btn active" id="menu-toggle-morning">MORNING MENU</button>
-  <button class="menu-toggle-btn" id="menu-toggle-lunch">LUNCH MENU</button>
+  <button class="menu-toggle-btn active" id="menu-toggle-morning"><span>MORNING MENU</span></button>
+  <button class="menu-toggle-btn" id="menu-toggle-lunch"><span>LUNCH MENU</span></button>
 </div>
 
 <div class="tabs-container" id="sub-tabs-bar"></div>
@@ -247,14 +287,51 @@ let lines = [];
 let modalItem = null;
 let modalOpts = {};
 
-// Safe Element-level event hooks instantiation
-document.getElementById("menu-toggle-morning").addEventListener("click", () => switchMainMenu("morning"));
-document.getElementById("menu-toggle-lunch").addEventListener("click", () => switchMainMenu("lunch"));
+// Hold-to-confirm timer tracks
+let holdTimer = null;
+let holdTargetMenu = null;
+
+// Bind UI event actions cleanly
+setupHoldToSwitchButton("menu-toggle-morning", "morning");
+setupHoldToSwitchButton("menu-toggle-lunch", "lunch");
+
 document.getElementById("order-btn").addEventListener("click", openOrder);
 document.getElementById("close-order-btn").addEventListener("click", closeOrder);
 document.getElementById("clear-all-btn").addEventListener("click", clearAll);
 document.getElementById("opt-cancel").addEventListener("click", closeModal);
 document.getElementById("opt-add").addEventListener("click", confirmAdd);
+
+// Setup press-and-hold bindings for touch and mouse
+function setupHoldToSwitchButton(elementId, menuKey) {
+  const btn = document.getElementById(elementId);
+
+  const startHold = (e) => {
+    if (activeMainMenu === menuKey) return; // Already on this menu
+    holdTargetMenu = menuKey;
+    btn.classList.add("holding");
+    
+    holdTimer = setTimeout(() => {
+      switchMainMenu(menuKey);
+      endHold();
+    }, 1000); // 1 Second Hold required
+  };
+
+  const endHold = () => {
+    if (holdTimer) clearTimeout(holdTimer);
+    btn.classList.remove("holding");
+    holdTargetMenu = null;
+  };
+
+  // Mouse controls
+  btn.addEventListener("mousedown", startHold);
+  btn.addEventListener("mouseup", endHold);
+  btn.addEventListener("mouseleave", endHold);
+
+  // Touch device controls
+  btn.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(e); }, { passive: false });
+  btn.addEventListener("touchend", endHold);
+  btn.addEventListener("touchcancel", endHold);
+}
 
 function switchMainMenu(menuKey) {
   activeMainMenu = menuKey;
@@ -385,172 +462,4 @@ function makeOptGroup(label, options, selected, onSelect) {
   div.innerHTML = "<div class='opt-label'>" + label + "</div>";
   const row = document.createElement("div");
   row.className = "opt-row";
-  for (const opt of options) {
-    const val = typeof opt === "object" ? opt.label : opt;
-    const sub = typeof opt === "object" && opt.surcharge > 0 ? " +£" + opt.surcharge.toFixed(2) : "";
-    const btn = document.createElement("button");
-    btn.className = "opt-btn" + (selected === val ? " selected" : "");
-    btn.textContent = val + sub;
-    btn.addEventListener("click", () => onSelect(val));
-    row.appendChild(btn);
-  }
-  div.appendChild(row);
-  return div;
-}
-
-function updateModalPrice() {
-  const p = calcPrice(modalItem, modalOpts);
-  document.getElementById("opt-price").textContent = "£" + p.toFixed(2);
-  document.getElementById("opt-add").textContent = "Add £" + p.toFixed(2);
-}
-
-function confirmAdd() {
-  addLine(modalItem, { size: modalOpts.size, bread: modalOpts.bread, garnish: modalOpts.garnish, milk: modalOpts.milk });
-  closeModal();
-}
-
-function closeModal() {
-  document.getElementById("opt-overlay").classList.remove("show");
-}
-
-function addLine(item, opts) {
-  const price = calcPrice(item, opts);
-  const key = lineKey(item.name, opts);
-  const idx = lines.findIndex(l => l.key === key);
-  
-  const isBreakfastItem = DATASETS.morning.breakfast.sections[0].items.some(i => i.name === item.name);
-  const isLunchFood = DATASETS.lunch.food.sections.some(s => s.items.some(i => i.name === item.name));
-  const categorisedAsFood = isBreakfastItem || isLunchFood;
-
-  if (idx >= 0) {
-    lines[idx].qty++;
-  } else {
-    lines.push({ key, name: item.name, price, qty: 1, opts, food: categorisedAsFood });
-  }
-  updateOrderBtn();
-}
-
-function removeLineAtIndex(index) {
-  lines.splice(index, 1);
-  updateOrderBtn();
-  renderOrderSheet();
-}
-
-function updateLineQtyAtIndex(index, value) {
-  const qty = parseInt(value);
-  if (isNaN(qty) || qty < 0) return;
-  if (qty === 0) {
-    removeLineAtIndex(index);
-    return;
-  }
-  lines[index].qty = qty;
-  updateOrderBtn();
-  renderOrderSheet();
-}
-
-function updateOrderBtn() {
-  const btn = document.getElementById("order-btn");
-  const label = document.getElementById("order-btn-label");
-  const tot = document.getElementById("order-btn-total");
-  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
-  const count = lines.reduce((s, l) => s + l.qty, 0);
-  if (lines.length > 0) {
-    btn.classList.add("has-items");
-    label.textContent = "VIEW ORDER (" + count + " items)";
-    tot.textContent = "£" + total.toFixed(2);
-  } else {
-    btn.classList.remove("has-items");
-    label.textContent = "VIEW ORDER";
-    tot.textContent = "";
-  }
-}
-
-function openOrder() {
-  renderOrderSheet();
-  document.getElementById("order-overlay").classList.add("show");
-}
-
-function closeOrder() {
-  document.getElementById("order-overlay").classList.remove("show");
-}
-
-function clearAll() {
-  lines = [];
-  updateOrderBtn();
-  closeOrder();
-}
-
-function renderOrderSheet() {
-  const body = document.getElementById("order-body");
-  const totalBar = document.getElementById("order-total-bar");
-  const totalAmt = document.getElementById("order-total-amt");
-  body.innerHTML = "";
-
-  if (lines.length === 0) {
-    body.innerHTML = "<div class='empty-msg'>Nothing added yet</div>";
-    totalBar.style.display = "none";
-    return;
-  }
-
-  // Map original elements to stay synchronized with line arrays
-  const lineItemsWithIndex = lines.map((line, originalIndex) => ({ ...line, originalIndex }));
-  const foodLines = lineItemsWithIndex.filter(l => l.food);
-  const drinkLines = lineItemsWithIndex.filter(l => !l.food);
-
-  if (foodLines.length > 0) {
-    const title = document.createElement("div");
-    title.className = "order-section-title";
-    title.textContent = "FOOD ITEMS";
-    body.appendChild(title);
-    foodLines.forEach(l => body.appendChild(createLineRowElement(l, l.originalIndex)));
-  }
-
-  if (drinkLines.length > 0) {
-    const title = document.createElement("div");
-    title.className = "order-section-title";
-    title.textContent = "BEVERAGES & SNACKS";
-    body.appendChild(title);
-    drinkLines.forEach(l => body.appendChild(createLineRowElement(l, l.originalIndex)));
-  }
-
-  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
-  totalAmt.textContent = "£" + total.toFixed(2);
-  totalBar.style.display = "flex";
-}
-
-function createLineRowElement(l, realIdx) {
-  const div = document.createElement("div");
-  div.className = "order-line";
-
-  const remBtn = document.createElement("button");
-  remBtn.className = "remove";
-  remBtn.textContent = "✕";
-  remBtn.addEventListener("click", () => removeLineAtIndex(realIdx));
-
-  const textLabel = document.createElement("span");
-  textLabel.className = "lname";
-  textLabel.textContent = lineLabel(l.name, l.opts);
-
-  const numInput = document.createElement("input");
-  numInput.type = "number";
-  numInput.min = "0";
-  numInput.value = l.qty;
-  numInput.addEventListener("change", (e) => updateLineQtyAtIndex(realIdx, e.target.value));
-
-  const priceLabel = document.createElement("span");
-  priceLabel.className = "lprice";
-  priceLabel.textContent = "£" + (l.price * l.qty).toFixed(2);
-
-  div.appendChild(remBtn);
-  div.appendChild(textLabel);
-  div.appendChild(numInput);
-  div.appendChild(priceLabel);
-
-  return div;
-}
-
-// Global initialization sequence trigger step
-switchMainMenu("morning");
-</script>
-</body>
-</html>
+  for
