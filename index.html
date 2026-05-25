@@ -9,18 +9,21 @@
   body { background: #111; color: #f0f0f0; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
   button { font-family: inherit; }
 
-  /* tabs */
-  #top-tabs { display: flex; background: #000; flex-shrink: 0; }
-  .top-tab { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 15px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; }
-  .top-tab.active { background: #1e1e1e; color: #3b9eff; border-bottom-color: #3b9eff; }
+  /* split-screen columns layout replacing tabs */
+  .main-viewport { flex: 1; display: flex; overflow: hidden; }
+  .column { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .column:first-child { border-right: 1px solid #2e2e2e; }
+  
+  /* static headers for columns */
+  .column-header { background: #000; padding: 13px 0; text-align: center; font-weight: 800; font-size: 15px; letter-spacing: 2px; color: #3b9eff; border-bottom: 3px solid #3b9eff; flex-shrink: 0; }
 
-  /* scroll area */
-  #scroll { flex: 1; overflow-y: auto; }
+  /* independent column scroll windows */
+  .scroll-container { flex: 1; overflow-y: auto; }
 
-  /* accordion */
+  /* accordion items layout tweaked for compact spaces */
   .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: none; cursor: pointer; background: #1e1e1e; border-bottom: 1px solid #2e2e2e; color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
   .acc-btn.open { background: #1a3f6a; }
-  .acc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; padding: 6px; background: #161616; border-bottom: 1px solid #2e2e2e; }
+  .acc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 6px; background: #161616; border-bottom: 1px solid #2e2e2e; }
   .item-btn { padding: 10px 5px; background: #1e1e1e; border: 1px solid #2e2e2e; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; }
   .item-name { display: block; font-weight: 600; }
   .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
@@ -71,19 +74,23 @@
 </head>
 <body>
 
-<div id="top-tabs">
-  <button class="top-tab active" onclick="setTab('food')">FOOD</button>
-  <button class="top-tab" onclick="setTab('drinks')">DRINKS</button>
+<div class="main-viewport">
+  <div class="column">
+    <div class="column-header">FOOD</div>
+    <div class="scroll-container" id="food-scroll"></div>
+  </div>
+  
+  <div class="column">
+    <div class="column-header">DRINKS</div>
+    <div class="scroll-container" id="drinks-scroll"></div>
+  </div>
 </div>
-
-<div id="scroll"></div>
 
 <button id="order-btn" onclick="openOrder()">
   <span id="order-btn-label">VIEW ORDER</span>
   <span id="order-btn-total"></span>
 </button>
 
-<!-- Order sheet -->
 <div class="overlay" id="order-overlay">
   <div class="sheet">
     <div class="sheet-head">
@@ -101,7 +108,6 @@
   </div>
 </div>
 
-<!-- Options modal -->
 <div id="opt-overlay">
   <div id="opt-box">
     <div id="opt-title"></div>
@@ -136,18 +142,18 @@ const MENU = {
         { name: "Egg Mayo", price: 8.95, askBread: true },
         { name: "Chicken", price: 9.95, askBread: true },
         { name: "Ham", price: 9.95, askBread: true },
-        { name: "Cheddar Cheese", price: 9,95, askBread: true },
+        { name: "Cheddar Cheese", price: 8.45, askBread: true },
         { name: "Salad Sandwich", price: 8.45, askBread: true },
       ]},
-      { label: "Cakes & Snacks", 
-       type: "drinks",
-       items: [
+      /* Moved visually into the Food side column but isolated out of true Food logic mapping */
+      { label: "Cakes & Snacks", items: [
         { name: "Carrot Cake", price: 4.10 }, { name: "Caramel Shortcake", price: 3.65 },
         { name: "Flapjack", price: 2.95 }, { name: "Rock Cake", price: 2.95 },
         { name: "Choc Brownie", price: 3.65 }, { name: "Lemon Drizzle", price: 3.25 },
         { name: "Bread Pudding", price: 2.95 }, { name: "Caramel Nut Slice", price: 3.65 },
         { name: "Cream Tea", price: 7.95 }, { name: "Crisps", price: 1.80 },
       ]},
+    ]
   },
   drinks: {
     sections: [
@@ -156,7 +162,7 @@ const MENU = {
         { name: "Macchiato", price: 3.80 }, { name: "Cappuccino", price: 3.80 },
         { name: "Espresso", price: 2.50 }, { name: "Mocha", price: 4.15 },
         { name: "Decaf Coffee", price: 2.40 }, { name: "Extra Shot", price: 1.25 },
-        { name: "Flavoured Syrup", price: 1.00 }, { name: "Tea - Mug", price: 2.95 },
+        { name: "Flavoured Syrup", price: 1.00 }, { name: "Tea - Mug", price: 3.00 },
         { name: "Tea - Pot", price: 4.00 }, { name: "Earl Grey - Mug", price: 2.95 },
         { name: "Earl Grey - Pot", price: 4.10 }, { name: "Fruit Tea - Mug", price: 3.00 },
         { name: "Fruit Tea - Pot", price: 4.10 }, { name: "Bovril", price: 3.20 },
@@ -172,8 +178,8 @@ const MENU = {
         { name: "Planet Lager", price: 6.50 }, { name: "Wight Gold Ale", price: 6.50 },
         { name: "Fuggle Dee Dum", price: 6.50 }, { name: "Cider", price: 6.50 },
       ]},
-    ],
-  },
+    ]
+  }
 };
 
 const BREAD = [
@@ -184,11 +190,11 @@ const BREAD = [
 const GARNISH = ["Crisps", "Salad Garnish"];
 const SIZES = ["Small", "Large"];
 
-// Food sections by name
+// Checked by name for Order receipt view splitting
 const FOOD_SECTIONS = ["Soups & Salads", "Sandwiches"];
 
-let currentTab = "food";
-let openSection = null;
+// Open targets per side column layout module trackers
+let openSections = { food: null, drinks: null };
 let lines = [];
 let modalItem = null;
 let modalOpts = {};
@@ -210,33 +216,31 @@ function calcPrice(item, opts) {
 }
 
 function isFood(lineName) {
-  // check if item belongs to a food section
+  // Checks only real core food sections, leaving Cakes designated as drinks logic
   for (const s of MENU.food.sections) {
-    if (s.items.find(i => i.name === lineName)) return true;
+    if (FOOD_SECTIONS.includes(s.label) && s.items.find(i => i.name === lineName)) return true;
   }
   return false;
 }
 
-function setTab(t) {
-  currentTab = t;
-  openSection = null;
-  document.querySelectorAll(".top-tab").forEach((b, i) => {
-    b.classList.toggle("active", (i === 0 && t === "food") || (i === 1 && t === "drinks"));
-  });
-  renderMenu();
+// Rewritten to dynamically initialize both view windows simultaneously
+function renderAllMenus() {
+  renderColumn("food", document.getElementById("food-scroll"));
+  renderColumn("drinks", document.getElementById("drinks-scroll"));
 }
 
-function renderMenu() {
-  const scroll = document.getElementById("scroll");
-  scroll.innerHTML = "";
-  for (const section of MENU[currentTab].sections) {
+function renderColumn(tabType, container) {
+  container.innerHTML = "";
+  for (const section of MENU[tabType].sections) {
+    const isSectionOpen = openSections[tabType] === section.label;
+    
     const accBtn = document.createElement("button");
-    accBtn.className = "acc-btn" + (openSection === section.label ? " open" : "");
-    accBtn.innerHTML = "<span>" + section.label.toUpperCase() + "</span><span>" + (openSection === section.label ? "▲" : "▼") + "</span>";
-    accBtn.onclick = () => toggleSection(section.label);
-    scroll.appendChild(accBtn);
+    accBtn.className = "acc-btn" + (isSectionOpen ? " open" : "");
+    accBtn.innerHTML = "<span>" + section.label.toUpperCase() + "</span><span>" + (isSectionOpen ? "▲" : "▼") + "</span>";
+    accBtn.onclick = () => toggleSection(tabType, section.label);
+    container.appendChild(accBtn);
 
-    if (openSection === section.label) {
+    if (isSectionOpen) {
       const grid = document.createElement("div");
       grid.className = "acc-grid";
       for (const item of section.items) {
@@ -249,14 +253,14 @@ function renderMenu() {
         btn.onclick = () => tapItem(item);
         grid.appendChild(btn);
       }
-      scroll.appendChild(grid);
+      container.appendChild(grid);
     }
   }
 }
 
-function toggleSection(label) {
-  openSection = openSection === label ? null : label;
-  renderMenu();
+function toggleSection(tabType, label) {
+  openSections[tabType] = openSections[tabType] === label ? null : label;
+  renderAllMenus();
 }
 
 function tapItem(item) {
@@ -424,8 +428,9 @@ function makeLineEl(l) {
   return div;
 }
 
-// init
-renderMenu();
+// initialization entrypoint
+renderAllMenus();
 </script>
 </body>
 </html>
+
