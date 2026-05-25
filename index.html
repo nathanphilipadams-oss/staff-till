@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>The Beach Shack Till</title>
 <style>
-  /* Global Layout Styles */
+  /* Base Layout & Mobile Overrides */
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #111; color: #f0f0f0; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
   button { font-family: inherit; user-select: none; -webkit-user-select: none; }
 
-  /* Master Shift Selector Tier (Top Bar Row) */
+  /* Tier 1: Master Shift Selection Bar (Top Row) */
   .service-tier { display: flex; background: #000; border-bottom: 1px solid #222; flex-shrink: 0; padding: 6px; gap: 6px; }
   .service-btn { flex: 1; padding: 12px 0; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 11px; letter-spacing: 1px; background: #222; color: #666; text-transform: uppercase; }
   .service-btn.active { background: #1a3f6a; color: #3b9eff; border: 1px solid #3b9eff; }
 
-  /* Category Menu Filter Row (Second Bar Row) */
+  /* Tier 2: Category Filter Navigation Tabs (Second Row) */
   .tabs-container { display: flex; background: #111; flex-shrink: 0; position: relative; border-bottom: 2px solid #2e2e2e; }
-  .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 14px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; }
+  .tab-btn { flex: 1; padding: 14px 0; border: none; cursor: pointer; font-weight: 800; font-size: 14px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; }
   .tab-btn.active { background: #1e1e1e; color: #3b9eff; border-bottom: 3px solid #3b9eff; }
 
-  /* Safety Lock Confirmation Overlay Strip */
+  /* Safety Overrides Strip Overlay */
   .lock-panel { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: space-between; padding: 0 12px; z-index: 10; }
   .lock-panel.show { display: flex; }
   .lock-msg { font-size: 11px; font-weight: 700; color: #ff9900; letter-spacing: 0.5px; }
@@ -29,30 +29,27 @@
   .lock-confirm { background: #222; color: #fff; border: 1px solid #ff9900; border-radius: 4px; padding: 6px 12px; font-weight: 800; cursor: pointer; font-size: 11px; position: relative; overflow: hidden; }
   .lock-progress { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255, 153, 0, 0.3); width: 0%; transition: width 0.1s linear; }
 
-  /* Main Scrollable Content Area */
-  .scroll-container { flex: 1; overflow-y: auto; display: none; background: #111; padding-bottom: 20px; }
+  /* Scrollable Workspace Windows */
+  .scroll-container { flex: 1; overflow-y: auto; display: none; background: #111; padding: 10px; padding-bottom: 30px; }
   .scroll-container.active { display: block; }
 
-  /* FIX: Highly Visible Accordion Category Header Bars */
-  .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border: none; cursor: pointer; background: #222; border-bottom: 2px solid #111; color: #fff; font-weight: 800; font-size: 13px; letter-spacing: 1px; }
-  .acc-btn .arrow-icon { color: #3b9eff; font-size: 14px; }
-  .acc-btn.open { background: #1a3f6a; border-bottom: 2px solid #3b9eff; }
-  .acc-btn.open .arrow-icon { color: #fff; }
+  /* Clean Block Sections instead of Accordions */
+  .menu-group-block { margin-bottom: 16px; }
+  .group-header { font-size: 12px; font-weight: 800; color: #888; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; padding-left: 2px; }
+  .items-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
   
-  /* Menu Grid Items Container */
-  .acc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px; background: #161616; border-bottom: 2px solid #222; }
-  
-  /* Menu Grid Items */
-  .item-btn { padding: 10px 5px; background: #222; border: 1px solid #333; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; min-height: 58px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-  .item-btn:active { background: #333; }
+  /* Menu Grid Items Buttons */
+  .item-btn { padding: 10px 4px; background: #222; border: 1px solid #333; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; min-height: 58px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .item-btn:active { background: #3b9eff; color: #fff; }
   .item-name { display: block; font-weight: 600; }
-  .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
+  .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 12px; }
+  .item-btn:active .item-price { color: #fff; }
 
-  /* Bottom Order Bar */
+  /* Bottom Order Bar Panel */
   #order-btn { width: 100%; flex-shrink: 0; padding: 16px 20px; border: none; cursor: pointer; background: #333; color: #fff; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
   #order-btn.has-items { background: #3b9eff; }
 
-  /* Popover Slide Up Drawers */
+  /* Modal Windows Drawers */
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50; display: none; align-items: flex-end; }
   .overlay.show { display: flex; }
   .sheet { background: #1e1e1e; width: 100%; max-height: 85vh; display: flex; flex-direction: column; border-radius: 14px 14px 0 0; }
@@ -63,19 +60,17 @@
   .btn-close { background: #444; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-weight: 700; font-size: 13px; }
   .sheet-body { overflow-y: auto; flex: 1; padding: 0 14px; }
 
-  /* Breakdown Lines */
-  .order-line { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #2e2e2e; }
-  .order-line .remove { background: none; border: none; color: #cc3333; cursor: pointer; font-size: 16px; padding: 0; flex-shrink: 0; }
+  .order-line { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #2e2e2e; }
+  .order-line .remove { background: none; border: none; color: #cc3333; cursor: pointer; font-size: 16px; padding: 0 4px; flex-shrink: 0; }
   .order-line .lname { flex: 1; font-size: 14px; line-height: 1.3; }
-  .order-line input { width: 38px; text-align: center; background: #2a2a2a; border: 1px solid #2e2e2e; border-radius: 4px; color: #fff; padding: 4px 0; font-size: 14px; }
-  .order-line .lprice { min-width: 52px; text-align: right; color: #3b9eff; font-weight: 700; font-size: 14px; }
+  .order-line .lprice { min-width: 60px; text-align: right; color: #3b9eff; font-weight: 700; font-size: 14px; }
   .empty-msg { color: #555; text-align: center; padding: 40px 0; }
 
   .sheet-total { padding: 14px 16px; background: #000; border-top: 2px solid #2e2e2e; display: flex; justify-content: space-between; align-items: baseline; flex-shrink: 0; }
   .sheet-total span:first-child { color: #666; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
   .sheet-total span:last-child { font-size: 36px; font-weight: 900; color: #3b9eff; }
 
-  /* Options Dialog Frame */
+  /* Options Input Configurations Modal Frame */
   #opt-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99; display: none; align-items: center; justify-content: center; padding: 20px; }
   #opt-overlay.show { display: flex; }
   #opt-box { background: #1e1e1e; border-radius: 10px; padding: 20px; width: 100%; max-width: 320px; border: 1px solid #2e2e2e; }
@@ -152,11 +147,11 @@
 </div>
 
 <script>
-// Centralized Database Structure matching image assets exactly
+// Flattened Databank Matching Image Specifications Perfectly
 const MENU = {
   morning: {
     food: [
-      { label: "Morning Menu (10:00am–11:45am)", items: [
+      { label: "Morning Menu Items", items: [
         { name: "Fruited Tea Cake", price: 2.45 },
         { name: "Crumpets", price: 2.45 },
         { name: "Bacon Sandwich", price: 6.30 },
@@ -165,7 +160,7 @@ const MENU = {
       ]}
     ],
     drinks: [
-      { label: "Hot Beverages", items: [
+      { label: "Hot Drinks", items: [
         { name: "Americano", price: 3.60 }, { name: "Cafe Latte", price: 3.80 },
         { name: "Macchiato", price: 3.80 }, { name: "Cappuccino", price: 3.80 },
         { name: "Flat White", price: 3.80 }, { name: "Mocha", price: 4.15 },
@@ -203,7 +198,7 @@ const MENU = {
       ]}
     ],
     drinks: [
-      { label: "Hot & Cold Beverages", items: [
+      { label: "Hot & Cold Drinks", items: [
         { name: "Americano", price: 3.60 }, { name: "Cafe Latte", price: 3.80 },
         { name: "Macchiato", price: 3.80 }, { name: "Cappuccino", price: 3.80 },
         { name: "Flat White", price: 3.80 }, { name: "Mocha", price: 4.15 },
@@ -237,15 +232,14 @@ const BREAD = [{ label: "White", surcharge: 0 }, { label: "Brown Seeded", surcha
 const GARNISH = ["Crisps", "Salad Garnish"];
 const SIZES = ["Small", "Large"];
 
-// App State Controls
+// App State Core Parameters
 let currentServiceMode = "main"; 
 let currentCategoryTab = "food"; 
-let openSections = { food: null, drinks: null };
 let lines = [];
 let modalItem = null;
 let modalOpts = {};
 
-// Hold-To-Unlock Parameters
+// Hold-to-Switch Parameters Engine
 let pendingServiceTarget = null;
 let holdTimer = null;
 const HOLD_DURATION = 1000; 
@@ -271,39 +265,22 @@ function cancelServiceSwitch() {
 
 function executeServiceSwitch(targetMode) {
   currentServiceMode = targetMode;
-  
   document.getElementById("srv-btn-morning").classList.toggle("active", targetMode === "morning");
   document.getElementById("srv-btn-main").classList.toggle("active", targetMode === "main");
-  
-  // Auto-expand the first menu accordion segment when changing modes
-  const foodSections = MENU[currentServiceMode]["food"] || [];
-  openSections.food = foodSections.length > 0 ? foodSections[0].label : null;
-  
-  const drinkSections = MENU[currentServiceMode]["drinks"] || [];
-  openSections.drinks = drinkSections.length > 0 ? drinkSections[0].label : null;
-  
   cancelServiceSwitch();
-  renderActiveViewLayouts();
+  renderCurrentItemsView();
 }
 
 function switchCategoryTab(category) {
   currentCategoryTab = category;
   document.getElementById("tab-btn-food").classList.toggle("active", category === "food");
   document.getElementById("tab-btn-drinks").classList.toggle("active", category === "drinks");
-  
   document.getElementById("food-scroll").classList.toggle("active", category === "food");
   document.getElementById("drinks-scroll").classList.toggle("active", category === "drinks");
-  
-  // Ensure an accordion label is active if empty
-  if (!openSections[category]) {
-    const sectionsList = MENU[currentServiceMode][category] || [];
-    if (sectionsList.length > 0) openSections[category] = sectionsList[0].label;
-  }
-  
-  renderActiveViewLayouts();
+  renderCurrentItemsView();
 }
 
-// Bind Gesture Recognition to Safety Confirmation Bar
+// Bind Touch/Mouse Hold to Safety Strip
 const confirmBtn = document.getElementById("lock-confirm-btn");
 confirmBtn.addEventListener("mousedown", startHold);
 confirmBtn.addEventListener("touchstart", startHold);
@@ -315,19 +292,10 @@ function startHold(e) {
   if (!pendingServiceTarget) return;
   document.getElementById("lock-progress-bar").style.transition = "width " + HOLD_DURATION + "ms linear";
   document.getElementById("lock-progress-bar").style.width = "100%";
-  
-  holdTimer = setTimeout(() => {
-    executeServiceSwitch(pendingServiceTarget);
-  }, HOLD_DURATION);
+  holdTimer = setTimeout(() => { executeServiceSwitch(pendingServiceTarget); }, HOLD_DURATION);
 }
 
-function stopHold() {
-  if (holdTimer) {
-    clearTimeout(holdTimer);
-    resetHoldState();
-  }
-}
-
+function stopHold() { if (holdTimer) { clearTimeout(holdTimer); resetHoldState(); } }
 function resetHoldState() {
   holdTimer = null;
   const bar = document.getElementById("lock-progress-bar");
@@ -335,42 +303,37 @@ function resetHoldState() {
   bar.style.width = "0%";
 }
 
-function renderActiveViewLayouts() {
+// Clear Output Generation Logic Frame
+function renderCurrentItemsView() {
   renderColumn("food", document.getElementById("food-scroll"));
   renderColumn("drinks", document.getElementById("drinks-scroll"));
 }
 
 function renderColumn(category, container) {
   container.innerHTML = "";
-  const sectionsList = MENU[currentServiceMode][category] || [];
+  const groupsList = MENU[currentServiceMode][category] || [];
   
-  sectionsList.forEach(section => {
-    const isSectionOpen = openSections[category] === section.label;
+  groupsList.forEach(group => {
+    const block = document.createElement("div");
+    block.className = "menu-group-block";
+    block.innerHTML = "<div class='group-header'>" + group.label + "</div>";
     
-    const accBtn = document.createElement("button");
-    accBtn.className = "acc-btn" + (isSectionOpen ? " open" : "");
-    accBtn.innerHTML = "<span>" + section.label.toUpperCase() + "</span><span class='arrow-icon'>" + (isSectionOpen ? "▲" : "▼") + "</span>";
-    accBtn.onclick = () => {
-      openSections[category] = openSections[category] === section.label ? null : section.label;
-      renderActiveViewLayouts();
-    };
-    container.appendChild(accBtn);
-
-    if (isSectionOpen) {
-      const grid = document.createElement("div");
-      grid.className = "acc-grid";
-      section.items.forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = "item-btn";
-        const priceStr = item.askSize
-          ? "£" + item.prices.Small.toFixed(2) + "–£" + item.prices.Large.toFixed(2)
-          : "£" + item.price.toFixed(2);
-        btn.innerHTML = "<span class='item-name'>" + item.name + "</span><span class='item-price'>" + priceStr + "</span>";
-        btn.onclick = () => tapItem(item);
-        grid.appendChild(btn);
-      });
-      container.appendChild(grid);
-    }
+    const grid = document.createElement("div");
+    grid.className = "items-grid";
+    
+    group.items.forEach(item => {
+      const btn = document.createElement("button");
+      btn.className = "item-btn";
+      const priceStr = item.askSize
+        ? "£" + item.prices.Small.toFixed(2) + "–£" + item.prices.Large.toFixed(2)
+        : "£" + item.price.toFixed(2);
+      btn.innerHTML = "<span class='item-name'>" + item.name + "</span><span class='item-price'>" + priceStr + "</span>";
+      btn.onclick = () => tapItem(item);
+      grid.appendChild(btn);
+    });
+    
+    block.appendChild(grid);
+    container.appendChild(block);
   });
 }
 
@@ -396,4 +359,41 @@ function renderModal() {
   groups.innerHTML = "";
 
   if (modalItem.askSize) groups.appendChild(makeOptGroup("SIZE", SIZES.map(s => ({ label: s, surcharge: 0 })), modalOpts.size, s => { modalOpts.size = s; renderModal(); }));
-  if (modalItem.askBread) groups.appendChild(makeOptGroup("BREAD", BREAD, modalOpts.bread, b => { modalOpts.bread = b; render
+  if (modalItem.askBread) groups.appendChild(makeOptGroup("BREAD", BREAD, modalOpts.bread, b => { modalOpts.bread = b; renderModal(); }));
+  if (modalItem.askGarnish) groups.appendChild(makeOptGroup("SERVED WITH", GARNISH.map(g => ({ label: g, surcharge: 0 })), modalOpts.garnish, g => { modalOpts.garnish = g; renderModal(); }));
+}
+
+function makeOptGroup(label, options, selected, onSelect) {
+  const div = document.createElement("div");
+  div.className = "opt-group";
+  div.innerHTML = "<div class='opt-label'>" + label + "</div>";
+  const row = document.createElement("div");
+  row.className = "opt-row";
+  for (const opt of options) {
+    const val = typeof opt === "object" ? opt.label : opt;
+    const sub = typeof opt === "object" && opt.surcharge > 0 ? " +£" + opt.surcharge.toFixed(2) : "";
+    const btn = document.createElement("button");
+    btn.className = "opt-btn" + (selected === val ? " selected" : "");
+    btn.textContent = val + sub;
+    btn.onclick = () => onSelect(val);
+    row.appendChild(btn);
+  }
+  div.appendChild(row);
+  return div;
+}
+
+function updateModalPrice() {
+  const p = calcPrice(modalItem, modalOpts);
+  document.getElementById("opt-price").textContent = "£" + p.toFixed(2);
+  document.getElementById("opt-add").textContent = "Add £" + p.toFixed(2);
+}
+
+function confirmAdd() {
+  addLine(modalItem, { size: modalOpts.size, bread: modalOpts.bread, garnish: modalOpts.garnish });
+  closeModal();
+}
+
+function closeModal() { document.getElementById("opt-overlay").classList.remove("show"); }
+
+function calcPrice(item, opts) {
+  const base = item.askSize ? item.pri
