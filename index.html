@@ -10,32 +10,30 @@
   body { background: #111; color: #f0f0f0; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
   button { font-family: inherit; }
 
-  /* Split-screen viewport configuration */
-  .main-viewport { flex: 1; display: flex; overflow: hidden; }
-  .column { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  .column:first-child { border-right: 1px solid #2e2e2e; }
-  
-  /* Static Headers for columns */
-  .column-header { background: #000; padding: 13px 0; text-align: center; font-weight: 800; font-size: 15px; letter-spacing: 2px; color: #3b9eff; border-bottom: 3px solid #3b9eff; flex-shrink: 0; }
+  /* Top Navigation Tabs */
+  .tabs-container { display: flex; background: #000; flex-shrink: 0; }
+  .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 15px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; }
+  .tab-btn.active { background: #1e1e1e; color: #3b9eff; border-bottom: 3px solid #3b9eff; }
 
-  /* Independent scrolling containers per column */
-  .scroll-container { flex: 1; overflow-y: auto; }
+  /* Main Scrollable Content Area */
+  .scroll-container { flex: 1; overflow-y: auto; display: none; }
+  .scroll-container.active { display: block; }
 
-  /* Accordion Layout */
+  /* Accordion Design */
   .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: none; cursor: pointer; background: #1e1e1e; border-bottom: 1px solid #2e2e2e; color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
   .acc-btn.open { background: #1a3f6a; }
-  .acc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 6px; background: #161616; border-bottom: 1px solid #2e2e2e; }
+  .acc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 6px; background: #161616; border-bottom: 1px solid #2e2e2e; }
   
-  /* Individual Item Buttons */
+  /* Menu Item Grid Buttons */
   .item-btn { padding: 10px 5px; background: #1e1e1e; border: 1px solid #2e2e2e; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; }
   .item-name { display: block; font-weight: 600; }
   .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
 
-  /* Bottom Sticky View Order Button */
+  /* Bottom Sticky View Order Panel Bar */
   #order-btn { flex-shrink: 0; padding: 16px 20px; border: none; cursor: pointer; background: #333; color: #fff; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
   #order-btn.has-items { background: #3b9eff; }
 
-  /* Overlay Panels (Modals & Checkout Sheets) */
+  /* Popover Slide Up Receipt Drawers */
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50; display: none; align-items: flex-end; }
   .overlay.show { display: flex; }
   .sheet { background: #1e1e1e; width: 100%; max-height: 85vh; display: flex; flex-direction: column; border-radius: 14px 14px 0 0; }
@@ -46,7 +44,7 @@
   .btn-close { background: #444; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-weight: 700; font-size: 13px; }
   .sheet-body { overflow-y: auto; flex: 1; padding: 0 14px; }
 
-  /* Checkout Receipt Lines styling */
+  /* Breakdown Receipt Lines layout elements */
   .order-section-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #888; padding: 10px 0 4px; }
   .order-line { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #2e2e2e; }
   .order-line .remove { background: none; border: none; color: #cc3333; cursor: pointer; font-size: 16px; padding: 0; flex-shrink: 0; }
@@ -59,7 +57,7 @@
   .sheet-total span:first-child { color: #666; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
   .sheet-total span:last-child { font-size: 36px; font-weight: 900; color: #3b9eff; }
 
-  /* Item Custom Option Selector Modal Box */
+  /* Options Dialogue Popup Card */
   #opt-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99; display: none; align-items: center; justify-content: center; padding: 20px; }
   #opt-overlay.show { display: flex; }
   #opt-box { background: #1e1e1e; border-radius: 10px; padding: 20px; width: 100%; max-width: 320px; border: 1px solid #2e2e2e; }
@@ -77,17 +75,13 @@
 </head>
 <body>
 
-<div class="main-viewport">
-  <div class="column">
-    <div class="column-header">FOOD</div>
-    <div class="scroll-container" id="food-scroll"></div>
-  </div>
-  
-  <div class="column">
-    <div class="column-header">DRINKS</div>
-    <div class="scroll-container" id="drinks-scroll"></div>
-  </div>
+<div class="tabs-container">
+  <button class="tab-btn active" id="tab-btn-food" onclick="switchTab('food')">FOOD</button>
+  <button class="tab-btn" id="tab-btn-drinks" onclick="switchTab('drinks')">DRINKS</button>
 </div>
+
+<div class="scroll-container active" id="food-scroll"></div>
+<div class="scroll-container" id="drinks-scroll"></div>
 
 <button id="order-btn" onclick="openOrder()">
   <span id="order-btn-label">VIEW ORDER</span>
@@ -124,7 +118,7 @@
 </div>
 
 <script>
-// Exact Menu Structure mirroring your component setup
+// Menu Data Architecture
 const MENU = {
   food: {
     sections: [
@@ -149,7 +143,7 @@ const MENU = {
         { name: "Cheddar Cheese", price: 8.45, askBread: true },
         { name: "Salad Sandwich", price: 8.45, askBread: true },
       ]},
-      /* MOVED HERE: Now resides under Food array for ordering interface */
+      /* MOVED HERE: Renders on the FOOD tab layout screen interface */
       { label: "Cakes & Snacks", items: [
         { name: "Carrot Cake", price: 4.10 }, { name: "Caramel Shortcake", price: 3.65 },
         { name: "Flapjack", price: 2.95 }, { name: "Rock Cake", price: 2.95 },
@@ -194,14 +188,29 @@ const BREAD = [
 const GARNISH = ["Crisps", "Salad Garnish"];
 const SIZES = ["Small", "Large"];
 
-// strict whitelist ensures Cakes do not map under the final "FOOD" breakdown label
+// Whitelist array defining what is strictly handled as standard food lines on the receipt
 const FOOD_SECTIONS = ["Soups & Salads", "Sandwiches"];
 
-// View Accordion state isolation object
+// View/State variables
+let currentTab = "food";
 let openSections = { food: null, drinks: null };
 let lines = [];
 let modalItem = null;
 let modalOpts = {};
+
+function switchTab(tabType) {
+  currentTab = tabType;
+  
+  // Highlight active tab buttons
+  document.getElementById("tab-btn-food").classList.toggle("active", tabType === "food");
+  document.getElementById("tab-btn-drinks").classList.toggle("active", tabType === "drinks");
+  
+  // Toggle visibility of full content frames
+  document.getElementById("food-scroll").classList.toggle("active", tabType === "food");
+  document.getElementById("drinks-scroll").classList.toggle("active", tabType === "drinks");
+  
+  renderAllMenus();
+}
 
 function lineKey(name, opts) {
   return name + (opts ? JSON.stringify(opts) : "");
@@ -220,7 +229,7 @@ function calcPrice(item, opts) {
 }
 
 function isFood(lineName) {
-  // Checks if item is part of core food sections; returns false for Cakes & Snacks
+  // Evaluates item category background parameters to confirm routing filter path
   for (const s of MENU.food.sections) {
     if (FOOD_SECTIONS.includes(s.label) && s.items.find(i => i.name === lineName)) return true;
   }
@@ -399,7 +408,7 @@ function renderOrderSheet() {
   const foodLines = lines.filter(l => l.food);
   const drinkLines = lines.filter(l => !l.food);
 
-  // Grouped breakdown sorting configuration inside checkout sheet
+  // Grouped segments output generation
   if (foodLines.length > 0) {
     const title = document.createElement("div");
     title.className = "order-section-title";
@@ -432,7 +441,7 @@ function makeLineEl(l) {
   return div;
 }
 
-// Initial script bootstrap boot step
+// Bootstrap view elements step
 renderAllMenus();
 </script>
 </body>
