@@ -12,18 +12,17 @@
 
   /* Main Menu Toggle Bar (Morning vs Lunch) */
   .menu-toggle-container { display: flex; background: #1a1a1a; border-bottom: 2px solid #2e2e2e; flex-shrink: 0; }
-  .menu-toggle-btn { flex: 1; padding: 14px 0; border: none; cursor: pointer; font-weight: 900; font-size: 14px; letter-spacing: 2px; background: transparent; color: #888; }
+  .menu-toggle-btn { flex: 1; padding: 14px 0; border: none; cursor: pointer; font-weight: 900; font-size: 14px; letter-spacing: 2px; background: transparent; color: #888; text-align: center; }
   .menu-toggle-btn.active { background: #262626; color: #ff9f43; border-bottom: 3px solid #ff9f43; }
   #menu-toggle-lunch.active { color: #20bf6b; border-bottom: 3px solid #20bf6b; }
 
   /* Sub Navigation Tabs */
   .tabs-container { display: flex; background: #000; flex-shrink: 0; }
-  .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 13px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; }
+  .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 13px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; text-align: center; }
   .tab-btn.active { background: #1e1e1e; color: #3b9eff; border-bottom: 3px solid #3b9eff; }
 
   /* Main Scrollable Content Area */
-  .scroll-container { flex: 1; overflow-y: auto; display: none; }
-  .scroll-container.active { display: block; }
+  .scroll-container { flex: 1; overflow-y: auto; background: #111; padding-bottom: 20px; }
 
   /* Accordion Design */
   .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: none; cursor: pointer; background: #1e1e1e; border-bottom: 1px solid #2e2e2e; color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
@@ -86,11 +85,9 @@
   <button class="menu-toggle-btn" id="menu-toggle-lunch" onclick="switchMainMenu('lunch')">LUNCH MENU</button>
 </div>
 
-<div class="tabs-container" id="sub-tabs-bar">
-  </div>
+<div class="tabs-container" id="sub-tabs-bar"></div>
 
-<div class="scroll-container active" id="primary-scroll"></div>
-<div class="scroll-container" id="secondary-scroll"></div>
+<div class="scroll-container" id="menu-scroll-view"></div>
 
 <button id="order-btn" onclick="openOrder()">
   <span id="order-btn-label">VIEW ORDER</span>
@@ -127,7 +124,7 @@
 </div>
 
 <script>
-// Combined Menu Datastructure Architecture
+// Unified Database Architecture For All Menu Sets
 const DATASETS = {
   morning: {
     tabs: ["breakfast", "beverages"],
@@ -185,7 +182,7 @@ const DATASETS = {
           { name: "Cheddar Salad", prices: { Small: 14.95, Large: 20.25 }, askSize: true },
           { name: "Prawn Cocktail", prices: { Small: 21.75, Large: 26.45 }, askSize: true },
           { name: "Shell Prawns", prices: { Small: 17.95, Large: 24.95 }, askSize: true },
-          { name: "Side Salad", price: 7.75 },
+          { name: "Side Salad", price: 7.75 }
         ]},
         { label: "Sandwiches", items: [
           { name: "Crab Sandwich", price: 16.95, askBread: true, askGarnish: true },
@@ -196,15 +193,20 @@ const DATASETS = {
           { name: "Chicken", price: 9.95, askBread: true },
           { name: "Ham", price: 9.95, askBread: true },
           { name: "Cheddar Cheese", price: 8.45, askBread: true },
-          { name: "Salad Sandwich", price: 8.45, askBread: true },
+          { name: "Salad Sandwich", price: 8.45, askBread: true }
         ]},
-        { label: "Cakes & Snacks", items: [
-          { name: "Carrot Cake", price: 4.10 }, { name: "Caramel Shortcake", price: 3.65 },
-          { name: "Apricot Flapjack (GF)", price: 2.95 }, { name: "Rock Cake", price: 2.95 },
-          { name: "Chocolate Brownie", price: 3.65 }, { name: "Lemon Drizzle Cake (GF)", price: 3.25 },
-          { name: "Traditional Bread Pudding", price: 2.95 }, { name: "Salted Caramel & Nut Slice", price: 3.65 },
-          { name: "Cream Tea", price: 7.95 }, { name: "Crisps", price: 1.80 },
-        ]},
+        { label: "Handmade Goodies & Snacks", items: [
+          { name: "Carrot Cake", price: 4.10 }, 
+          { name: "Caramel Shortcake", price: 3.65 },
+          { name: "Rock Cake", price: 2.95 }, 
+          { name: "Chocolate Brownie", price: 3.65 },
+          { name: "Traditional Bread Pudding", price: 2.95 }, 
+          { name: "Salted Caramel & Nut Slice", price: 3.65 },
+          { name: "Apricot Flapjack (GF)", price: 2.95 }, 
+          { name: "Lemon Drizzle Cake (GF)", price: 3.25 },
+          { name: "Cream Tea", price: 7.95 }, 
+          { name: "Crisps", price: 1.80 }
+        ]}
       ]
     },
     drinks: {
@@ -212,13 +214,13 @@ const DATASETS = {
         { label: "Cold Drinks", items: [
           { name: "OJ / Apple Juice", price: 1.70 }, { name: "Ribena", price: 1.90 },
           { name: "Soft Drink Can", price: 3.00 }, { name: "Elderflower Presse", price: 3.75 },
-          { name: "Raspberry Lemonade", price: 3.75 }, { name: "Mineral Water", price: 1.90 },
+          { name: "Raspberry Lemonade", price: 3.75 }, { name: "Mineral Water", price: 1.90 }
         ]},
         { label: "Alcohol", items: [
           { name: "Carling", price: 5.00 }, { name: "Estrella", price: 5.25 },
           { name: "Planet Lager", price: 6.50 }, { name: "Wight Gold Ale", price: 6.50 },
-          { name: "Fuggle Dee Dum", price: 6.50 }, { name: "Cider", price: 6.50 },
-        ]},
+          { name: "Fuggle Dee Dum", price: 6.50 }, { name: "Cider", price: 6.50 }
+        ]}
       ]
     }
   }
@@ -227,7 +229,7 @@ const DATASETS = {
 const BREAD = [
   { label: "White", surcharge: 0 },
   { label: "Brown Seeded", surcharge: 0 },
-  { label: "Baguette", surcharge: 1.80 },
+  { label: "Baguette", surcharge: 1.80 }
 ];
 const GARNISH = ["Crisps", "Salad Garnish"];
 const SIZES = ["Small", "Large"];
@@ -237,7 +239,7 @@ const MILKS = [
   { label: "Oat Milk", surcharge: 0.40 }
 ];
 
-// Structural Parameters State Tracking 
+// Tracking variables for UI state engine
 let activeMainMenu = "morning";
 let activeSubTab = "breakfast";
 let openSections = {};
@@ -245,6 +247,7 @@ let lines = [];
 let modalItem = null;
 let modalOpts = {};
 
+// Changes layout state between Morning and Lunch
 function switchMainMenu(menuKey) {
   activeMainMenu = menuKey;
   activeSubTab = DATASETS[menuKey].tabs[0];
@@ -256,56 +259,38 @@ function switchMainMenu(menuKey) {
   switchSubTab(activeSubTab);
 }
 
+// Renders category tab switches dynamically
 function renderSubTabsBar() {
   const container = document.getElementById("sub-tabs-bar");
   container.innerHTML = "";
-  const systemMenu = DATASETS[activeMainMenu];
+  const dataset = DATASETS[activeMainMenu];
   
-  systemMenu.tabs.forEach(tabKey => {
+  dataset.tabs.forEach(tabKey => {
     const btn = document.createElement("button");
     btn.className = "tab-btn";
     btn.id = "tab-btn-" + tabKey;
-    btn.textContent = systemMenu.tabLabels[tabKey];
+    btn.textContent = dataset.tabLabels[tabKey];
     btn.onclick = () => switchSubTab(tabKey);
     container.appendChild(btn);
   });
 }
 
+// Updates state and draws content layout view updates
 function switchSubTab(tabKey) {
   activeSubTab = tabKey;
-  const systemMenu = DATASETS[activeMainMenu];
+  const dataset = DATASETS[activeMainMenu];
   
-  systemMenu.tabs.forEach(tKey => {
+  dataset.tabs.forEach(tKey => {
     const btn = document.getElementById("tab-btn-" + tKey);
     if (btn) btn.classList.toggle("active", tKey === tabKey);
   });
   
-  // Toggle Visibility containers
-  document.getElementById("primary-scroll").classList.add("active");
-  document.getElementById("secondary-scroll").classList.remove("active");
-  
   renderMenuGrid();
 }
 
-function lineKey(name, opts) {
-  return name + (opts ? JSON.stringify(opts) : "");
-}
-
-function lineLabel(name, opts) {
-  if (!opts) return name;
-  const parts = [opts.size, opts.bread, opts.garnish, opts.milk].filter(Boolean);
-  return parts.length ? name + " (" + parts.join(", ") + ")" : name;
-}
-
-function calcPrice(item, opts) {
-  const base = item.askSize ? item.prices[(opts && opts.size) || "Small"] : item.price;
-  const bread = opts && opts.bread ? BREAD.find(b => b.label === opts.bread) : null;
-  const milk = opts && opts.milk ? MILKS.find(m => m.label === opts.milk) : null;
-  return base + (bread ? bread.surcharge : 0) + (milk ? milk.surcharge : 0);
-}
-
+// Generates structural accordion interfaces and grids
 function renderMenuGrid() {
-  const container = document.getElementById("primary-scroll");
+  const container = document.getElementById("menu-scroll-view");
   container.innerHTML = "";
   
   const currentCategoryData = DATASETS[activeMainMenu][activeSubTab];
@@ -313,7 +298,11 @@ function renderMenuGrid() {
 
   currentCategoryData.sections.forEach(section => {
     const sectionId = activeMainMenu + "_" + activeSubTab + "_" + section.label;
-    const isSectionOpen = openSections[sectionId] !== false; // Default Open
+    // Default accordions to true (open) if undefined
+    if (openSections[sectionId] === undefined) {
+      openSections[sectionId] = true;
+    }
+    const isSectionOpen = openSections[sectionId];
     
     const accBtn = document.createElement("button");
     accBtn.className = "acc-btn" + (isSectionOpen ? " open" : "");
@@ -340,6 +329,23 @@ function renderMenuGrid() {
       container.appendChild(grid);
     }
   });
+}
+
+function lineKey(name, opts) {
+  return name + (opts ? JSON.stringify(opts) : "");
+}
+
+function lineLabel(name, opts) {
+  if (!opts) return name;
+  const parts = [opts.size, opts.bread, opts.garnish, opts.milk].filter(Boolean);
+  return parts.length ? name + " (" + parts.join(", ") + ")" : name;
+}
+
+function calcPrice(item, opts) {
+  const base = item.askSize ? item.prices[(opts && opts.size) || "Small"] : item.price;
+  const bread = opts && opts.bread ? BREAD.find(b => b.label === opts.bread) : null;
+  const milk = opts && opts.milk ? MILKS.find(m => m.label === opts.milk) : null;
+  return base + (bread ? bread.surcharge : 0) + (milk ? milk.surcharge : 0);
 }
 
 function tapItem(item) {
@@ -409,7 +415,7 @@ function addLine(item, opts) {
   const key = lineKey(item.name, opts);
   const idx = lines.findIndex(l => l.key === key);
   
-  // Categorization tagging flag for checkout receipt groupings
+  // Sorting tags mapping routing to checkout lines
   const isBreakfastItem = DATASETS.morning.breakfast.sections[0].items.some(i => i.name === item.name);
   const isLunchFood = DATASETS.lunch.food.sections.some(s => s.items.some(i => i.name === item.name));
   const categorisedAsFood = isBreakfastItem || isLunchFood;
@@ -437,7 +443,4 @@ function setLineQty(key, val) {
 }
 
 function updateOrderBtn() {
-  const btn = document.getElementById("order-btn");
-  const label = document.getElementById("order-btn-label");
-  const tot = document.getElementById("order-btn-total");
- 
+  const btn = document.getElement
