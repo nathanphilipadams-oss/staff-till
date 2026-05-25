@@ -124,7 +124,7 @@
 </div>
 
 <script>
-// Main Menu Database Structure Mapping
+// Exact Menu Structure mirroring your component setup
 const MENU = {
   food: {
     sections: [
@@ -149,7 +149,7 @@ const MENU = {
         { name: "Cheddar Cheese", price: 8.45, askBread: true },
         { name: "Salad Sandwich", price: 8.45, askBread: true },
       ]},
-      /* Positioned visually within the Food layout, but isolated from backend Food logic */
+      /* MOVED HERE: Now resides under Food array for ordering interface */
       { label: "Cakes & Snacks", items: [
         { name: "Carrot Cake", price: 4.10 }, { name: "Caramel Shortcake", price: 3.65 },
         { name: "Flapjack", price: 2.95 }, { name: "Rock Cake", price: 2.95 },
@@ -186,7 +186,6 @@ const MENU = {
   }
 };
 
-// Pricing Modifier Variables
 const BREAD = [
   { label: "White", surcharge: 0 },
   { label: "Brown Seeded", surcharge: 0 },
@@ -195,10 +194,10 @@ const BREAD = [
 const GARNISH = ["Crisps", "Salad Garnish"];
 const SIZES = ["Small", "Large"];
 
-// Strict verification whitelist for order view sorting logic
+// strict whitelist ensures Cakes do not map under the final "FOOD" breakdown label
 const FOOD_SECTIONS = ["Soups & Salads", "Sandwiches"];
 
-// Core Interactivity Variables
+// View Accordion state isolation object
 let openSections = { food: null, drinks: null };
 let lines = [];
 let modalItem = null;
@@ -221,14 +220,13 @@ function calcPrice(item, opts) {
 }
 
 function isFood(lineName) {
-  // Evaluates section titles explicitly to map Cakes cleanly as "Not Food"
+  // Checks if item is part of core food sections; returns false for Cakes & Snacks
   for (const s of MENU.food.sections) {
     if (FOOD_SECTIONS.includes(s.label) && s.items.find(i => i.name === lineName)) return true;
   }
   return false;
 }
 
-// Side-by-side simultaneous renderer
 function renderAllMenus() {
   renderColumn("food", document.getElementById("food-scroll"));
   renderColumn("drinks", document.getElementById("drinks-scroll"));
@@ -401,7 +399,7 @@ function renderOrderSheet() {
   const foodLines = lines.filter(l => l.food);
   const drinkLines = lines.filter(l => !l.food);
 
-  // Structural header splitter separates Food from Drink items on the receipt
+  // Grouped breakdown sorting configuration inside checkout sheet
   if (foodLines.length > 0) {
     const title = document.createElement("div");
     title.className = "order-section-title";
@@ -434,7 +432,7 @@ function makeLineEl(l) {
   return div;
 }
 
-// Global Execution Entrypoint
+// Initial script bootstrap boot step
 renderAllMenus();
 </script>
 </body>
