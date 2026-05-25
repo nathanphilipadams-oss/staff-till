@@ -3,17 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Beach Shack Till</title>
+<title>The Beach Shack Till</title>
 <style>
   /* Global Layout Styles */
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #111; color: #f0f0f0; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-  button { font-family: inherit; }
+  button { font-family: inherit; user-select: none; -webkit-user-select: none; }
 
   /* Top Navigation Tabs */
-  .tabs-container { display: flex; background: #000; flex-shrink: 0; }
-  .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 15px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; }
+  .tabs-container { display: flex; background: #000; flex-shrink: 0; position: relative; }
+  .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 15px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; transition: background 0.2s; }
   .tab-btn.active { background: #1e1e1e; color: #3b9eff; border-bottom: 3px solid #3b9eff; }
+
+  /* Safety Lock Overlay Sheet for Tab Switching */
+  .lock-panel { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.9); display: none; align-items: center; justify-content: space-between; padding: 0 14px; z-index: 10; }
+  .lock-panel.show { display: flex; }
+  .lock-msg { font-size: 12px; font-weight: 700; color: #aaa; letter-spacing: 0.5px; }
+  .lock-actions { display: flex; gap: 8px; align-items: center; }
+  .lock-cancel { background: #444; color: #fff; border: none; border-radius: 4px; padding: 8px 12px; font-weight: 700; cursor: pointer; font-size: 12px; }
+  .lock-confirm { background: #1a3f6a; color: #fff; border: 2px solid #3b9eff; border-radius: 4px; padding: 8px 16px; font-weight: 800; cursor: pointer; font-size: 12px; position: relative; overflow: hidden; }
+  .lock-progress { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(59, 158, 255, 0.4); width: 0%; transition: width 0.1s linear; }
 
   /* Main Scrollable Content Area */
   .scroll-container { flex: 1; overflow-y: auto; display: none; }
@@ -25,7 +34,7 @@
   .acc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 6px; background: #161616; border-bottom: 1px solid #2e2e2e; }
   
   /* Menu Item Grid Buttons */
-  .item-btn { padding: 10px 5px; background: #1e1e1e; border: 1px solid #2e2e2e; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; }
+  .item-btn { padding: 10px 5px; background: #1e1e1e; border: 1px solid #2e2e2e; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; min-height: 54px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
   .item-name { display: block; font-weight: 600; }
   .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
 
@@ -76,11 +85,24 @@
 <body>
 
 <div class="tabs-container">
-  <button class="tab-btn active" id="tab-btn-food" onclick="switchTab('food')">FOOD</button>
-  <button class="tab-btn" id="tab-btn-drinks" onclick="switchTab('drinks')">DRINKS</button>
+  <button class="tab-btn" id="tab-btn-morning" onclick="trySwitchTab('morning')">MORNING</button>
+  <button class="tab-btn" id="tab-btn-food" onclick="trySwitchTab('food')">FOOD</button>
+  <button class="tab-btn" id="tab-btn-drinks" onclick="trySwitchTab('drinks')">DRINKS</button>
+
+  <div class="lock-panel" id="lock-strip">
+    <span class="lock-msg" id="lock-banner-text">SWITCH TO FOOD?</span>
+    <div class="lock-actions">
+      <button class="lock-cancel" onclick="cancelTabSwitch()">CANCEL</button>
+      <button class="lock-confirm" id="lock-confirm-btn">
+        <div class="lock-progress" id="lock-progress-bar"></div>
+        <span style="position: relative; z-index: 2;">HOLD TO UNLOCK</span>
+      </button>
+    </div>
+  </div>
 </div>
 
-<div class="scroll-container active" id="food-scroll"></div>
+<div class="scroll-container" id="morning-scroll"></div>
+<div class="scroll-container" id="food-scroll"></div>
 <div class="scroll-container" id="drinks-scroll"></div>
 
 <button id="order-btn" onclick="openOrder()">
@@ -120,6 +142,17 @@
 <script>
 // Menu Data Architecture
 const MENU = {
+  morning: {
+    sections: [
+      { label: "Morning Menu (10:00am–11:45am)", items: [
+        { name: "Fruited Tea Cake", price: 2.45 },
+        { name: "Crumpets", price: 2.45 },
+        { name: "Bacon Sandwich", price: 6.30 },
+        { name: "Croissant & Butter", price: 3.60 },
+        { name: "Toast & Butter", price: 2.45 }
+      ]}
+    ]
+  },
   food: {
     sections: [
       { label: "Soups & Salads", items: [
@@ -140,16 +173,20 @@ const MENU = {
         { name: "Egg Mayo", price: 8.95, askBread: true },
         { name: "Chicken", price: 9.95, askBread: true },
         { name: "Ham", price: 9.95, askBread: true },
-        { name: "Cheddar Cheese", price: 9.95, askBread: true },
+        { name: "Cheddar Cheese", price: 8.45, askBread: true },
         { name: "Salad Sandwich", price: 8.45, askBread: true },
       ]},
-      /* MOVED HERE: Renders on the FOOD tab layout screen interface */
-      { label: "Cakes & Snacks", items: [
-        { name: "Carrot Cake", price: 4.10 }, { name: "Caramel Shortcake", price: 3.65 },
-        { name: "Flapjack", price: 2.95 }, { name: "Rock Cake", price: 2.95 },
-        { name: "Choc Brownie", price: 3.65 }, { name: "Lemon Drizzle", price: 3.25 },
-        { name: "Bread Pudding", price: 2.95 }, { name: "Caramel Nut Slice", price: 3.65 },
-        { name: "Cream Tea", price: 7.95 }, { name: "Crisps", price: 1.80 },
+      { label: "Handmade Goodies & Snacks", items: [
+        { name: "Carrot Cake", price: 4.10 }, 
+        { name: "Caramel Shortcake", price: 3.65 },
+        { name: "Flapjack", price: 2.95 }, 
+        { name: "Rock Cake", price: 2.95 },
+        { name: "Choc Brownie", price: 3.65 }, 
+        { name: "Lemon Drizzle", price: 3.25 },
+        { name: "Bread Pudding", price: 2.95 }, 
+        { name: "Caramel Nut Slice", price: 3.65 },
+        { name: "Cream Tea", price: 7.95 }, 
+        { name: "Crisps", price: 1.80 },
       ]},
     ]
   },
@@ -160,7 +197,7 @@ const MENU = {
         { name: "Macchiato", price: 3.80 }, { name: "Cappuccino", price: 3.80 },
         { name: "Espresso", price: 2.50 }, { name: "Mocha", price: 4.15 },
         { name: "Decaf Coffee", price: 2.40 }, { name: "Extra Shot", price: 1.25 },
-        { name: "Flavoured Syrup", price: 1.00 }, { name: "Tea - Mug", price: 2.95 },
+        { name: "Flavoured Syrup", price: 1.00 }, { name: "Tea - Mug", price: 3.00 },
         { name: "Tea - Pot", price: 4.00 }, { name: "Earl Grey - Mug", price: 2.95 },
         { name: "Earl Grey - Pot", price: 4.10 }, { name: "Fruit Tea - Mug", price: 3.00 },
         { name: "Fruit Tea - Pot", price: 4.10 }, { name: "Bovril", price: 3.20 },
@@ -188,28 +225,91 @@ const BREAD = [
 const GARNISH = ["Crisps", "Salad Garnish"];
 const SIZES = ["Small", "Large"];
 
-// Whitelist array defining what is strictly handled as standard food lines on the receipt
 const FOOD_SECTIONS = ["Soups & Salads", "Sandwiches"];
 
 // View/State variables
 let currentTab = "food";
-let openSections = { food: null, drinks: null };
+let openSections = { morning: "Morning Menu (10:00am–11:45am)", food: null, drinks: null };
 let lines = [];
 let modalItem = null;
 let modalOpts = {};
 
-function switchTab(tabType) {
+// Safety Lock Intent Variables
+let pendingTabTarget = null;
+let holdTimer = null;
+let holdStartTime = null;
+const HOLD_DURATION = 1000; // 1 full second hold down requirement
+
+// Automated time logic evaluation at boot step
+function calculateDefaultTab() {
+  const now = new Date();
+  const totalMinutes = (now.getHours() * 60) + now.getMinutes();
+  return totalMinutes < 705 ? "morning" : "food"; // 705 mins = 11:45 AM
+}
+
+function trySwitchTab(tabType) {
+  if (currentTab === tabType) return;
+  
+  // Open the Intercept Sheet Gate
+  pendingTabTarget = tabType;
+  document.getElementById("lock-banner-text").textContent = "SWITCH TO " + tabType.toUpperCase() + "?";
+  document.getElementById("lock-strip").classList.add("show");
+}
+
+function cancelTabSwitch() {
+  resetHoldState();
+  document.getElementById("lock-strip").classList.remove("show");
+  pendingTabTarget = null;
+}
+
+function executeTabSwitch(tabType) {
   currentTab = tabType;
   
-  // Highlight active tab buttons
+  // Toggle visual active selectors on layout elements
+  document.getElementById("tab-btn-morning").classList.toggle("active", tabType === "morning");
   document.getElementById("tab-btn-food").classList.toggle("active", tabType === "food");
   document.getElementById("tab-btn-drinks").classList.toggle("active", tabType === "drinks");
   
-  // Toggle visibility of full content frames
+  document.getElementById("morning-scroll").classList.toggle("active", tabType === "morning");
   document.getElementById("food-scroll").classList.toggle("active", tabType === "food");
   document.getElementById("drinks-scroll").classList.toggle("active", tabType === "drinks");
   
+  cancelTabSwitch();
   renderAllMenus();
+}
+
+// Custom Gesture Registration for Confirmation Engine
+const confirmBtn = document.getElementById("lock-confirm-btn");
+confirmBtn.addEventListener("mousedown", startHold);
+confirmBtn.addEventListener("touchstart", startHold);
+window.addEventListener("mouseup", stopHold);
+window.addEventListener("touchend", stopHold);
+
+function startHold(e) {
+  e.preventDefault();
+  if (!pendingTabTarget) return;
+  holdStartTime = Date.now();
+  
+  document.getElementById("lock-progress-bar").style.transition = "width " + HOLD_DURATION + "ms linear";
+  document.getElementById("lock-progress-bar").style.width = "100%";
+  
+  holdTimer = setTimeout(() => {
+    if (pendingTabTarget) executeTabSwitch(pendingTabTarget);
+  }, HOLD_DURATION);
+}
+
+function stopHold() {
+  if (holdTimer) {
+    clearTimeout(holdTimer);
+    resetHoldState();
+  }
+}
+
+function resetHoldState() {
+  holdTimer = null;
+  const bar = document.getElementById("lock-progress-bar");
+  bar.style.transition = "none";
+  bar.style.width = "0%";
 }
 
 function lineKey(name, opts) {
@@ -228,15 +328,18 @@ function calcPrice(item, opts) {
   return base + (bread ? bread.surcharge : 0);
 }
 
-function isFood(lineName) {
-  // Evaluates item category background parameters to confirm routing filter path
-  for (const s of MENU.food.sections) {
-    if (FOOD_SECTIONS.includes(s.label) && s.items.find(i => i.name === lineName)) return true;
+function getItemReceiptCategory(lineName) {
+  for (const s of MENU.morning.sections) {
+    if (s.items.find(i => i.name === lineName)) return "morning";
   }
-  return false;
+  for (const s of MENU.food.sections) {
+    if (FOOD_SECTIONS.includes(s.label) && s.items.find(i => i.name === lineName)) return "food";
+  }
+  return "drinks_cakes";
 }
 
 function renderAllMenus() {
+  renderColumn("morning", document.getElementById("morning-scroll"));
   renderColumn("food", document.getElementById("food-scroll"));
   renderColumn("drinks", document.getElementById("drinks-scroll"));
 }
@@ -323,127 +426,4 @@ function makeOptGroup(label, options, selected, onSelect) {
 function updateModalPrice() {
   const p = calcPrice(modalItem, modalOpts);
   document.getElementById("opt-price").textContent = "£" + p.toFixed(2);
-  document.getElementById("opt-add").textContent = "Add £" + p.toFixed(2);
-}
-
-function confirmAdd() {
-  addLine(modalItem, { size: modalOpts.size, bread: modalOpts.bread, garnish: modalOpts.garnish });
-  closeModal();
-}
-
-function closeModal() {
-  document.getElementById("opt-overlay").classList.remove("show");
-}
-
-function addLine(item, opts) {
-  const price = calcPrice(item, opts);
-  const key = lineKey(item.name, opts);
-  const idx = lines.findIndex(l => l.key === key);
-  if (idx >= 0) {
-    lines[idx].qty++;
-  } else {
-    lines.push({ key, name: item.name, price, qty: 1, opts, food: isFood(item.name) });
-  }
-  updateOrderBtn();
-}
-
-function removeLine(key) {
-  lines = lines.filter(l => l.key !== key);
-  updateOrderBtn();
-  renderOrderSheet();
-}
-
-function setLineQty(key, val) {
-  const q = parseInt(val);
-  if (isNaN(q) || q < 0) return;
-  if (q === 0) { removeLine(key); return; }
-  const l = lines.find(l => l.key === key);
-  if (l) { l.qty = q; updateOrderBtn(); renderOrderSheet(); }
-}
-
-function updateOrderBtn() {
-  const btn = document.getElementById("order-btn");
-  const label = document.getElementById("order-btn-label");
-  const tot = document.getElementById("order-btn-total");
-  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
-  const count = lines.reduce((s, l) => s + l.qty, 0);
-  if (lines.length > 0) {
-    btn.classList.add("has-items");
-    label.textContent = "VIEW ORDER (" + count + " items)";
-    tot.textContent = "£" + total.toFixed(2);
-  } else {
-    btn.classList.remove("has-items");
-    label.textContent = "VIEW ORDER";
-    tot.textContent = "";
-  }
-}
-
-function openOrder() {
-  renderOrderSheet();
-  document.getElementById("order-overlay").classList.add("show");
-}
-
-function closeOrder() {
-  document.getElementById("order-overlay").classList.remove("show");
-}
-
-function clearAll() {
-  lines = [];
-  updateOrderBtn();
-  closeOrder();
-}
-
-function renderOrderSheet() {
-  const body = document.getElementById("order-body");
-  const totalBar = document.getElementById("order-total-bar");
-  const totalAmt = document.getElementById("order-total-amt");
-  body.innerHTML = "";
-
-  if (lines.length === 0) {
-    body.innerHTML = "<div class='empty-msg'>Nothing added yet</div>";
-    totalBar.style.display = "none";
-    return;
-  }
-
-  const foodLines = lines.filter(l => l.food);
-  const drinkLines = lines.filter(l => !l.food);
-
-  // Grouped segments output generation
-  if (foodLines.length > 0) {
-    const title = document.createElement("div");
-    title.className = "order-section-title";
-    title.textContent = "FOOD";
-    body.appendChild(title);
-    foodLines.forEach(l => body.appendChild(makeLineEl(l)));
-  }
-
-  if (drinkLines.length > 0) {
-    const title = document.createElement("div");
-    title.className = "order-section-title";
-    title.textContent = "DRINKS & CAKES";
-    body.appendChild(title);
-    drinkLines.forEach(l => body.appendChild(makeLineEl(l)));
-  }
-
-  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
-  totalAmt.textContent = "£" + total.toFixed(2);
-  totalBar.style.display = "flex";
-}
-
-function makeLineEl(l) {
-  const div = document.createElement("div");
-  div.className = "order-line";
-  div.innerHTML =
-    "<button class='remove' onclick='removeLine(\"" + l.key.replace(/"/g, '\\"') + "\")'>✕</button>" +
-    "<span class='lname'>" + lineLabel(l.name, l.opts) + "</span>" +
-    "<input type='number' min='0' value='" + l.qty + "' onchange='setLineQty(\"" + l.key.replace(/"/g, '\\"') + "\", this.value)' />" +
-    "<span class='lprice'>£" + (l.price * l.qty).toFixed(2) + "</span>";
-  return div;
-}
-
-// Bootstrap view elements step
-renderAllMenus();
-</script>
-</body>
-</html>
-
+  document.getElementById("opt-add").te
