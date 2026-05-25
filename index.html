@@ -124,7 +124,7 @@
 </div>
 
 <script>
-// Unified Database Architecture For All Menu Sets
+// Menu Dataset Configuration
 const DATASETS = {
   morning: {
     tabs: ["breakfast", "beverages"],
@@ -239,7 +239,7 @@ const MILKS = [
   { label: "Oat Milk", surcharge: 0.40 }
 ];
 
-// Tracking variables for UI state engine
+// App State Core Variables
 let activeMainMenu = "morning";
 let activeSubTab = "breakfast";
 let openSections = {};
@@ -247,7 +247,7 @@ let lines = [];
 let modalItem = null;
 let modalOpts = {};
 
-// Changes layout state between Morning and Lunch
+// Handles alternating between main menu panels
 function switchMainMenu(menuKey) {
   activeMainMenu = menuKey;
   activeSubTab = DATASETS[menuKey].tabs[0];
@@ -259,7 +259,7 @@ function switchMainMenu(menuKey) {
   switchSubTab(activeSubTab);
 }
 
-// Renders category tab switches dynamically
+// Injects sub tabs navigation bar dynamically 
 function renderSubTabsBar() {
   const container = document.getElementById("sub-tabs-bar");
   container.innerHTML = "";
@@ -275,7 +275,7 @@ function renderSubTabsBar() {
   });
 }
 
-// Updates state and draws content layout view updates
+// Switches subcategories
 function switchSubTab(tabKey) {
   activeSubTab = tabKey;
   const dataset = DATASETS[activeMainMenu];
@@ -288,7 +288,7 @@ function switchSubTab(tabKey) {
   renderMenuGrid();
 }
 
-// Generates structural accordion interfaces and grids
+// Renders accordions and menu item layouts automatically
 function renderMenuGrid() {
   const container = document.getElementById("menu-scroll-view");
   container.innerHTML = "";
@@ -298,7 +298,8 @@ function renderMenuGrid() {
 
   currentCategoryData.sections.forEach(section => {
     const sectionId = activeMainMenu + "_" + activeSubTab + "_" + section.label;
-    // Default accordions to true (open) if undefined
+    
+    // Default accordion headers to remaining open
     if (openSections[sectionId] === undefined) {
       openSections[sectionId] = true;
     }
@@ -415,7 +416,6 @@ function addLine(item, opts) {
   const key = lineKey(item.name, opts);
   const idx = lines.findIndex(l => l.key === key);
   
-  // Sorting tags mapping routing to checkout lines
   const isBreakfastItem = DATASETS.morning.breakfast.sections[0].items.some(i => i.name === item.name);
   const isLunchFood = DATASETS.lunch.food.sections.some(s => s.items.some(i => i.name === item.name));
   const categorisedAsFood = isBreakfastItem || isLunchFood;
@@ -443,4 +443,6 @@ function setLineQty(key, val) {
 }
 
 function updateOrderBtn() {
-  const btn = document.getElement
+  const btn = document.getElementById("order-btn");
+  const label = document.getElementById("order-btn-label");
+  const tot = document.getEleme
