@@ -13,7 +13,7 @@
   /* Main Menu Toggle Bar (Morning vs Lunch) */
   .menu-toggle-container { display: flex; background: #1a1a1a; border-bottom: 2px solid #2e2e2e; flex-shrink: 0; }
   .menu-toggle-btn { flex: 1; padding: 14px 0; border: none; cursor: pointer; font-weight: 900; font-size: 14px; letter-spacing: 2px; background: transparent; color: #888; text-align: center; }
-  .menu-toggle-btn.active { background: #262626; color: #ff9f43; border-bottom: 3px solid #ff9f43; }
+  .menu-toggle-btn.active { background: #262626; color: #00a8ff; border-bottom: 3px solid #00a8ff; }
   #menu-toggle-lunch.active { color: #20bf6b; border-bottom: 3px solid #20bf6b; }
 
   /* Sub Navigation Tabs */
@@ -35,7 +35,7 @@
   .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
 
   /* Bottom Sticky View Order Panel Bar */
-  #order-btn { flex-shrink: 0; padding: 16px 20px; border: none; cursor: pointer; background: #333; color: #fff; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+  #order-btn { width: 100%; flex-shrink: 0; padding: 16px 20px; border: none; cursor: pointer; background: #333; color: #fff; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
   #order-btn.has-items { background: #3b9eff; }
 
   /* Popover Slide Up Receipt Drawers */
@@ -52,9 +52,9 @@
   /* Breakdown Receipt Lines layout elements */
   .order-section-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #888; padding: 10px 0 4px; }
   .order-line { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #2e2e2e; }
-  .order-line .remove { background: none; border: none; color: #cc3333; cursor: pointer; font-size: 16px; padding: 0; flex-shrink: 0; }
+  .order-line .remove { background: none; border: none; color: #cc3333; cursor: pointer; font-size: 16px; padding: 0; flex-shrink: 0; width: 24px; height: 24px; }
   .order-line .lname { flex: 1; font-size: 14px; line-height: 1.3; }
-  .order-line input { width: 38px; text-align: center; background: #2a2a2a; border: 1px solid #2e2e2e; border-radius: 4px; color: #fff; padding: 4px 0; font-size: 14px; }
+  .order-line input { width: 44px; text-align: center; background: #2a2a2a; border: 1px solid #2e2e2e; border-radius: 4px; color: #fff; padding: 4px 0; font-size: 14px; }
   .order-line .lprice { min-width: 52px; text-align: right; color: #3b9eff; font-weight: 700; font-size: 14px; }
   .empty-msg { color: #555; text-align: center; padding: 40px 0; }
 
@@ -81,15 +81,15 @@
 <body>
 
 <div class="menu-toggle-container">
-  <button class="menu-toggle-btn active" id="menu-toggle-morning" onclick="switchMainMenu('morning')">MORNING MENU</button>
-  <button class="menu-toggle-btn" id="menu-toggle-lunch" onclick="switchMainMenu('lunch')">LUNCH MENU</button>
+  <button class="menu-toggle-btn active" id="menu-toggle-morning">MORNING MENU</button>
+  <button class="menu-toggle-btn" id="menu-toggle-lunch">LUNCH MENU</button>
 </div>
 
 <div class="tabs-container" id="sub-tabs-bar"></div>
 
 <div class="scroll-container" id="menu-scroll-view"></div>
 
-<button id="order-btn" onclick="openOrder()">
+<button id="order-btn">
   <span id="order-btn-label">VIEW ORDER</span>
   <span id="order-btn-total"></span>
 </button>
@@ -99,8 +99,8 @@
     <div class="sheet-head">
       <span>ORDER</span>
       <div class="sheet-btns">
-        <button class="btn-clear" onclick="clearAll()">CLEAR</button>
-        <button class="btn-close" onclick="closeOrder()">CLOSE</button>
+        <button class="btn-clear" id="clear-all-btn">CLEAR</button>
+        <button class="btn-close" id="close-order-btn">CLOSE</button>
       </div>
     </div>
     <div class="sheet-body" id="order-body"></div>
@@ -117,8 +117,8 @@
     <div id="opt-price"></div>
     <div id="opt-groups"></div>
     <div class="opt-actions">
-      <button id="opt-cancel" onclick="closeModal()">Cancel</button>
-      <button id="opt-add" onclick="confirmAdd()">Add</button>
+      <button id="opt-cancel">Cancel</button>
+      <button id="opt-add">Add</button>
     </div>
   </div>
 </div>
@@ -239,7 +239,7 @@ const MILKS = [
   { label: "Oat Milk", surcharge: 0.40 }
 ];
 
-// App State Core Variables
+// Active Processing Parameters
 let activeMainMenu = "morning";
 let activeSubTab = "breakfast";
 let openSections = {};
@@ -247,7 +247,15 @@ let lines = [];
 let modalItem = null;
 let modalOpts = {};
 
-// Handles alternating between main menu panels
+// Safe Element-level event hooks instantiation
+document.getElementById("menu-toggle-morning").addEventListener("click", () => switchMainMenu("morning"));
+document.getElementById("menu-toggle-lunch").addEventListener("click", () => switchMainMenu("lunch"));
+document.getElementById("order-btn").addEventListener("click", openOrder);
+document.getElementById("close-order-btn").addEventListener("click", closeOrder);
+document.getElementById("clear-all-btn").addEventListener("click", clearAll);
+document.getElementById("opt-cancel").addEventListener("click", closeModal);
+document.getElementById("opt-add").addEventListener("click", confirmAdd);
+
 function switchMainMenu(menuKey) {
   activeMainMenu = menuKey;
   activeSubTab = DATASETS[menuKey].tabs[0];
@@ -259,7 +267,6 @@ function switchMainMenu(menuKey) {
   switchSubTab(activeSubTab);
 }
 
-// Injects sub tabs navigation bar dynamically 
 function renderSubTabsBar() {
   const container = document.getElementById("sub-tabs-bar");
   container.innerHTML = "";
@@ -268,27 +275,26 @@ function renderSubTabsBar() {
   dataset.tabs.forEach(tabKey => {
     const btn = document.createElement("button");
     btn.className = "tab-btn";
-    btn.id = "tab-btn-" + tabKey;
     btn.textContent = dataset.tabLabels[tabKey];
-    btn.onclick = () => switchSubTab(tabKey);
+    btn.addEventListener("click", () => switchSubTab(tabKey));
     container.appendChild(btn);
   });
 }
 
-// Switches subcategories
 function switchSubTab(tabKey) {
   activeSubTab = tabKey;
   const dataset = DATASETS[activeMainMenu];
   
-  dataset.tabs.forEach(tKey => {
-    const btn = document.getElementById("tab-btn-" + tKey);
-    if (btn) btn.classList.toggle("active", tKey === tabKey);
+  const buttons = document.querySelectorAll(".tabs-container .tab-btn");
+  dataset.tabs.forEach((tKey, idx) => {
+    if (buttons[idx]) {
+      buttons[idx].classList.toggle("active", tKey === tabKey);
+    }
   });
   
   renderMenuGrid();
 }
 
-// Renders accordions and menu item layouts automatically
 function renderMenuGrid() {
   const container = document.getElementById("menu-scroll-view");
   container.innerHTML = "";
@@ -298,20 +304,16 @@ function renderMenuGrid() {
 
   currentCategoryData.sections.forEach(section => {
     const sectionId = activeMainMenu + "_" + activeSubTab + "_" + section.label;
-    
-    // Default accordion headers to remaining open
-    if (openSections[sectionId] === undefined) {
-      openSections[sectionId] = true;
-    }
+    if (openSections[sectionId] === undefined) openSections[sectionId] = true;
     const isSectionOpen = openSections[sectionId];
     
     const accBtn = document.createElement("button");
     accBtn.className = "acc-btn" + (isSectionOpen ? " open" : "");
     accBtn.innerHTML = "<span>" + section.label.toUpperCase() + "</span><span>" + (isSectionOpen ? "▲" : "▼") + "</span>";
-    accBtn.onclick = () => {
-      openSections[sectionId] = !isSectionOpen;
+    accBtn.addEventListener("click", () => {
+      openSections[sectionId] = !openSections[sectionId];
       renderMenuGrid();
-    };
+    });
     container.appendChild(accBtn);
 
     if (isSectionOpen) {
@@ -324,7 +326,7 @@ function renderMenuGrid() {
           ? "£" + item.prices.Small.toFixed(2) + "–£" + item.prices.Large.toFixed(2)
           : "£" + item.price.toFixed(2);
         btn.innerHTML = "<span class='item-name'>" + item.name + "</span><span class='item-price'>" + priceStr + "</span>";
-        btn.onclick = () => tapItem(item);
+        btn.addEventListener("click", () => tapItem(item));
         grid.appendChild(btn);
       });
       container.appendChild(grid);
@@ -389,7 +391,7 @@ function makeOptGroup(label, options, selected, onSelect) {
     const btn = document.createElement("button");
     btn.className = "opt-btn" + (selected === val ? " selected" : "");
     btn.textContent = val + sub;
-    btn.onclick = () => onSelect(val);
+    btn.addEventListener("click", () => onSelect(val));
     row.appendChild(btn);
   }
   div.appendChild(row);
@@ -428,21 +430,127 @@ function addLine(item, opts) {
   updateOrderBtn();
 }
 
-function removeLine(key) {
-  lines = lines.filter(l => l.key !== key);
+function removeLineAtIndex(index) {
+  lines.splice(index, 1);
   updateOrderBtn();
   renderOrderSheet();
 }
 
-function setLineQty(key, val) {
-  const q = parseInt(val);
-  if (isNaN(q) || q < 0) return;
-  if (q === 0) { removeLine(key); return; }
-  const l = lines.find(l => l.key === key);
-  if (l) { l.qty = q; updateOrderBtn(); renderOrderSheet(); }
+function updateLineQtyAtIndex(index, value) {
+  const qty = parseInt(value);
+  if (isNaN(qty) || qty < 0) return;
+  if (qty === 0) {
+    removeLineAtIndex(index);
+    return;
+  }
+  lines[index].qty = qty;
+  updateOrderBtn();
+  renderOrderSheet();
 }
 
 function updateOrderBtn() {
   const btn = document.getElementById("order-btn");
   const label = document.getElementById("order-btn-label");
-  const tot = document.getEleme
+  const tot = document.getElementById("order-btn-total");
+  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  const count = lines.reduce((s, l) => s + l.qty, 0);
+  if (lines.length > 0) {
+    btn.classList.add("has-items");
+    label.textContent = "VIEW ORDER (" + count + " items)";
+    tot.textContent = "£" + total.toFixed(2);
+  } else {
+    btn.classList.remove("has-items");
+    label.textContent = "VIEW ORDER";
+    tot.textContent = "";
+  }
+}
+
+function openOrder() {
+  renderOrderSheet();
+  document.getElementById("order-overlay").classList.add("show");
+}
+
+function closeOrder() {
+  document.getElementById("order-overlay").classList.remove("show");
+}
+
+function clearAll() {
+  lines = [];
+  updateOrderBtn();
+  closeOrder();
+}
+
+function renderOrderSheet() {
+  const body = document.getElementById("order-body");
+  const totalBar = document.getElementById("order-total-bar");
+  const totalAmt = document.getElementById("order-total-amt");
+  body.innerHTML = "";
+
+  if (lines.length === 0) {
+    body.innerHTML = "<div class='empty-msg'>Nothing added yet</div>";
+    totalBar.style.display = "none";
+    return;
+  }
+
+  // Map original elements to stay synchronized with line arrays
+  const lineItemsWithIndex = lines.map((line, originalIndex) => ({ ...line, originalIndex }));
+  const foodLines = lineItemsWithIndex.filter(l => l.food);
+  const drinkLines = lineItemsWithIndex.filter(l => !l.food);
+
+  if (foodLines.length > 0) {
+    const title = document.createElement("div");
+    title.className = "order-section-title";
+    title.textContent = "FOOD ITEMS";
+    body.appendChild(title);
+    foodLines.forEach(l => body.appendChild(createLineRowElement(l, l.originalIndex)));
+  }
+
+  if (drinkLines.length > 0) {
+    const title = document.createElement("div");
+    title.className = "order-section-title";
+    title.textContent = "BEVERAGES & SNACKS";
+    body.appendChild(title);
+    drinkLines.forEach(l => body.appendChild(createLineRowElement(l, l.originalIndex)));
+  }
+
+  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  totalAmt.textContent = "£" + total.toFixed(2);
+  totalBar.style.display = "flex";
+}
+
+function createLineRowElement(l, realIdx) {
+  const div = document.createElement("div");
+  div.className = "order-line";
+
+  const remBtn = document.createElement("button");
+  remBtn.className = "remove";
+  remBtn.textContent = "✕";
+  remBtn.addEventListener("click", () => removeLineAtIndex(realIdx));
+
+  const textLabel = document.createElement("span");
+  textLabel.className = "lname";
+  textLabel.textContent = lineLabel(l.name, l.opts);
+
+  const numInput = document.createElement("input");
+  numInput.type = "number";
+  numInput.min = "0";
+  numInput.value = l.qty;
+  numInput.addEventListener("change", (e) => updateLineQtyAtIndex(realIdx, e.target.value));
+
+  const priceLabel = document.createElement("span");
+  priceLabel.className = "lprice";
+  priceLabel.textContent = "£" + (l.price * l.qty).toFixed(2);
+
+  div.appendChild(remBtn);
+  div.appendChild(textLabel);
+  div.appendChild(numInput);
+  div.appendChild(priceLabel);
+
+  return div;
+}
+
+// Global initialization sequence trigger step
+switchMainMenu("morning");
+</script>
+</body>
+</html>
