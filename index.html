@@ -10,12 +10,12 @@
   body { background: #111; color: #f0f0f0; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
   button { font-family: inherit; user-select: none; -webkit-user-select: none; }
 
-  /* Master Shift Selector Tier (Top Row) */
+  /* Master Shift Selector Tier (Top Bar Row) */
   .service-tier { display: flex; background: #000; border-bottom: 1px solid #222; flex-shrink: 0; padding: 6px; gap: 6px; }
-  .service-btn { flex: 1; padding: 10px 0; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 11px; letter-spacing: 1px; background: #222; color: #666; text-transform: uppercase; }
+  .service-btn { flex: 1; padding: 12px 0; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 11px; letter-spacing: 1px; background: #222; color: #666; text-transform: uppercase; }
   .service-btn.active { background: #1a3f6a; color: #3b9eff; border: 1px solid #3b9eff; }
 
-  /* Category Navigation Tabs (Second Row) */
+  /* Category Menu Filter Row (Second Bar Row) */
   .tabs-container { display: flex; background: #111; flex-shrink: 0; position: relative; border-bottom: 2px solid #2e2e2e; }
   .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 14px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; }
   .tab-btn.active { background: #1e1e1e; color: #3b9eff; border-bottom: 3px solid #3b9eff; }
@@ -30,7 +30,7 @@
   .lock-progress { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255, 153, 0, 0.3); width: 0%; transition: width 0.1s linear; }
 
   /* Main Scrollable Content Area */
-  .scroll-container { flex: 1; overflow-y: auto; display: none; }
+  .scroll-container { flex: 1; overflow-y: auto; display: none; background: #111; }
   .scroll-container.active { display: block; }
 
   /* Accordion Layout Components */
@@ -147,7 +147,7 @@
 </div>
 
 <script>
-[span_0](start_span)// Combined Centralized Database Structure[span_0](end_span)
+// Combined Centralized Database Structure
 const MENU = {
   morning: {
     food: [
@@ -163,13 +163,14 @@ const MENU = {
       { label: "Hot Drinks", items: [
         { name: "Americano", price: 3.60 }, { name: "Cafe Latte", price: 3.80 },
         { name: "Macchiato", price: 3.80 }, { name: "Cappuccino", price: 3.80 },
-        { name: "Espresso", price: 2.50 }, { name: "Mocha", price: 4.15 },
-        { name: "Decaf Coffee", price: 2.40 }, { name: "Extra Shot", price: 1.25 },
-        { name: "Flavoured Syrup", price: 1.00 }, { name: "Tea - Mug", price: 3.00 },
-        { name: "Tea - Pot", price: 4.00 }, { name: "Earl Grey - Mug", price: 2.95 },
-        { name: "Earl Grey - Pot", price: 4.10 }, { name: "Fruit Tea - Mug", price: 3.00 },
-        { name: "Fruit Tea - Pot", price: 4.10 }, { name: "Bovril", price: 3.20 },
-        { name: "Hot Choc", price: 3.95 }, { name: "Hot Choc + Cream", price: 4.20 }
+        { name: "Flat White", price: 3.80 }, { name: "Mocha", price: 4.15 },
+        { name: "Espresso", price: 2.50 }, { name: "Instant Decaf Coffee", price: 2.40 },
+        { name: "Extra Shot", price: 1.25 }, { name: "Flavoured Syrup", price: 1.00 }, 
+        { name: "Regular Tea - Mug", price: 2.95 }, { name: "Regular Tea - Pot", price: 4.00 }, 
+        { name: "Earl Grey - Mug", price: 3.00 }, { name: "Earl Grey - Pot", price: 4.10 }, 
+        { name: "Fruit Tea - Mug", price: 3.00 }, { name: "Fruit Tea - Pot", price: 4.10 }, 
+        { name: "Hot Chocolate", price: 3.95 }, { name: "Hot Choc + Cream/Marsh", price: 4.20 },
+        { name: "Bovril", price: 3.20 }
       ]}
     ]
   },
@@ -197,21 +198,19 @@ const MENU = {
       ]}
     ],
     drinks: [
-      { label: "Hot Drinks", items: [
+      { label: "Hot & Cold Beverages", items: [
         { name: "Americano", price: 3.60 }, { name: "Cafe Latte", price: 3.80 },
         { name: "Macchiato", price: 3.80 }, { name: "Cappuccino", price: 3.80 },
-        { name: "Espresso", price: 2.50 }, { name: "Mocha", price: 4.15 },
-        { name: "Decaf Coffee", price: 2.40 }, { name: "Extra Shot", price: 1.25 },
-        { name: "Flavoured Syrup", price: 1.00 }, { name: "Tea - Mug", price: 3.00 },
-        { name: "Tea - Pot", price: 4.00 }, { name: "Earl Grey - Mug", price: 2.95 },
-        { name: "Earl Grey - Pot", price: 4.10 }, { name: "Fruit Tea - Mug", price: 3.00 },
-        { name: "Fruit Tea - Pot", price: 4.10 }, { name: "Bovril", price: 3.20 },
-        { name: "Hot Choc", price: 3.95 }, { name: "Hot Choc + Cream", price: 4.20 }
-      ]},
-      { label: "Cold Drinks", items: [
-        { name: "OJ / Apple Juice", price: 1.70 }, { name: "Ribena", price: 1.90 },
-        { name: "Soft Drink Can", price: 3.00 }, { name: "Elderflower Presse", price: 3.75 },
-        { name: "Raspberry Lemonade", price: 3.75 }, { name: "Mineral Water", price: 1.90 }
+        { name: "Flat White", price: 3.80 }, { name: "Mocha", price: 4.15 },
+        { name: "Espresso", price: 2.50 }, { name: "Instant Decaf Coffee", price: 2.40 },
+        { name: "Regular Tea - Mug", price: 2.95 }, { name: "Regular Tea - Pot", price: 4.00 },
+        { name: "Earl Grey - Mug", price: 3.00 }, { name: "Earl Grey - Pot", price: 4.10 },
+        { name: "Fruit Tea - Mug", price: 3.00 }, { name: "Fruit Tea - Pot", price: 4.10 },
+        { name: "Bovril", price: 3.20 }, { name: "Hot Chocolate", price: 3.95 }, 
+        { name: "Hot Choc + Cream/Marsh", price: 4.20 }, { name: "OJ / Apple Juice", price: 1.70 }, 
+        { name: "Ribena", price: 1.90 }, { name: "Soft Drink Can", price: 3.00 }, 
+        { name: "Elderflower Presse", price: 3.75 }, { name: "Raspberry Lemonade", price: 3.75 }, 
+        { name: "Mineral Water", price: 1.90 }
       ]},
       { label: "Alcohol", items: [
         { name: "Carling", price: 5.00 }, { name: "Estrella", price: 5.25 },
@@ -220,8 +219,8 @@ const MENU = {
       ]},
       { label: "Handmade Goodies & Snacks", items: [
         { name: "Carrot Cake", price: 4.10 }, { name: "Caramel Shortcake", price: 3.65 },
-        { name: "Flapjack", price: 2.95 }, { name: "Rock Cake", price: 2.95 },
-        { name: "Choc Brownie", price: 3.65 }, { name: "Lemon Drizzle", price: 3.25 },
+        { name: "Flapjack (GF)", price: 2.95 }, { name: "Rock Cake", price: 2.95 },
+        { name: "Choc Brownie", price: 3.65 }, { name: "Lemon Drizzle (GF)", price: 3.25 },
         { name: "Bread Pudding", price: 2.95 }, { name: "Caramel Nut Slice", price: 3.65 },
         { name: "Cream Tea", price: 7.95 }, { name: "Crisps", price: 1.80 }
       ]}
@@ -229,9 +228,9 @@ const MENU = {
   }
 };
 
-[span_1](start_span)const BREAD = [{ label: "White", surcharge: 0 }, { label: "Brown Seeded", surcharge: 0 }, { label: "Baguette", surcharge: 1.80 }];[span_1](end_span)
-[span_2](start_span)const GARNISH = ["Crisps", "Salad Garnish"];[span_2](end_span)
-[span_3](start_span)const SIZES = ["Small", "Large"];[span_3](end_span)
+const BREAD = [{ label: "White", surcharge: 0 }, { label: "Brown Seeded", surcharge: 0 }, { label: "Baguette", surcharge: 1.80 }];
+const GARNISH = ["Crisps", "Salad Garnish"];
+const SIZES = ["Small", "Large"];
 
 // App State Controls
 let currentServiceMode = "main"; 
@@ -249,7 +248,7 @@ const HOLD_DURATION = 1000;
 function calculateDefaultServiceShift() {
   const now = new Date();
   const mins = (now.getHours() * 60) + now.getMinutes();
-  return mins < 705 ? "morning" : "main"; // 11:45 AM Switch line
+  return mins < 705 ? "morning" : "main"; // 11:45 AM threshold
 }
 
 function trySwitchService(targetMode) {
@@ -271,11 +270,12 @@ function executeServiceSwitch(targetMode) {
   document.getElementById("srv-btn-morning").classList.toggle("active", targetMode === "morning");
   document.getElementById("srv-btn-main").classList.toggle("active", targetMode === "main");
   
-  if (targetMode === "morning") {
-    openSections.food = "Morning Menu (10:00am–11:45am)";
-  } else {
-    openSections.food = null;
-  }
+  // Auto-expand the first menu accordion segment when changing modes
+  const foodSections = MENU[currentServiceMode]["food"] || [];
+  openSections.food = foodSections.length > 0 ? foodSections[0].label : null;
+  
+  const drinkSections = MENU[currentServiceMode]["drinks"] || [];
+  openSections.drinks = drinkSections.length > 0 ? drinkSections[0].label : null;
   
   cancelServiceSwitch();
   renderActiveViewLayouts();
@@ -288,6 +288,12 @@ function switchCategoryTab(category) {
   
   document.getElementById("food-scroll").classList.toggle("active", category === "food");
   document.getElementById("drinks-scroll").classList.toggle("active", category === "drinks");
+  
+  // Ensure an accordion label is active if empty
+  if (!openSections[category]) {
+    const sectionsList = MENU[currentServiceMode][category] || [];
+    if (sectionsList.length > 0) openSections[category] = sectionsList[0].label;
+  }
   
   renderActiveViewLayouts();
 }
@@ -390,11 +396,4 @@ function renderModal() {
 }
 
 function makeOptGroup(label, options, selected, onSelect) {
-  const div = document.createElement("div");
-  div.className = "opt-group";
-  div.innerHTML = "<div class='opt-label'>" + label + "</div>";
-  const row = document.createElement("div");
-  row.className = "opt-row";
-  for (const opt of options) {
-    const val = typeof opt === "object" ? opt.label : opt;
-    const sub = typeof opt === "object" && opt.surcharge > 0 ? " +£" + opt.surcharge
+  
