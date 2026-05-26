@@ -67,8 +67,8 @@
     z-index: 2;
   }
 
-  .menu-toggle-btn.active { background: #262626; color: #00a8ff; border-bottom: 3px solid #00a8ff; }
-  #menu-toggle-lunch.active { color: #20bf6b; border-bottom: 3px solid #20bf6b; }
+  .menu-toggle-btn.active { background: #ffffff; color: #000000; border-bottom: 3px solid #000000; }
+  #menu-toggle-lunch.active { background: #008080; color: #ffffff; border-bottom: 3px solid #00cccc; }
   #menu-toggle-lunch.holding::before { background: rgba(32, 191, 107, 0.15); }
 
   /* Sub Navigation Tabs */
@@ -830,7 +830,15 @@ function addLine(item, opts) {
   if (idx >= 0) {
     lines[idx].qty++;
   } else {
-    lines.push({ key, name: displayName, price, qty: 1, opts, food: categorisedAsFood });
+    lines.push({ 
+  key, 
+  name: displayName, 
+  price, 
+  qty: 1, 
+  opts, 
+  food: categorisedAsFood,
+  note: ""
+});
   }
   updateOrderBtn();
 }
@@ -989,6 +997,9 @@ function createLineRowElement(l, realIdx) {
   const textLabel = document.createElement("span");
   textLabel.className = "lname";
   textLabel.textContent = lineLabel(l.name, l.opts);
+  if (l.note) {
+  textLabel.innerHTML += "<br><small style='color:#ffcc66'>📝 " + l.note + "</small>";
+}
 
   const numInput = document.createElement("input");
   numInput.type = "number";
@@ -996,6 +1007,40 @@ function createLineRowElement(l, realIdx) {
   numInput.value = l.qty;
   numInput.addEventListener("change", (e) => updateLineQtyAtIndex(realIdx, e.target.value));
 
+  const noteBtn = document.createElement("button");
+noteBtn.textContent = "NOTE";
+noteBtn.style.background = "#666";
+noteBtn.style.color = "#fff";
+noteBtn.style.border = "none";
+noteBtn.style.borderRadius = "4px";
+noteBtn.style.padding = "4px 8px";
+noteBtn.style.cursor = "pointer";
+
+noteBtn.addEventListener("click", () => {
+  const newNote = prompt("Chef note:", l.note || "");
+  
+  if (newNote !== null) {
+    lines[realIdx].note = newNote;
+    renderOrderSheet();
+  }
+});
+  const noteBtn = document.createElement("button");
+noteBtn.textContent = "NOTE";
+noteBtn.style.background = "#666";
+noteBtn.style.color = "#fff";
+noteBtn.style.border = "none";
+noteBtn.style.borderRadius = "4px";
+noteBtn.style.padding = "4px 8px";
+noteBtn.style.cursor = "pointer";
+
+noteBtn.addEventListener("click", () => {
+  const newNote = prompt("Chef note:", l.note || "");
+  
+  if (newNote !== null) {
+    lines[realIdx].note = newNote;
+    renderOrderSheet();
+  }
+});
   const priceLabel = document.createElement("span");
   priceLabel.className = "lprice";
   priceLabel.textContent = "£" + (l.price * l.qty).toFixed(2);
@@ -1046,6 +1091,8 @@ div.appendChild(remBtn);
 div.appendChild(textLabel);
 div.appendChild(editBtn);
 div.appendChild(numInput);
+div.appendChild(noteBtn);
+div.appendChild(noteBtn);
 div.appendChild(priceLabel);
 
   return div;
