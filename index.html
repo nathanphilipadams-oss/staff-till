@@ -362,7 +362,8 @@ const BREAD = [
 const GARNISH = ["Crisps", "Salad Garnish"];
 const SIZES = ["Small", "Large"];
 const MILKS = [
-  { label: "Semi-Skimmed", surcharge: 0 },
+  { label: "Normal Milk", surcharge: 0 },
+  { label: "No Milk", surcharge: 0 },
   { label: "Soya Milk", surcharge: 0.40 },
   { label: "Oat Milk", surcharge: 0.40 }
 ];
@@ -980,10 +981,53 @@ function createLineRowElement(l, realIdx) {
   priceLabel.className = "lprice";
   priceLabel.textContent = "£" + (l.price * l.qty).toFixed(2);
 
-  div.appendChild(remBtn);
-  div.appendChild(textLabel);
-  div.appendChild(numInput);
-  div.appendChild(priceLabel);
+const editBtn = document.createElement("button");
+
+editBtn.textContent = "EDIT";
+
+editBtn.style.background = "#3b9eff";
+editBtn.style.border = "none";
+editBtn.style.color = "white";
+editBtn.style.padding = "4px 8px";
+editBtn.style.borderRadius = "4px";
+editBtn.style.cursor = "pointer";
+
+editBtn.addEventListener("click", () => {
+
+  if (!l.opts) return;
+
+  const milkChoice = prompt(
+    "Milk? normal / none / soya / oat",
+    l.opts.milk || "Normal Milk"
+  );
+
+  if (!milkChoice) return;
+
+  if (milkChoice.toLowerCase() === "normal") {
+    l.opts.milk = "Normal Milk";
+  }
+
+  if (milkChoice.toLowerCase() === "none") {
+    l.opts.milk = "No Milk";
+  }
+
+  if (milkChoice.toLowerCase() === "soya") {
+    l.opts.milk = "Soya Milk";
+  }
+
+  if (milkChoice.toLowerCase() === "oat") {
+    l.opts.milk = "Oat Milk";
+  }
+
+  renderOrderSheet();
+
+});
+
+div.appendChild(remBtn);
+div.appendChild(textLabel);
+div.appendChild(editBtn);
+div.appendChild(numInput);
+div.appendChild(priceLabel);
 
   return div;
 }
