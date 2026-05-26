@@ -468,66 +468,120 @@ function renderSubTabsBar() {
 }
 
 function renderMenuGrid() {
+
   const container = document.getElementById("menu-scroll-view");
+
   container.innerHTML = "";
-  
+
   const currentCategoryData = DATASETS[activeMainMenu][activeSubTab];
+
   if (!currentCategoryData) return;
 
   const sectionsList = currentCategoryData.sections;
+
   const standardOnlyOne = (sectionsList.length === 1);
 
   sectionsList.forEach(section => {
-    const sectionId = activeMainMenu + "_" + activeSubTab + "_" + section.label;
-    
+
+    const sectionId =
+      activeMainMenu + "_" +
+      activeSubTab + "_" +
+      section.label;
+
     if (openSections[sectionId] === undefined) {
-      openSections[sectionId] = standardOnlyOne; 
+      openSections[sectionId] = standardOnlyOne;
     }
+
     const isSectionOpen = openSections[sectionId];
-    
+
     const accBtn = document.createElement("button");
-    accBtn.className = "acc-btn" + (isSectionOpen ? " open" : "");
-    accBtn.innerHTML = "<span>" + section.label.toUpperCase() + "</span><span>" + (isSectionOpen ? "▲" : "▼") + "</span>";
+
+    accBtn.className =
+      "acc-btn" + (isSectionOpen ? " open" : "");
+
+    accBtn.innerHTML =
+      "<span>" +
+      section.label.toUpperCase() +
+      "</span><span>" +
+      (isSectionOpen ? "▲" : "▼") +
+      "</span>";
+
     accBtn.addEventListener("click", () => {
-      openSections[sectionId] = !openSections[sectionId];
+
+      openSections[sectionId] =
+        !openSections[sectionId];
+
       renderMenuGrid();
+
     });
+
     container.appendChild(accBtn);
 
     if (isSectionOpen) {
+
       const grid = document.createElement("div");
+
       grid.className = "acc-grid";
 
       if (section.label === "Ice Cream Selection") {
-        const subHeadingStyles = "grid-column: span 3; background: #222; color: #aaa; font-weight: 800; font-size: 11px; padding: 6px 10px; margin-top: 5px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;";
-        
+
+        const subHeadingStyles =
+          "grid-column: span 3; background: #222; color: #aaa; font-weight: 800; font-size: 11px; padding: 6px 10px; margin-top: 5px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;";
+
         const sub1 = document.createElement("div");
+
         sub1.style = subHeadingStyles;
+
         sub1.textContent = "Cones & Tubs";
+
         grid.appendChild(sub1);
-        
-        section.items.filter(i => i.subHeading === "Cones & Tubs").forEach(item => {
-          grid.appendChild(createItemButton(item));
-        });
+
+        section.items
+          .filter(i => i.subHeading === "Cones & Tubs")
+          .forEach(item => {
+
+            grid.appendChild(createItemButton(item));
+
+          });
 
         const sub2 = document.createElement("div");
-        sub2.style = subHeadingStyles + " margin-top: 12px;";
-        sub2.textContent = "Packaged Lollies & Tubs";
-        grid.appendChild(sub2);
-        
-        section.items.filter(i => i.subHeading === "Packaged Lollies & Tubs").forEach(item => {
-          grid.appendChild(createItemButton(item));
-        });
-      } else {
-        section.items.forEach(item => {
-          grid.appendChild(createItemButton(item));
-        });
-      }
-      container.appendChild(grid);
-    }
-  });
-}
 
+        sub2.style =
+          subHeadingStyles + " margin-top: 12px;";
+
+        sub2.textContent =
+          "Packaged Lollies & Tubs";
+
+        grid.appendChild(sub2);
+
+        section.items
+          .filter(i =>
+            i.subHeading ===
+            "Packaged Lollies & Tubs"
+          )
+          .forEach(item => {
+
+            grid.appendChild(createItemButton(item));
+
+          });
+
+      } else {
+
+        section.items.forEach(item => {
+
+          grid.appendChild(createItemButton(item));
+
+        });
+
+      }
+
+      container.appendChild(grid);
+
+    }
+
+  });
+
+}
 function createItemButton(item) {
   const btn = document.createElement("button");
   btn.className = "item-btn";
