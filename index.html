@@ -41,10 +41,10 @@
     z-index: 1;
   }
   
-  /* When holding down, animate the width over 1s */
+  /* When holding down, animate the width over 0.5s */
   .menu-toggle-btn.holding::before {
     width: 100%;
-    transition: width 1s linear;
+    transition: width 0.5s linear;
   }
   
   .menu-toggle-btn span {
@@ -74,8 +74,13 @@
   .item-name { display: block; font-weight: 600; }
   .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
 
+  /* Sticky Custom Item Trigger Bar (placed above View Order) */
+  .custom-item-bar { background: #1f1f1f; border-top: 1px solid #2e2e2e; padding: 8px 12px; flex-shrink: 0; }
+  .custom-item-btn { width: 100%; padding: 10px 0; border: 1px dashed #555; background: #262626; color: #aaa; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; letter-spacing: 1px; text-align: center; transition: background 0.2s; }
+  .custom-item-btn:hover { background: #333; color: #fff; border-color: #888; }
+
   /* Bottom Sticky View Order Panel Bar */
-  #order-btn { width: 100%; flex-shrink: 0; padding: 16px 20px; border: none; cursor: pointer; background: #333; color: #fff; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+  #order-btn { width: 100%; flex-shrink: 0; padding: 16px 20px; border: none; cursor: pointer; background: #333; color: #fff; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #444; }
   #order-btn.has-items { background: #3b9eff; }
 
   /* Popover Slide Up Receipt Drawers */
@@ -98,14 +103,53 @@
   .order-line .lprice { min-width: 52px; text-align: right; color: #3b9eff; font-weight: 700; font-size: 14px; }
   .empty-msg { color: #555; text-align: center; padding: 40px 0; }
 
-  .sheet-total { padding: 14px 16px; background: #000; border-top: 2px solid #2e2e2e; display: flex; justify-content: space-between; align-items: baseline; flex-shrink: 0; }
+  /* Discount & Total Sheet Rows */
+  .discount-row-active { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #2a1b1b; border-top: 1px solid #4a2323; color: #ff6b6b; font-size: 13px; font-weight: 700; }
+  .discount-row-active button { background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 14px; font-weight: 800; }
+
+  .sheet-total-container { background: #000; border-top: 2px solid #2e2e2e; flex-shrink: 0; display: flex; flex-direction: column; }
+  
+  /* Hold Discount Trigger Button */
+  .discount-hold-btn {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    background: #222;
+    color: #e67e22;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid #2e2e2e;
+  }
+  .discount-hold-btn::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: rgba(230, 126, 34, 0.2);
+    transition: width 0s linear;
+    z-index: 1;
+  }
+  .discount-hold-btn.holding::before {
+    width: 100%;
+    transition: width 1s linear; /* 1 Second Hold */
+  }
+  .discount-hold-btn span { position: relative; z-index: 2; }
+
+  .sheet-total { padding: 12px 16px; display: flex; justify-content: space-between; align-items: baseline; }
   .sheet-total span:first-child { color: #666; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
   .sheet-total span:last-child { font-size: 36px; font-weight: 900; color: #3b9eff; }
 
   /* Options Dialogue Popup Card */
   #opt-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99; display: none; align-items: center; justify-content: center; padding: 20px; }
   #opt-overlay.show { display: flex; }
-  #opt-box { background: #1e1e1e; border-radius: 10px; padding: 20px; width: 100%; max-width: 320px; border: 1px solid #2e2e2e; }
+  #opt-box { background: #1e1e1e; border-radius: 10px; padding: 20px; width: 100%; max-width: 350px; border: 1px solid #2e2e2e; }
   #opt-title { font-weight: 800; font-size: 15px; margin-bottom: 2px; }
   #opt-price { color: #3b9eff; font-weight: 700; font-size: 20px; margin-bottom: 16px; }
   .opt-group { margin-bottom: 14px; }
@@ -116,6 +160,13 @@
   .opt-actions { display: flex; gap: 8px; margin-top: 18px; }
   #opt-cancel { flex: 1; padding: 11px 0; background: #333; color: #f0f0f0; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; }
   #opt-add { flex: 2; padding: 11px 0; background: #3b9eff; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 15px; }
+
+  /* Custom Numeric Entry Box Layout */
+  .num-input-wrap { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .num-display { width: 100%; padding: 12px; background: #111; border: 1px solid #333; border-radius: 6px; font-size: 24px; font-weight: 900; text-align: right; color: #20bf6b; letter-spacing: 1px; }
+  .num-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .num-btn { padding: 14px 0; background: #2a2a2a; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .num-btn:active { background: #3b9eff; }
 </style>
 </head>
 <body>
@@ -129,6 +180,10 @@
 
 <div class="scroll-container" id="menu-scroll-view"></div>
 
+<div class="custom-item-bar">
+  <button class="custom-item-btn" id="trigger-custom-btn">+ ADD CUSTOM AMOUNT</button>
+</div>
+
 <button id="order-btn">
   <span id="order-btn-label">VIEW ORDER</span>
   <span id="order-btn-total"></span>
@@ -137,16 +192,28 @@
 <div class="overlay" id="order-overlay">
   <div class="sheet">
     <div class="sheet-head">
-      <span>ORDER</span>
+      <span>ORDER BREAKDOWN</span>
       <div class="sheet-btns">
         <button class="btn-clear" id="clear-all-btn">CLEAR</button>
         <button class="btn-close" id="close-order-btn">CLOSE</button>
       </div>
     </div>
+    
     <div class="sheet-body" id="order-body"></div>
-    <div class="sheet-total" id="order-total-bar" style="display:none">
-      <span>TOTAL</span>
-      <span id="order-total-amt"></span>
+    
+    <div id="discount-status-row" class="discount-row-active" style="display:none">
+      <span>15% DISCOUNT APPLIED</span>
+      <button id="remove-discount-btn">✕ REMOVE</button>
+    </div>
+
+    <div class="sheet-total-container" id="order-total-bar" style="display:none">
+      <button class="discount-hold-btn" id="discount-hold-action">
+        <span>HOLD FOR 1 SEC TO APPLY 15% DISCOUNT</span>
+      </button>
+      <div class="sheet-total">
+        <span>TOTAL TO PAY</span>
+        <span id="order-total-amt"></span>
+      </div>
     </div>
   </div>
 </div>
@@ -164,7 +231,6 @@
 </div>
 
 <script>
-// Menu Dataset Configuration
 const DATASETS = {
   morning: {
     tabs: ["breakfast", "beverages"],
@@ -246,6 +312,17 @@ const DATASETS = {
           { name: "Lemon Drizzle Cake (GF)", price: 3.25 },
           { name: "Cream Tea", price: 7.95 }, 
           { name: "Crisps", price: 1.80 }
+        ]},
+        { label: "Ice Cream Selection", items: [
+          { name: "New Forest Scoops", price: 0.00, askIceCreamFlavour: true, subHeading: "Cones & Tubs" },
+          { name: "Supreme Lolly", price: 2.80, askSupremeFlavour: true, subHeading: "Packaged Lollies & Tubs" },
+          { name: "Party Push Up", price: 2.60, subHeading: "Packaged Lollies & Tubs" },
+          { name: "Fruit Vortex", price: 2.20, subHeading: "Packaged Lollies & Tubs" },
+          { name: "Squeeze Up Lolly", price: 2.00, askSqueezeFlavour: true, subHeading: "Packaged Lollies & Tubs" },
+          { name: "Jazzie Lolly", price: 2.20, subHeading: "Packaged Lollies & Tubs" },
+          { name: "Blackcurrant Sorbet Tub", price: 3.00, subHeading: "Packaged Lollies & Tubs" },
+          { name: "Raspberry Ripple Vegan Tub", price: 3.50, subHeading: "Packaged Lollies & Tubs" },
+          { name: "IWICC Salted Caramel Vegan Tub", price: 3.50, subHeading: "Packaged Lollies & Tubs" }
         ]}
       ]
     },
@@ -255,11 +332,6 @@ const DATASETS = {
           { name: "OJ / Apple Juice", price: 1.70 }, { name: "Ribena", price: 1.90 },
           { name: "Soft Drink Can", price: 3.00 }, { name: "Elderflower Presse", price: 3.75 },
           { name: "Raspberry Lemonade", price: 3.75 }, { name: "Mineral Water", price: 1.90 }
-        ]},
-        { label: "Alcohol", items: [
-          { name: "Carling", price: 5.00 }, { name: "Estrella", price: 5.25 },
-          { name: "Planet Lager", price: 6.50 }, { name: "Wight Gold Ale", price: 6.50 },
-          { name: "Fuggle Dee Dum", price: 6.50 }, { name: "Cider", price: 6.50 }
         ]}
       ]
     }
@@ -279,19 +351,36 @@ const MILKS = [
   { label: "Oat Milk", surcharge: 0.40 }
 ];
 
-// Active Processing Parameters
+const CONE_TYPES = [
+  { label: "Single Regular Cone", basePrice: 3.25 },
+  { label: "Waffle Cone", basePrice: 3.50 }
+];
+const ICE_CREAM_FLAVOURS = [
+  "Vanilla", "Strawberry", "Toffee Crunch", "Salted Caramel", 
+  "Rum & Raisin", "Bubblegum", "Oriental Ginger", "Mint Choc Chip", 
+  "Banoffee", "Coffee Mocha Swirl", "Chocolate with Ripple", "Honeycomb Swirl"
+];
+const FLAKE_OPTIONS = [
+  { label: "No Flake", surcharge: 0 },
+  { label: "Add Flake", surcharge: 0.50 }
+];
+
+const SUPREME_FLAVOURS = ["Milk Chocolate", "White Chocolate", "Almond"];
+const SQUEEZE_FLAVOURS = ["Blackcurrant", "Lemon & Lime", "Orange"];
+
 let activeMainMenu = "morning";
 let activeSubTab = "breakfast";
 let openSections = {};
 let lines = [];
 let modalItem = null;
 let modalOpts = {};
+let discountApplied = false;
 
-// Hold-to-confirm timer tracks
 let holdTimer = null;
 let holdTargetMenu = null;
+let discountHoldTimer = null;
+let customAmountBuffer = "0";
 
-// Bind UI event actions cleanly
 setupHoldToSwitchButton("menu-toggle-morning", "morning");
 setupHoldToSwitchButton("menu-toggle-lunch", "lunch");
 
@@ -300,20 +389,23 @@ document.getElementById("close-order-btn").addEventListener("click", closeOrder)
 document.getElementById("clear-all-btn").addEventListener("click", clearAll);
 document.getElementById("opt-cancel").addEventListener("click", closeModal);
 document.getElementById("opt-add").addEventListener("click", confirmAdd);
+document.getElementById("trigger-custom-btn").addEventListener("click", openCustomAmountModal);
+document.getElementById("remove-discount-btn").addEventListener("click", removeDiscount);
 
-// Setup press-and-hold bindings for touch and mouse
+setupDiscountHoldAction();
+
 function setupHoldToSwitchButton(elementId, menuKey) {
   const btn = document.getElementById(elementId);
 
   const startHold = (e) => {
-    if (activeMainMenu === menuKey) return; // Already on this menu
+    if (activeMainMenu === menuKey) return;
     holdTargetMenu = menuKey;
     btn.classList.add("holding");
     
     holdTimer = setTimeout(() => {
       switchMainMenu(menuKey);
       endHold();
-    }, 1000); // 1 Second Hold required
+    }, 500);
   };
 
   const endHold = () => {
@@ -322,12 +414,10 @@ function setupHoldToSwitchButton(elementId, menuKey) {
     holdTargetMenu = null;
   };
 
-  // Mouse controls
   btn.addEventListener("mousedown", startHold);
   btn.addEventListener("mouseup", endHold);
   btn.addEventListener("mouseleave", endHold);
 
-  // Touch device controls
   btn.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(e); }, { passive: false });
   btn.addEventListener("touchend", endHold);
   btn.addEventListener("touchcancel", endHold);
@@ -340,6 +430,7 @@ function switchMainMenu(menuKey) {
   document.getElementById("menu-toggle-morning").classList.toggle("active", menuKey === "morning");
   document.getElementById("menu-toggle-lunch").classList.toggle("active", menuKey === "lunch");
   
+  openSections = {};
   renderSubTabsBar();
   switchSubTab(activeSubTab);
 }
@@ -353,22 +444,9 @@ function renderSubTabsBar() {
     const btn = document.createElement("button");
     btn.className = "tab-btn";
     btn.textContent = dataset.tabLabels[tabKey];
-    btn.addEventListener("click", () => switchSubTab(tabKey));
-    container.appendChild(btn);
-  });
-}
-
-function switchSubTab(tabKey) {
+    btn.addEventListener("click", () => switchSubTab(tabKey) {
   activeSubTab = tabKey;
-  const dataset = DATASETS[activeMainMenu];
-  
-  const buttons = document.querySelectorAll(".tabs-container .tab-btn");
-  dataset.tabs.forEach((tKey, idx) => {
-    if (buttons[idx]) {
-      buttons[idx].classList.toggle("active", tKey === tabKey);
-    }
-  });
-  
+  openSections = {};
   renderMenuGrid();
 }
 
@@ -379,9 +457,15 @@ function renderMenuGrid() {
   const currentCategoryData = DATASETS[activeMainMenu][activeSubTab];
   if (!currentCategoryData) return;
 
-  currentCategoryData.sections.forEach(section => {
+  const sectionsList = currentCategoryData.sections;
+  const standardOnlyOne = (sectionsList.length === 1);
+
+  sectionsList.forEach(section => {
     const sectionId = activeMainMenu + "_" + activeSubTab + "_" + section.label;
-    if (openSections[sectionId] === undefined) openSections[sectionId] = true;
+    
+    if (openSections[sectionId] === undefined) {
+      openSections[sectionId] = standardOnlyOne; 
+    }
     const isSectionOpen = openSections[sectionId];
     
     const accBtn = document.createElement("button");
@@ -396,19 +480,53 @@ function renderMenuGrid() {
     if (isSectionOpen) {
       const grid = document.createElement("div");
       grid.className = "acc-grid";
-      section.items.forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = "item-btn";
-        const priceStr = item.askSize
-          ? "£" + item.prices.Small.toFixed(2) + "–£" + item.prices.Large.toFixed(2)
-          : "£" + item.price.toFixed(2);
-        btn.innerHTML = "<span class='item-name'>" + item.name + "</span><span class='item-price'>" + priceStr + "</span>";
-        btn.addEventListener("click", () => tapItem(item));
-        grid.appendChild(btn);
-      });
+
+      if (section.label === "Ice Cream Selection") {
+        const subHeadingStyles = "grid-column: span 3; background: #222; color: #aaa; font-weight: 800; font-size: 11px; padding: 6px 10px; margin-top: 5px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;";
+        
+        const sub1 = document.createElement("div");
+        sub1.style = subHeadingStyles;
+        sub1.textContent = "Cones & Tubs";
+        grid.appendChild(sub1);
+        
+        section.items.filter(i => i.subHeading === "Cones & Tubs").forEach(item => {
+          grid.appendChild(createItemButton(item));
+        });
+
+        const sub2 = document.createElement("div");
+        sub2.style = subHeadingStyles + " margin-top: 12px;";
+        sub2.textContent = "Packaged Lollies & Tubs";
+        grid.appendChild(sub2);
+        
+        section.items.filter(i => i.subHeading === "Packaged Lollies & Tubs").forEach(item => {
+          grid.appendChild(createItemButton(item));
+        });
+      } else {
+        section.items.forEach(item => {
+          grid.appendChild(createItemButton(item));
+        });
+      }
       container.appendChild(grid);
     }
   });
+}
+
+function createItemButton(item) {
+  const btn = document.createElement("button");
+  btn.className = "item-btn";
+  
+  let priceStr = "";
+  if (item.askSize) {
+    priceStr = "£" + item.prices.Small.toFixed(2) + "–£" + item.prices.Large.toFixed(2);
+  } else if (item.askIceCreamFlavour) {
+    priceStr = "£3.25 / £3.50";
+  } else {
+    priceStr = "£" + item.price.toFixed(2);
+  }
+  
+  btn.innerHTML = "<span class='item-name'>" + item.name + "</span><span class='item-price'>" + priceStr + "</span>";
+  btn.addEventListener("click", () => tapItem(item));
+  return btn;
 }
 
 function lineKey(name, opts) {
@@ -417,25 +535,45 @@ function lineKey(name, opts) {
 
 function lineLabel(name, opts) {
   if (!opts) return name;
-  const parts = [opts.size, opts.bread, opts.garnish, opts.milk].filter(Boolean);
+  const parts = [
+    opts.flavour, opts.cone, opts.flake,
+    opts.size, opts.bread, opts.garnish, opts.milk
+  ].filter(Boolean);
   return parts.length ? name + " (" + parts.join(", ") + ")" : name;
 }
 
 function calcPrice(item, opts) {
-  const base = item.askSize ? item.prices[(opts && opts.size) || "Small"] : item.price;
+  if (item.isCustom) return item.price;
+
+  if (item.askIceCreamFlavour && opts) {
+    const selectedCone = CONE_TYPES.find(c => c.label === opts.cone);
+    const selectedFlake = FLAKE_OPTIONS.find(f => f.label === opts.flake);
+    const base = selectedCone ? selectedCone.basePrice : 3.25;
+    const extra = selectedFlake ? selectedFlake.surcharge : 0;
+    return base + extra;
+  }
+
+  if (item.askSize) {
+    return item.prices[(opts && opts.size) || "Small"];
+  }
+  
+  const base = item.price || 0;
   const bread = opts && opts.bread ? BREAD.find(b => b.label === opts.bread) : null;
   const milk = opts && opts.milk ? MILKS.find(m => m.label === opts.milk) : null;
   return base + (bread ? bread.surcharge : 0) + (milk ? milk.surcharge : 0);
 }
 
 function tapItem(item) {
-  if (item.askSize || item.askBread || item.askGarnish || item.askMilk) {
+  if (item.askSize || item.askBread || item.askGarnish || item.askMilk || item.askIceCreamFlavour || item.askSupremeFlavour || item.askSqueezeFlavour) {
     modalItem = item;
     modalOpts = {
       size: item.askSize ? SIZES[0] : null,
       bread: item.askBread ? BREAD[0].label : null,
       garnish: item.askGarnish ? GARNISH[0] : null,
-      milk: item.askMilk ? MILKS[0].label : null
+      milk: item.askMilk ? MILKS[0].label : null,
+      cone: item.askIceCreamFlavour ? CONE_TYPES[0].label : null,
+      flavour: item.askIceCreamFlavour ? ICE_CREAM_FLAVOURS[0] : (item.askSupremeFlavour ? SUPREME_FLAVOURS[0] : (item.askSqueezeFlavour ? SQUEEZE_FLAVOURS[0] : null)),
+      flake: item.askIceCreamFlavour ? FLAKE_OPTIONS[0].label : null
     };
     renderModal();
     document.getElementById("opt-overlay").classList.add("show");
@@ -449,6 +587,25 @@ function renderModal() {
   updateModalPrice();
   const groups = document.getElementById("opt-groups");
   groups.innerHTML = "";
+
+  if (modalItem.isCustom) {
+    groups.appendChild(makeNumericEntryPad());
+    return;
+  }
+
+  if (modalItem.askIceCreamFlavour) {
+    groups.appendChild(makeOptGroup("FLAVOUR", ICE_CREAM_FLAVOURS.map(f => ({ label: f, surcharge: 0 })), modalOpts.flavour, f => { modalOpts.flavour = f; renderModal(); }));
+    groups.appendChild(makeOptGroup("CONE SELECTION", CONE_TYPES.map(c => ({ label: c.label, surcharge: 0 })), modalOpts.cone, c => { modalOpts.cone = c; renderModal(); }));
+    groups.appendChild(makeOptGroup("FLAKE OPTION", FLAKE_OPTIONS.map(f => ({ label: f.label, surcharge: 0 })), modalOpts.flake, f => { modalOpts.flake = f; renderModal(); }));
+  }
+
+  if (modalItem.askSupremeFlavour) {
+    groups.appendChild(makeOptGroup("SUPREME SELECTION", SUPREME_FLAVOURS.map(f => ({ label: f, surcharge: 0 })), modalOpts.flavour, f => { modalOpts.flavour = f; renderModal(); }));
+  }
+
+  if (modalItem.askSqueezeFlavour) {
+    groups.appendChild(makeOptGroup("FLAVOUR SELECTION", SQUEEZE_FLAVOURS.map(f => ({ label: f, surcharge: 0 })), modalOpts.flavour, f => { modalOpts.flavour = f; renderModal(); }));
+  }
 
   if (modalItem.askSize) groups.appendChild(makeOptGroup("SIZE", SIZES.map(s => ({ label: s, surcharge: 0 })), modalOpts.size, s => { modalOpts.size = s; renderModal(); }));
   if (modalItem.askBread) groups.appendChild(makeOptGroup("BREAD", BREAD, modalOpts.bread, b => { modalOpts.bread = b; renderModal(); }));
@@ -475,6 +632,63 @@ function makeOptGroup(label, options, selected, onSelect) {
   return div;
 }
 
+function makeNumericEntryPad() {
+  const wrap = document.createElement("div");
+  wrap.className = "num-input-wrap";
+
+  const display = document.createElement("div");
+  display.className = "num-display";
+  display.textContent = "£" + (parseInt(customAmountBuffer) / 100).toFixed(2);
+  wrap.appendChild(display);
+
+  const grid = document.createElement("div");
+  grid.className = "num-grid";
+
+  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "CLR", "0", "✕"];
+  keys.forEach(k => {
+    const btn = document.createElement("button");
+    btn.className = "num-btn";
+    btn.textContent = k;
+    btn.type = "button";
+    btn.addEventListener("click", () => handleNumPress(k, display));
+    grid.appendChild(btn);
+  });
+
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+function handleNumPress(key, displayElement) {
+  if (key === "CLR") {
+    customAmountBuffer = "0";
+  } else if (key === "✕") {
+    if (customAmountBuffer.length > 1) {
+      customAmountBuffer = customAmountBuffer.slice(0, -1);
+    } else {
+      customAmountBuffer = "0";
+    }
+  } else {
+    if (customAmountBuffer === "0") {
+      customAmountBuffer = key;
+    } else if (customAmountBuffer.length < 7) {
+      customAmountBuffer += key;
+    }
+  }
+  
+  const numericVal = parseInt(customAmountBuffer) / 100;
+  modalItem.price = numericVal;
+  displayElement.textContent = "£" + numericVal.toFixed(2);
+  updateModalPrice();
+}
+
+function openCustomAmountModal() {
+  customAmountBuffer = "0";
+  modalItem = { name: "Custom Charge Item", price: 0, isCustom: true };
+  modalOpts = {};
+  renderModal();
+  document.getElementById("opt-overlay").classList.add("show");
+}
+
 function updateModalPrice() {
   const p = calcPrice(modalItem, modalOpts);
   document.getElementById("opt-price").textContent = "£" + p.toFixed(2);
@@ -482,7 +696,15 @@ function updateModalPrice() {
 }
 
 function confirmAdd() {
-  addLine(modalItem, { size: modalOpts.size, bread: modalOpts.bread, garnish: modalOpts.garnish, milk: modalOpts.milk });
+  addLine(modalItem, modalItem.isCustom ? null : { 
+    size: modalOpts.size, 
+    bread: modalOpts.bread, 
+    garnish: modalOpts.garnish, 
+    milk: modalOpts.milk,
+    cone: modalOpts.cone,
+    flavour: modalOpts.flavour,
+    flake: modalOpts.flake
+  });
   closeModal();
 }
 
@@ -492,17 +714,32 @@ function closeModal() {
 
 function addLine(item, opts) {
   const price = calcPrice(item, opts);
-  const key = lineKey(item.name, opts);
+  
+  let displayName = item.name;
+  if (item.askIceCreamFlavour && opts) {
+    displayName = opts.flavour + " Scoop";
+  } else if (item.askSupremeFlavour && opts) {
+    displayName = opts.flavour + " Supreme";
+  } else if (item.askSqueezeFlavour && opts) {
+    displayName = opts.flavour + " Squeeze Up";
+  }
+
+  const key = lineKey(displayName, opts);
   const idx = lines.findIndex(l => l.key === key);
   
-  const isBreakfastItem = DATASETS.morning.breakfast.sections[0].items.some(i => i.name === item.name);
-  const isLunchFood = DATASETS.lunch.food.sections.some(s => s.items.some(i => i.name === item.name));
-  const categorisedAsFood = isBreakfastItem || isLunchFood;
+  let categorisedAsFood = false;
+  if (item.isCustom) {
+    categorisedAsFood = true; 
+  } else {
+    const isBreakfastItem = DATASETS.morning.breakfast.sections[0].items.some(i => i.name === item.name);
+    const isLunchFood = DATASETS.lunch.food.sections.some(s => s.items.some(i => i.name === item.name));
+    categorisedAsFood = isBreakfastItem || isLunchFood;
+  }
 
   if (idx >= 0) {
     lines[idx].qty++;
   } else {
-    lines.push({ key, name: item.name, price, qty: 1, opts, food: categorisedAsFood });
+    lines.push({ key, name: displayName, price, qty: 1, opts, food: categorisedAsFood });
   }
   updateOrderBtn();
 }
@@ -529,7 +766,12 @@ function updateOrderBtn() {
   const btn = document.getElementById("order-btn");
   const label = document.getElementById("order-btn-label");
   const tot = document.getElementById("order-btn-total");
-  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  
+  let total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  if (discountApplied) {
+    total = total * 0.85; 
+  }
+  
   const count = lines.reduce((s, l) => s + l.qty, 0);
   if (lines.length > 0) {
     btn.classList.add("has-items");
@@ -553,19 +795,59 @@ function closeOrder() {
 
 function clearAll() {
   lines = [];
+  discountApplied = false;
   updateOrderBtn();
   closeOrder();
+}
+
+function setupDiscountHoldAction() {
+  const btn = document.getElementById("discount-hold-action");
+
+  const startHold = (e) => {
+    if (discountApplied || lines.length === 0) return;
+    btn.classList.add("holding");
+    
+    discountHoldTimer = setTimeout(() => {
+      discountApplied = true;
+      updateOrderBtn();
+      renderOrderSheet();
+      endHold();
+    }, 1000); 
+  };
+
+  const endHold = () => {
+    if (discountHoldTimer) clearTimeout(discountHoldTimer);
+    btn.classList.remove("holding");
+  };
+
+  btn.addEventListener("mousedown", startHold);
+  btn.addEventListener("mouseup", endHold);
+  btn.addEventListener("mouseleave", endHold);
+
+  btn.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(e); }, { passive: false });
+  btn.addEventListener("touchend", endHold);
+  btn.addEventListener("touchcancel", endHold);
+}
+
+function removeDiscount() {
+  discountApplied = false;
+  updateOrderBtn();
+  renderOrderSheet();
 }
 
 function renderOrderSheet() {
   const body = document.getElementById("order-body");
   const totalBar = document.getElementById("order-total-bar");
   const totalAmt = document.getElementById("order-total-amt");
+  const discountRow = document.getElementById("discount-status-row");
+  const holdDiscountBtn = document.getElementById("discount-hold-action");
+  
   body.innerHTML = "";
 
   if (lines.length === 0) {
     body.innerHTML = "<div class='empty-msg'>Nothing added yet</div>";
     totalBar.style.display = "none";
+    discountRow.style.display = "none";
     return;
   }
 
@@ -589,7 +871,17 @@ function renderOrderSheet() {
     drinkLines.forEach(l => body.appendChild(createLineRowElement(l, l.originalIndex)));
   }
 
-  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  let total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  
+  if (discountApplied) {
+    total = total * 0.85; 
+    discountRow.style.display = "flex";
+    holdDiscountBtn.style.display = "none"; 
+  } else {
+    discountRow.style.display = "none";
+    holdDiscountBtn.style.display = "block"; 
+  }
+
   totalAmt.textContent = "£" + total.toFixed(2);
   totalBar.style.display = "flex";
 }
@@ -625,7 +917,6 @@ function createLineRowElement(l, realIdx) {
   return div;
 }
 
-// Global initialization sequence trigger step
 switchMainMenu("morning");
 </script>
 </body>
