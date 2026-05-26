@@ -482,7 +482,11 @@ function renderSubTabsBar() {
     container.appendChild(btn);
   });
 }
-
+function switchSubTab(tabKey) {
+  activeSubTab = tabKey;
+  openSections = {};
+  renderMenuGrid();
+}
 function renderMenuGrid() {
 
   const container = document.getElementById("menu-scroll-view");
