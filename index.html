@@ -454,32 +454,20 @@ function switchMainMenu(menuKey) {
 function renderSubTabsBar() {
   const container = document.getElementById("sub-tabs-bar");
   container.innerHTML = "";
-
   const dataset = DATASETS[activeMainMenu];
-
+  
   dataset.tabs.forEach(tabKey => {
-
     const btn = document.createElement("button");
-
     btn.className = "tab-btn";
-
     btn.textContent = dataset.tabLabels[tabKey];
 
     btn.addEventListener("click", () => switchSubTab(tabKey));
 
     container.appendChild(btn);
-
   });
 }
 
-function switchSubTab(tabKey) {
-
-  activeSubTab = tabKey;
-
-  openSections = {};
-
-  renderMenuGrid();
-}
+function renderMenuGrid() {
   const container = document.getElementById("menu-scroll-view");
   container.innerHTML = "";
   
