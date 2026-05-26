@@ -1024,23 +1024,6 @@ noteBtn.addEventListener("click", () => {
     renderOrderSheet();
   }
 });
-  const noteBtn = document.createElement("button");
-noteBtn.textContent = "NOTE";
-noteBtn.style.background = "#666";
-noteBtn.style.color = "#fff";
-noteBtn.style.border = "none";
-noteBtn.style.borderRadius = "4px";
-noteBtn.style.padding = "4px 8px";
-noteBtn.style.cursor = "pointer";
-
-noteBtn.addEventListener("click", () => {
-  const newNote = prompt("Chef note:", l.note || "");
-  
-  if (newNote !== null) {
-    lines[realIdx].note = newNote;
-    renderOrderSheet();
-  }
-});
   const priceLabel = document.createElement("span");
   priceLabel.className = "lprice";
   priceLabel.textContent = "£" + (l.price * l.qty).toFixed(2);
