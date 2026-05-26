@@ -168,6 +168,7 @@
   .num-btn { padding: 14px 0; background: #2a2a2a; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; }
   .num-btn:active { background: #3b9eff; }
 </style>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
 </head>
 <body>
 
@@ -211,8 +212,14 @@
         <span>HOLD FOR 1 SEC TO APPLY 15% DISCOUNT</span>
       </button>
       <div class="sheet-total">
-        <span>TOTAL TO PAY</span>
-        <span id="order-total-amt"></span>
+  <div>
+    <span>TOTAL TO PAY</span>
+    <span id="order-total-amt"></span>
+  </div>
+
+  <button id="send-to-kitchen-btn">
+    SEND TO KITCHEN
+  </button>
       </div>
     </div>
   </div>
@@ -231,6 +238,15 @@
 </div>
 
 <script>
+
+const SUPABASE_URL = "https://mzcujthnyrutwvyjmqhs.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
 const DATASETS = {
   morning: {
     tabs: ["breakfast", "beverages"],
@@ -391,7 +407,7 @@ document.getElementById("opt-cancel").addEventListener("click", closeModal);
 document.getElementById("opt-add").addEventListener("click", confirmAdd);
 document.getElementById("trigger-custom-btn").addEventListener("click", openCustomAmountModal);
 document.getElementById("remove-discount-btn").addEventListener("click", removeDiscount);
-
+document.getElementById("send-to-kitchen-btn").addEventListener("click", sendOrderToKitchen);
 setupDiscountHoldAction();
 
 function setupHoldToSwitchButton(elementId, menuKey) {
@@ -918,6 +934,39 @@ function createLineRowElement(l, realIdx) {
 }
 
 // Fire the program immediately on page build
+async function sendOrderToKitchen() {
+
+  if (lines.length === 0) {
+    alert("No items in order");
+    return;
+  }
+
+  const orderRows = lines.map(line => ({
+    item_name: line.name,
+    quantity: line.qty,
+    price: line.price,
+    category: line.food ? "food" : "drink",
+    created_at: new Date().toISOString()
+  }));
+
+  const { data, error } = await supabaseClient
+    .from('cafe_orders')
+    .insert(orderRows);
+
+  if (error) {
+    console.error(error);
+    alert("Failed to send order");
+    return;
+  }
+
+  alert("Order sent to kitchen!");
+
+  lines = [];
+  discountApplied = false;
+
+  updateOrderBtn();
+  renderOrderSheet();
+}
 switchMainMenu("morning");
 </script>
 </body>
