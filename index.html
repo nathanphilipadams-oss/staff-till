@@ -460,10 +460,11 @@ function renderSubTabsBar() {
     const btn = document.createElement("button");
     btn.className = "tab-btn";
     btn.textContent = dataset.tabLabels[tabKey];
-    btn.addEventListener("click", () => switchSubTab(tabKey) {
-  activeSubTab = tabKey;
-  openSections = {};
-  renderMenuGrid();
+
+    btn.addEventListener("click", () => switchSubTab(tabKey));
+
+    container.appendChild(btn);
+  });
 }
 
 function renderMenuGrid() {
