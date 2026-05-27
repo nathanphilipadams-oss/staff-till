@@ -60,7 +60,14 @@ button{
 <body>
 
 <h1>FOOD ORDERS</h1>
+<button id="toggle-history-btn" onclick="toggleHistory()">
+  SHOW COMPLETED
+</button>
 
+<div id="history-section" style="display:none;">
+  <h2 style="margin-top:20px;">Completed Orders</h2>
+  <div id="completed-orders"></div>
+</div>
 <div id="orders"></div>
 
 <script>
@@ -80,17 +87,66 @@ async function loadOrders() {
     .from("cafe_orders")
     .select("*")
     .eq("category", "food")
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: false });
 
-  const container = document.getElementById("orders");
+  const activeContainer =
+    document.getElementById("orders");
 
-  container.innerHTML = "";
+  const completedContainer =
+    document.getElementById("completed-orders");
+
+  activeContainer.innerHTML = "";
+  completedContainer.innerHTML = "";
 
   if (!data || data.length === 0) {
-    container.innerHTML =
+
+    activeContainer.innerHTML =
       "<div class='empty'>No food orders</div>";
+
     return;
   }
+
+  data.forEach(order => {
+
+    const div = document.createElement("div");
+
+    div.className = "order";
+
+    const isDone = order.status === "done";
+
+    div.innerHTML = `
+      <div class="item">${order.item}</div>
+
+      <div class="details">
+        ${order.details}
+      </div>
+
+      ${
+        !isDone
+        ?
+        `<button onclick="completeOrder('${order.id}')">
+          COMPLETE
+        </button>`
+        :
+        ""
+      }
+    `;
+
+    if (isDone) {
+
+      div.style.opacity = "0.6";
+
+      completedContainer.appendChild(div);
+
+    } else {
+
+      activeContainer.appendChild(div);
+
+    }
+
+  });
+
+}
 
   data.forEach(order => {
 
@@ -160,7 +216,29 @@ async function trimHistory() {
       .eq("id", order.id);
 
   }
+function toggleHistory() {
 
+  const section =
+    document.getElementById("history-section");
+
+  const btn =
+    document.getElementById("toggle-history-btn");
+
+  if (section.style.display === "none") {
+
+    section.style.display = "block";
+
+    btn.textContent = "HIDE COMPLETED";
+
+  } else {
+
+    section.style.display = "none";
+
+    btn.textContent = "SHOW COMPLETED";
+
+  }
+
+}
 }
   await trimHistory();
 
