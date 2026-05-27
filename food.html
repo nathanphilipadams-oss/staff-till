@@ -74,7 +74,7 @@ button{
 
 const SUPABASE_URL = "https://mocujtfoyruievyjmjhe.supabase.co";
 
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -83,12 +83,15 @@ const supabaseClient = supabase.createClient(
 
 async function loadOrders() {
 
-  const { data, error } = await supabaseClient
-    .from("cafe_orders")
-    .select("*")
-    .eq("category", "food")
-    .order("created_at", { ascending: false });
+ const { data, error } = await supabaseClient
+  .from("cafe_orders")
+  .select("*")
+  .eq("category", "food")
+  .order("created_at", { ascending: false });
 
+console.log(data);
+console.log(error);
+  
   const activeContainer =
     document.getElementById("orders");
 
