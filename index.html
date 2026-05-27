@@ -1090,12 +1090,18 @@ async function sendOrderToKitchen() {
   }
 
   const orderRows = lines.map(line => ({
-    item_name: line.name,
-    quantity: line.qty,
-    price: line.price,
-    category: line.food ? "food" : "drink",
-    created_at: new Date().toISOString()
-  }));
+
+  item: line.name,
+
+  category: line.food ? "food" : "drink",
+
+  details:
+    "Qty: " + line.qty +
+    " | Price: £" + line.price,
+
+  status: "new"
+
+}));
 
   const { data, error } = await supabaseClient
     .from('cafe_orders')
