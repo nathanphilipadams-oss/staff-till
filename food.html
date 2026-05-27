@@ -140,8 +140,31 @@ async function completeOrder(id) {
     .from("cafe_orders")
     .update({ status: "done" })
     .eq("id", id);
+async function trimHistory() {
 
-  loadOrders();
+  const { data } = await supabaseClient
+    .from("cafe_orders")
+    .select("*")
+    .eq("status", "done")
+    .order("created_at", { ascending: false });
+
+  if (!data || data.length <= 5) return;
+
+  const oldOrders = data.slice(5);
+
+  for (const order of oldOrders) {
+
+    await supabaseClient
+      .from("cafe_orders")
+      .delete()
+      .eq("id", order.id);
+
+  }
+
+}
+  await trimHistory();
+
+loadOrders();
 
 }
 
