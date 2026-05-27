@@ -74,7 +74,7 @@ button{
 
 const SUPABASE_URL = "https://mocujtfoyruievyjmjhe.supabase.co";
 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -114,11 +114,24 @@ async function loadOrders() {
 
     const isDone = order.status === "done";
 
+    if (isDone) {
+      div.style.opacity = "0.6";
+      div.style.borderLeftColor = "#20bf6b";
+    }
+
     div.innerHTML = `
       <div class="item">${order.item}</div>
 
       <div class="details">
         ${order.details}
+      </div>
+
+      <div style="
+        margin-bottom:12px;
+        font-weight:700;
+        color:${isDone ? "#20bf6b" : "#ffcc00"};
+      ">
+        ${isDone ? "COMPLETED" : "NEW ORDER"}
       </div>
 
       ${
@@ -133,58 +146,10 @@ async function loadOrders() {
     `;
 
     if (isDone) {
-
-      div.style.opacity = "0.6";
-
       completedContainer.appendChild(div);
-
     } else {
-
       activeContainer.appendChild(div);
-
     }
-
-  });
-
-}
-
-  data.forEach(order => {
-
-    const div = document.createElement("div");
-
-    div.className = "order";
-    if(order.status === "done"){
-  div.style.opacity = "0.6";
-  div.style.borderLeftColor = "#20bf6b";
-}
-
-  div.innerHTML = `
-  <div class="item">${order.item}</div>
-
-  <div class="details">
-    ${order.details}
-  </div>
-
-  <div style="
-    margin-bottom:12px;
-    font-weight:700;
-    color:${order.status === "done" ? "#20bf6b" : "#ffcc00"};
-  ">
-    ${order.status === "done" ? "COMPLETED" : "NEW ORDER"}
-  </div>
-
-  ${
-    order.status !== "done"
-    ?
-    `<button onclick="completeOrder('${order.id}')">
-      COMPLETE
-    </button>`
-    :
-    ""
-  }
-`;
-
-    container.appendChild(div);
 
   });
 
@@ -196,6 +161,13 @@ async function completeOrder(id) {
     .from("cafe_orders")
     .update({ status: "done" })
     .eq("id", id);
+
+  await trimHistory();
+
+  loadOrders();
+
+}
+
 async function trimHistory() {
 
   const { data } = await supabaseClient
@@ -216,6 +188,9 @@ async function trimHistory() {
       .eq("id", order.id);
 
   }
+
+}
+
 function toggleHistory() {
 
   const section =
@@ -237,12 +212,6 @@ function toggleHistory() {
     btn.textContent = "SHOW COMPLETED";
 
   }
-
-}
-}
-  await trimHistory();
-
-loadOrders();
 
 }
 
