@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kitchen Orders</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      padding: 20px;
+    }
+
+    h1 {
+      color: teal;
+    }
+
+    .order {
+      background: #222;
+      border: 2px solid teal;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .item {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .info {
+      margin-bottom: 6px;
+    }
+
+    button {
+      background: teal;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<h1>Kitchen Orders</h1>
+
+<div id="orders"></div>
+
+<script>
+
+const SUPABASE_URL = "https://mocujtfoyruievyjmjhe.supabase.co/rest/v1/";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
+
+const client = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+async function loadOrders() {
+
+  const { data, error } = await client
+    .from("cafe_orders")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  const ordersDiv = document.getElementById("orders");
+
+  ordersDiv.innerHTML = "";
+
+  data.forEach(order => {
+
+    const card = document.createElement("div");
+
+    card.className = "order";
+
+    card.innerHTML = `
+      <div class="item">
+        ${order.item}
+      </div>
+
+      <div class="info">
+        <strong>Milk:</strong>
+        ${order.milk || "Normal"}
+      </div>
+
+      <div class="info">
+        <strong>Chef Note:</strong>
+        ${order.note || "None"}
+      </div>
+
+      <button onclick="completeOrder('${order.id}')">
+        Complete Order
+      </button>
+    `;
+
+    ordersDiv.appendChild(card);
+
+  });
+
+}
+
+async function completeOrder(id) {
+
+  const { error } = await client
+    .from("cafe_orders")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.log(error);
+  }
+
+  loadOrders();
+
+}
+
+loadOrders();
+
+setInterval(loadOrders, 3000);
+
+</script>
+
+</body>
+</html>
