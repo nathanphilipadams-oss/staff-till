@@ -68,7 +68,18 @@ button{
 <body>
 
 <h1>FULL ORDER HISTORY</h1>
-
+<div id="money-total" style="
+  background:#1e1e1e;
+  border:2px solid #20bf6b;
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:20px;
+  font-size:28px;
+  font-weight:900;
+  color:#20bf6b;
+">
+  TOTAL MONEY: £0.00
+</div>
 <button onclick="clearTodayHistory()">
   CLEAR TODAY'S HISTORY
 </button>
@@ -100,15 +111,33 @@ async function loadHistory() {
 
   container.innerHTML = "";
 
-  if (!data || data.length === 0) {
+if (!data || data.length === 0) {
 
-    container.innerHTML =
-      "<div class='empty'>No orders yet</div>";
+  container.innerHTML =
+    "<div class='empty'>No orders yet</div>";
 
-    return;
+  document.getElementById("money-total").textContent =
+    "TOTAL MONEY: £0.00";
 
+  return;
+
+}
+  let totalMoney = 0;
+
+data.forEach(order => {
+
+  const match =
+    order.details.match(/Price: £([0-9.]+)/);
+
+  if (match) {
+    totalMoney += parseFloat(match[1]);
   }
 
+});
+
+document.getElementById("money-total").textContent =
+  "TOTAL MONEY: £" + totalMoney.toFixed(2);
+  
   data.forEach(order => {
 
     const div = document.createElement("div");
