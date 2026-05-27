@@ -363,16 +363,141 @@ const DATASETS = {
       ]
     },
     drinks: {
-      sections: [
-        { label: "Cold Drinks", items: [
-          { name: "OJ / Apple Juice", price: 1.70 }, { name: "Ribena", price: 1.90 },
-          { name: "Soft Drink Can", price: 3.00 }, { name: "Elderflower Presse", price: 3.75 },
-          { name: "Raspberry Lemonade", price: 3.75 }, { name: "Mineral Water", price: 1.90 }
-        ]}
+  sections: [
+
+    {
+      label: "Hot Drinks",
+      items: [
+
+        {
+          name: "Coffee",
+          basePrices: {
+            Americano: 3.60,
+            "Cafe Latte": 3.80,
+            Macchiato: 3.80,
+            Cappuccino: 3.80,
+            Espresso: 2.50,
+            Mocha: 4.15,
+            "Instant Decaf Coffee": 2.40
+          },
+          askCoffeeType: true,
+          askMilk: true
+        },
+
+        {
+          name: "Tea",
+          basePrices: {
+            "Regular Tea Mug": 2.95,
+            "Regular Tea Pot": 4.00,
+            "Earl Grey Mug": 3.00,
+            "Earl Grey Pot": 4.10,
+            "Fruit Tea Mug": 3.00,
+            "Fruit Tea Pot": 4.10
+          },
+          askTeaType: true
+        },
+
+        {
+          name: "Hot Chocolate",
+          basePrices: {
+            Regular: 3.95,
+            "Cream & Marshmallows": 4.20
+          },
+          askHotChocolateType: true
+        },
+
+        { name: "Bovril", price: 3.20 }
+
+      ]
+    },
+
+    {
+      label: "Cold Drinks",
+      items: [
+        { name: "Orange / Apple Juice", price: 1.70 },
+        { name: "Ribena", price: 1.90 },
+        { name: "Soft Drink Can", price: 3.00 },
+        { name: "Elderflower Presse", price: 3.75 },
+        { name: "Raspberry Lemonade", price: 3.75 },
+        { name: "Mineral Water", price: 1.90 }
+      ]
+    },
+
+    {
+      label: "Beer & Cider",
+      items: [
+
+        {
+          name: "Beer / Ale",
+          basePrices: {
+            "Estrella 330ml": 5.25,
+            "Camden IPA 440ml": 5.00,
+            "Planet Local Lager 500ml": 6.50,
+            "Wight Gold Local Ale": 6.50,
+            "Fuggle Dee Dum Local Ale": 6.50
+          },
+          askBeerType: true
+        }
+
+      ]
+    },
+
+    {
+      label: "Wine",
+      items: [
+
+        {
+          name: "Sauvignon Blanc",
+          winePrices: {
+            "125ml": 4.95,
+            "175ml": 6.25,
+            Bottle: 24.75
+          },
+          askWineSize: true
+        },
+
+        {
+          name: "Pinot Grigio",
+          winePrices: {
+            "125ml": 4.95,
+            "175ml": 6.25,
+            Bottle: 24.75
+          },
+          askWineSize: true
+        },
+
+        {
+          name: "Garnacha Rosé",
+          winePrices: {
+            "125ml": 4.95,
+            "175ml": 6.25,
+            Bottle: 24.75
+          },
+          askWineSize: true
+        },
+
+        {
+          name: "Grenache Gris / Cinsault Rosé",
+          winePrices: {
+            Bottle: 25.50
+          },
+          askWineSize: true
+        },
+
+        {
+          name: "Prosecco",
+          winePrices: {
+            "200ml Bottle": 10.75,
+            Bottle: 31.20
+          },
+          askWineSize: true
+        }
+
       ]
     }
-  }
-};
+
+  ]
+},
 
 const BREAD = [
   { label: "White", surcharge: 0 },
@@ -412,6 +537,45 @@ const FLAKE_OPTIONS = [
 const SUPREME_FLAVOURS = ["Milk Chocolate", "White Chocolate", "Almond"];
 const SQUEEZE_FLAVOURS = ["Blackcurrant", "Lemon & Lime", "Orange"];
 
+const WINE_SIZES = [
+  "125ml",
+  "175ml",
+  "200ml Bottle",
+  "Bottle"
+];
+
+const COFFEE_TYPES = [
+  "Americano",
+  "Cafe Latte",
+  "Macchiato",
+  "Cappuccino",
+  "Espresso",
+  "Mocha",
+  "Instant Decaf Coffee"
+];
+
+const TEA_TYPES = [
+  "Regular Tea Mug",
+  "Regular Tea Pot",
+  "Earl Grey Mug",
+  "Earl Grey Pot",
+  "Fruit Tea Mug",
+  "Fruit Tea Pot"
+];
+
+const HOT_CHOC_TYPES = [
+  "Regular",
+  "Cream & Marshmallows"
+];
+
+const BEER_TYPES = [
+  "Estrella 330ml",
+  "Camden IPA 440ml",
+  "Planet Local Lager 500ml",
+  "Wight Gold Local Ale",
+  "Fuggle Dee Dum Local Ale"
+];
+  
 let activeMainMenu = "morning";
 let activeSubTab = "breakfast";
 let openSections = {};
@@ -652,26 +816,80 @@ opts.milk
 }
 
 function calcPrice(item, opts) {
+
   if (item.isCustom) return item.price;
 
+  if (item.askWineSize) {
+    return item.winePrices[opts.wineSize];
+  }
+
+  if (item.askCoffeeType) {
+    const base = item.basePrices[opts.coffeeType];
+
+    const milk =
+      opts.milk
+        ? MILKS.find(m => m.label === opts.milk)
+        : null;
+
+    return base + (milk ? milk.surcharge : 0);
+  }
+
+  if (item.askTeaType) {
+    return item.basePrices[opts.teaType];
+  }
+
+  if (item.askHotChocolateType) {
+    return item.basePrices[opts.hotChocolateType];
+  }
+
+  if (item.askBeerType) {
+    return item.basePrices[opts.beerType];
+  }
+
   if (item.askIceCreamFlavour && opts) {
-    const selectedCone = CONE_TYPES.find(c => c.label === opts.cone);
-    const selectedFlake = FLAKE_OPTIONS.find(f => f.label === opts.flake);
-    const base = selectedCone ? selectedCone.basePrice : 3.25;
-    const extra = selectedFlake ? selectedFlake.surcharge : 0;
+
+    const selectedCone =
+      CONE_TYPES.find(c => c.label === opts.cone);
+
+    const selectedFlake =
+      FLAKE_OPTIONS.find(f => f.label === opts.flake);
+
+    const base =
+      selectedCone
+        ? selectedCone.basePrice
+        : 3.25;
+
+    const extra =
+      selectedFlake
+        ? selectedFlake.surcharge
+        : 0;
+
     return base + extra;
   }
 
   if (item.askSize) {
-    return item.prices[(opts && opts.size) || "Small"];
+    return item.prices[
+      (opts && opts.size) || "Small"
+    ];
   }
-  
-  const base = item.price || 0;
-  const bread = opts && opts.bread ? BREAD.find(b => b.label === opts.bread) : null;
-  const milk = opts && opts.milk ? MILKS.find(m => m.label === opts.milk) : null;
-  return base + (bread ? bread.surcharge : 0) + (milk ? milk.surcharge : 0);
-}
 
+  const base = item.price || 0;
+
+  const bread =
+    opts && opts.bread
+      ? BREAD.find(b => b.label === opts.bread)
+      : null;
+
+  const milk =
+    opts && opts.milk
+      ? MILKS.find(m => m.label === opts.milk)
+      : null;
+
+  return base +
+    (bread ? bread.surcharge : 0) +
+    (milk ? milk.surcharge : 0);
+}
+  
 function tapItem(item) {
   if (
   item.askSize ||
@@ -685,7 +903,32 @@ function tapItem(item) {
   item.askSqueezeFlavour
 ) {
     modalItem = item;
-    modalOpts = {
+   modalOpts = {
+
+  wineSize:
+    item.askWineSize
+      ? Object.keys(item.winePrices)[0]
+      : null,
+
+  coffeeType:
+    item.askCoffeeType
+      ? COFFEE_TYPES[0]
+      : null,
+
+  teaType:
+    item.askTeaType
+      ? TEA_TYPES[0]
+      : null,
+
+  hotChocolateType:
+    item.askHotChocolateType
+      ? HOT_CHOC_TYPES[0]
+      : null,
+
+  beerType:
+    item.askBeerType
+      ? BEER_TYPES[0]
+      : null,
       size: item.askSize ? SIZES[0] : null,
      bread:
   item.askBread
@@ -705,6 +948,85 @@ function tapItem(item) {
   } else {
     addLine(item, null);
   }
+  if (modalItem.askWineSize)
+groups.appendChild(
+  makeOptGroup(
+    "SIZE",
+    Object.keys(modalItem.winePrices).map(v => ({
+      label: v,
+      surcharge: 0
+    })),
+    modalOpts.wineSize,
+    v => {
+      modalOpts.wineSize = v;
+      renderModal();
+    }
+  )
+);
+
+if (modalItem.askCoffeeType)
+groups.appendChild(
+  makeOptGroup(
+    "COFFEE",
+    COFFEE_TYPES.map(c => ({
+      label: c,
+      surcharge: 0
+    })),
+    modalOpts.coffeeType,
+    c => {
+      modalOpts.coffeeType = c;
+      renderModal();
+    }
+  )
+);
+
+if (modalItem.askTeaType)
+groups.appendChild(
+  makeOptGroup(
+    "TEA",
+    TEA_TYPES.map(t => ({
+      label: t,
+      surcharge: 0
+    })),
+    modalOpts.teaType,
+    t => {
+      modalOpts.teaType = t;
+      renderModal();
+    }
+  )
+);
+
+if (modalItem.askHotChocolateType)
+groups.appendChild(
+  makeOptGroup(
+    "HOT CHOCOLATE",
+    HOT_CHOC_TYPES.map(t => ({
+      label: t,
+      surcharge: 0
+    })),
+    modalOpts.hotChocolateType,
+    t => {
+      modalOpts.hotChocolateType = t;
+      renderModal();
+    }
+  )
+);
+
+if (modalItem.askBeerType)
+groups.appendChild(
+  makeOptGroup(
+    "BEER",
+    BEER_TYPES.map(b => ({
+      label: b,
+      surcharge: 0
+    })),
+    modalOpts.beerType,
+    b => {
+      modalOpts.beerType = b;
+      renderModal();
+    }
+  )
+);
 }
 
 function renderModal() {
@@ -733,7 +1055,25 @@ function renderModal() {
   }
 
   if (modalItem.askSize) groups.appendChild(makeOptGroup("SIZE", SIZES.map(s => ({ label: s, surcharge: 0 })), modalOpts.size, s => { modalOpts.size = s; renderModal(); }));
- if (modalItem.askBread) groups.appendChild(makeOptGroup("BREAD",modalItem.baconBreadChoice? BACON_BREADS: BREAD, modalOpts.bread, b => { modalOpts.bread = b; renderModal();}));
+if (modalItem.askBread || modalItem.baconBreadChoice) {
+
+  groups.appendChild(
+    makeOptGroup(
+      "BREAD",
+      modalItem.baconBreadChoice
+        ? BACON_BREADS
+        : BREAD,
+
+      modalOpts.bread,
+
+      b => {
+        modalOpts.bread = b;
+        renderModal();
+      }
+    )
+  );
+
+}
   if (modalItem.askGarnish) groups.appendChild(makeOptGroup("SERVED WITH", GARNISH.map(g => ({ label: g, surcharge: 0 })), modalOpts.garnish, g => { modalOpts.garnish = g; renderModal(); }));
   if (modalItem.askSauce)
   groups.appendChild(
@@ -837,14 +1177,21 @@ function updateModalPrice() {
 
 function confirmAdd() {
   addLine(modalItem, modalItem.isCustom ? null : { 
-    size: modalOpts.size, 
-    bread: modalOpts.bread, 
-    garnish: modalOpts.garnish, 
-    sauce: modalOpts.sauce,
-    milk: modalOpts.milk,
-    cone: modalOpts.cone,
-    flavour: modalOpts.flavour,
-    flake: modalOpts.flake
+    {
+  wineSize: modalOpts.wineSize,
+  coffeeType: modalOpts.coffeeType,
+  teaType: modalOpts.teaType,
+  hotChocolateType: modalOpts.hotChocolateType,
+  beerType: modalOpts.beerType,
+  size: modalOpts.size,
+  bread: modalOpts.bread,
+  garnish: modalOpts.garnish,
+  sauce: modalOpts.sauce,
+  milk: modalOpts.milk,
+  cone: modalOpts.cone,
+  flavour: modalOpts.flavour,
+  flake: modalOpts.flake
+}
   });
   closeModal();
 }
@@ -1125,7 +1472,6 @@ div.appendChild(textLabel);
 div.appendChild(editBtn);
 div.appendChild(numInput);
 div.appendChild(noteBtn);
-div.appendChild(noteBtn);
 div.appendChild(priceLabel);
 
   return div;
@@ -1142,7 +1488,13 @@ async function sendOrderToKitchen() {
  const orderRows = lines.map(line => ({
   item: line.name,
   category: line.food ? "food" : "drink",
-  details: "Qty: " + line.qty + " | Price: £" + line.price,
+details:
+  "Qty: " + line.qty +
+  (line.opts?.bread ? " | Bread: " + line.opts.bread : "") +
+  (line.opts?.sauce ? " | Sauce: " + line.opts.sauce : "") +
+  (line.opts?.milk ? " | Milk: " + line.opts.milk : "") +
+  (line.note ? " | NOTE: " + line.note : "") +
+  " | Price: £" + line.price,
   status: "new",
   created_at: new Date().toISOString()
 }));
