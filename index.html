@@ -41,7 +41,12 @@
   button { font-family: inherit; }
 
   /* Main Menu Toggle Bar (with hold feature) */
-  .menu-toggle-container { display: flex; background: #1a1a1a; border-bottom: 2px solid #2e2e2e; flex-shrink: 0; }
+  .menu-toggle-container {
+  display: flex;
+  background: #f2f2f2;
+  border-bottom: 1px solid #dcdcdc;
+  flex-shrink: 0;
+}
   
   .menu-toggle-btn { 
     flex: 1; 
@@ -82,31 +87,92 @@
     z-index: 2;
   }
 
-  .menu-toggle-btn.active { background: #ffffff; color: #000000; border-bottom: 3px solid #000000; }
-  #menu-toggle-lunch.active { background: #008080; color: #ffffff; border-bottom: 3px solid #00cccc; }
+ .menu-toggle-btn.active {
+  background: #ffffff;
+  color: #000000;
+  border-bottom: 3px solid #3b9eff;
+}
+.menu-toggle-btn.active {
+  background: #ffffff;
+  color: #000000;
+  border-bottom: 3px solid #3b9eff;
+}
+  #menu-toggle-lunch.active {
+  background: #3D3C3F;
+  color: #ffffff;
+  border-bottom: 3px solid #ffffff;
+}
   #menu-toggle-lunch.holding::before { background: rgba(32, 191, 107, 0.15); }
 
   /* Sub Navigation Tabs */
-  .tabs-container { display: flex; background: #000; flex-shrink: 0; }
+  .tabs-container {
+  display: flex;
+  background: inherit;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
   .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 13px; letter-spacing: 2px; background: transparent; color: #666; border-bottom: 3px solid transparent; text-align: center; }
-  .tab-btn.active { background: #1e1e1e; color: #3b9eff; border-bottom: 3px solid #3b9eff; }
+  .tab-btn {
+  flex: 1;
+  padding: 13px 0;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 2px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+}
 
   /* Main Scrollable Content Area */
-  .scroll-container {
+ .scroll-container {
   flex: 1;
   overflow-y: auto;
   background: inherit;
-  transition: background 0.25s ease;
   padding-bottom: 20px;
+  transition: background 0.25s ease;
 }
 
   /* Accordion Design */
-  .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: none; cursor: pointer; background: #1e1e1e; border-bottom: 1px solid #2e2e2e; color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
+ .acc-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  color: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
   .acc-btn.open { background: #1a3f6a; }
-  .acc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 6px; background: #161616; border-bottom: 1px solid #2e2e2e; }
+.acc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px;
+  background: transparent;
+}
   
   /* Menu Item Grid Buttons */
-  .item-btn { padding: 10px 5px; background: #1e1e1e; border: 1px solid #2e2e2e; border-radius: 6px; cursor: pointer; color: #f0f0f0; text-align: center; line-height: 1.3; font-size: 12px; }
+.item-btn {
+  padding: 12px 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  color: inherit;
+  text-align: center;
+  line-height: 1.3;
+  font-size: 12px;
+}
   .item-name { display: block; font-weight: 600; }
   .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
 
@@ -1263,6 +1329,7 @@ function openCustomAmountModal() {
   modalItem = { name: "Custom Charge Item", price: 0, isCustom: true };
   modalOpts = {};
   renderModal();
+  document.getElementById("opt-add").disabled = true;
   document.getElementById("opt-overlay").classList.add("show");
 }
 
@@ -1554,10 +1621,10 @@ editBtn.addEventListener("click", () => {
 
       for (const section of tab.sections) {
 
-        const found = section.items.find(i =>
-          l.name.includes(i.name) ||
-          i.name.includes(l.name)
-        );
+       const found = section.items.find(i =>
+  l.name === i.name ||
+  l.name.startsWith(i.name)
+);
 
         if (found) {
           sourceItem = found;
@@ -1668,7 +1735,7 @@ if (error) {
   return;
 }
 
-  alert("Order sent to kitchen!");
+  window.alert("Order sent to kitchen!");
 
   lines = [];
   discountApplied = false;
