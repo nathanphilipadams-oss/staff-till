@@ -271,7 +271,12 @@ const DATASETS = {
         { label: "Morning Breakfast", items: [
           { name: "Fruited Tea Cake", price: 2.45 },
           { name: "Crumpets", price: 2.45 },
-          { name: "Bacon Sandwich", price: 6.30 },
+          {
+  name: "Bacon Sandwich",
+  price: 6.30,
+    baconBreadChoice: true,
+  askSauce: true
+},
           { name: "Croissant & Butter", price: 3.60 },
           { name: "Toast & Butter", price: 2.45 },
           { name: "Preserves Extra", price: 1.10 }
@@ -375,6 +380,10 @@ const BREAD = [
   { label: "Baguette", surcharge: 1.80 }
 ];
 const GARNISH = ["Crisps", "Salad Garnish"];
+  const SAUCES = [
+  "Brown Sauce",
+  "Ketchup"
+];
 const SIZES = ["Small", "Large"];
 const MILKS = [
   { label: "Normal Milk", surcharge: 0 },
@@ -382,7 +391,10 @@ const MILKS = [
   { label: "Soya Milk", surcharge: 0.40 },
   { label: "Oat Milk", surcharge: 0.40 }
 ];
-
+const BACON_BREADS = [
+  { label: "White", surcharge: 0 },
+  { label: "Brown", surcharge: 0 }
+];
 const CONE_TYPES = [
   { label: "Single Regular Cone", basePrice: 3.25 },
   { label: "Waffle Cone", basePrice: 3.50 }
@@ -627,8 +639,14 @@ function lineKey(name, opts) {
 function lineLabel(name, opts) {
   if (!opts) return name;
   const parts = [
-    opts.flavour, opts.cone, opts.flake,
-    opts.size, opts.bread, opts.garnish, opts.milk
+   opts.flavour,
+opts.cone,
+opts.flake,
+opts.size,
+opts.bread,
+opts.garnish,
+opts.sauce,
+opts.milk
   ].filter(Boolean);
   return parts.length ? name + " (" + parts.join(", ") + ")" : name;
 }
@@ -655,12 +673,28 @@ function calcPrice(item, opts) {
 }
 
 function tapItem(item) {
-  if (item.askSize || item.askBread || item.askGarnish || item.askMilk || item.askIceCreamFlavour || item.askSupremeFlavour || item.askSqueezeFlavour) {
+  if (
+  item.askSize ||
+  item.askBread ||
+  item.baconBreadChoice ||
+  item.askGarnish ||
+  item.askMilk ||
+  item.askSauce ||
+  item.askIceCreamFlavour ||
+  item.askSupremeFlavour ||
+  item.askSqueezeFlavour
+) {
     modalItem = item;
     modalOpts = {
       size: item.askSize ? SIZES[0] : null,
-      bread: item.askBread ? BREAD[0].label : null,
+     bread:
+  item.askBread
+    ? BREAD[0].label
+    : item.baconBreadChoice
+      ? BACON_BREADS[0].label
+      : null,
       garnish: item.askGarnish ? GARNISH[0] : null,
+      sauce: item.askSauce ? SAUCES[0] : null,
       milk: item.askMilk ? MILKS[0].label : null,
       cone: item.askIceCreamFlavour ? CONE_TYPES[0].label : null,
       flavour: item.askIceCreamFlavour ? ICE_CREAM_FLAVOURS[0] : (item.askSupremeFlavour ? SUPREME_FLAVOURS[0] : (item.askSqueezeFlavour ? SQUEEZE_FLAVOURS[0] : null)),
@@ -699,8 +733,23 @@ function renderModal() {
   }
 
   if (modalItem.askSize) groups.appendChild(makeOptGroup("SIZE", SIZES.map(s => ({ label: s, surcharge: 0 })), modalOpts.size, s => { modalOpts.size = s; renderModal(); }));
-  if (modalItem.askBread) groups.appendChild(makeOptGroup("BREAD", BREAD, modalOpts.bread, b => { modalOpts.bread = b; renderModal(); }));
+ if (modalItem.askBread) groups.appendChild(makeOptGroup("BREAD",modalItem.baconBreadChoice? BACON_BREADS: BREAD, modalOpts.bread, b => { modalOpts.bread = b; renderModal();}));
   if (modalItem.askGarnish) groups.appendChild(makeOptGroup("SERVED WITH", GARNISH.map(g => ({ label: g, surcharge: 0 })), modalOpts.garnish, g => { modalOpts.garnish = g; renderModal(); }));
+  if (modalItem.askSauce)
+  groups.appendChild(
+    makeOptGroup(
+      "SAUCE",
+      SAUCES.map(s => ({
+        label: s,
+        surcharge: 0
+      })),
+      modalOpts.sauce,
+      s => {
+        modalOpts.sauce = s;
+        renderModal();
+      }
+    )
+  );
   if (modalItem.askMilk) groups.appendChild(makeOptGroup("MILK OPTION", MILKS, modalOpts.milk, m => { modalOpts.milk = m; renderModal(); }));
 }
 
@@ -791,6 +840,7 @@ function confirmAdd() {
     size: modalOpts.size, 
     bread: modalOpts.bread, 
     garnish: modalOpts.garnish, 
+    sauce: modalOpts.sauce,
     milk: modalOpts.milk,
     cone: modalOpts.cone,
     flavour: modalOpts.flavour,
