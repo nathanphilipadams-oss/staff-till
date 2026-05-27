@@ -21,6 +21,7 @@ h1{
 }
 
 .order{
+  border-left: 6px solid #ffcc00;
   background:#1e1e1e;
   border:1px solid #333;
   border-radius:10px;
@@ -79,7 +80,6 @@ async function loadOrders() {
     .from("cafe_orders")
     .select("*")
     .eq("category", "food")
-    .eq("status", "new")
     .order("created_at", { ascending: true });
 
   const container = document.getElementById("orders");
@@ -97,14 +97,36 @@ async function loadOrders() {
     const div = document.createElement("div");
 
     div.className = "order";
+    if(order.status === "done"){
+  div.style.opacity = "0.6";
+  div.style.borderLeftColor = "#20bf6b";
+}
 
-    div.innerHTML = `
-      <div class="item">${order.item}</div>
-      <div class="details">${order.details}</div>
-      <button onclick="completeOrder('${order.id}')">
-        COMPLETE
-      </button>
-    `;
+  div.innerHTML = `
+  <div class="item">${order.item}</div>
+
+  <div class="details">
+    ${order.details}
+  </div>
+
+  <div style="
+    margin-bottom:12px;
+    font-weight:700;
+    color:${order.status === "done" ? "#20bf6b" : "#ffcc00"};
+  ">
+    ${order.status === "done" ? "COMPLETED" : "NEW ORDER"}
+  </div>
+
+  ${
+    order.status !== "done"
+    ?
+    `<button onclick="completeOrder('${order.id}')">
+      COMPLETE
+    </button>`
+    :
+    ""
+  }
+`;
 
     container.appendChild(div);
 
