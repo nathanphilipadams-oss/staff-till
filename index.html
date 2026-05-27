@@ -22,7 +22,22 @@
 }
   /* Global Layout Styles */
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #111; color: #f0f0f0; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  body {
+  background: #ffffff; /* default = morning */
+  color: #000000;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+
+  
   button { font-family: inherit; }
 
   /* Main Menu Toggle Bar (with hold feature) */
@@ -633,6 +648,18 @@ function setupHoldToSwitchButton(elementId, menuKey) {
 
 function switchMainMenu(menuKey) {
   activeMainMenu = menuKey;
+  // Theme switching
+if (menuKey === "morning") {
+
+  document.body.style.background = "#ffffff";
+  document.body.style.color = "#000000";
+
+} else {
+
+  document.body.style.background = "#3D3C3F";
+  document.body.style.color = "#ffffff";
+
+}
   activeSubTab = DATASETS[menuKey].tabs[0];
   
   document.getElementById("menu-toggle-morning").classList.toggle("active", menuKey === "morning");
