@@ -1089,29 +1089,27 @@ async function sendOrderToKitchen() {
     return;
   }
 
-  const orderRows = lines.map(line => ({
-
+ const orderRows = lines.map(line => ({
   item: line.name,
-
   category: line.food ? "food" : "drink",
-
-  details:
-    "Qty: " + line.qty +
-    " | Price: £" + line.price,
-
-  status: "new"
-
+  details: "Qty: " + line.qty + " | Price: £" + line.price,
+  status: "new",
+  created_at: new Date().toISOString()
 }));
 
-  const { data, error } = await supabaseClient
-    .from('cafe_orders')
-    .insert(orderRows);
+const { data, error } = await supabaseClient
+  .from("cafe_orders")
+  .insert(orderRows)
+  .select();
 
-  if (error) {
-    console.error(error);
-    alert("Failed to send order");
-    return;
-  }
+console.log(data);
+console.log(error);
+
+if (error) {
+  console.error(error);
+  alert("Failed to send order");
+  return;
+}
 
   alert("Order sent to kitchen!");
 
