@@ -1442,38 +1442,90 @@ editBtn.style.cursor = "pointer";
 
 editBtn.addEventListener("click", () => {
 
-  if (!l.opts) return;
+  // find original menu item definition
+  let sourceItem = null;
 
-  const milkChoice = prompt(
-    "Milk? normal / none / soya / oat",
-    l.opts.milk || "Normal Milk"
-  );
+  for (const menuKey in DATASETS) {
 
-  if (!milkChoice) return;
+    const menu = DATASETS[menuKey];
 
-  if (milkChoice.toLowerCase() === "normal") {
-    l.opts.milk = "Normal Milk";
+    for (const tabKey of menu.tabs) {
+
+      const tab = menu[tabKey];
+
+      for (const section of tab.sections) {
+
+        const found = section.items.find(i =>
+          l.name.includes(i.name) ||
+          i.name.includes(l.name)
+        );
+
+        if (found) {
+          sourceItem = found;
+          break;
+        }
+
+      }
+
+    }
+
   }
 
-  if (milkChoice.toLowerCase() === "none") {
-    l.opts.milk = "No Milk";
+  if (!sourceItem) {
+    alert("Cannot edit this item");
+    return;
   }
 
-  if (milkChoice.toLowerCase() === "soya") {
-    l.opts.milk = "Soya Milk";
-  }
+  modalItem = sourceItem;
 
-  if (milkChoice.toLowerCase() === "oat") {
-    l.opts.milk = "Oat Milk";
-  }
+  // clone current options
+  modalOpts = {
+    wineSize: l.opts?.wineSize || null,
+    coffeeType: l.opts?.coffeeType || null,
+    teaType: l.opts?.teaType || null,
+    hotChocolateType: l.opts?.hotChocolateType || null,
+    beerType: l.opts?.beerType || null,
+    size: l.opts?.size || null,
+    bread: l.opts?.bread || null,
+    garnish: l.opts?.garnish || null,
+    sauce: l.opts?.sauce || null,
+    milk: l.opts?.milk || null,
+    cone: l.opts?.cone || null,
+    flavour: l.opts?.flavour || null,
+    flake: l.opts?.flake || null
+  };
 
-  renderOrderSheet();
+  renderModal();
+
+  document.getElementById("opt-overlay").classList.add("show");
+
+  // override add button temporarily
+  const addBtn = document.getElementById("opt-add");
+
+  addBtn.onclick = () => {
+
+    lines[realIdx].opts = { ...modalOpts };
+
+    lines[realIdx].price =
+      calcPrice(modalItem, modalOpts);
+
+    closeModal();
+
+    renderOrderSheet();
+
+    updateOrderBtn();
+
+    // restore normal button behaviour
+    addBtn.onclick = confirmAdd;
+  };
 
 });
 
 div.appendChild(remBtn);
 div.appendChild(textLabel);
-div.appendChild(editBtn);
+if (l.opts) {
+  div.appendChild(editBtn);
+}
 div.appendChild(numInput);
 div.appendChild(noteBtn);
 div.appendChild(priceLabel);
