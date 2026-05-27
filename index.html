@@ -92,7 +92,13 @@
   .tab-btn.active { background: #1e1e1e; color: #3b9eff; border-bottom: 3px solid #3b9eff; }
 
   /* Main Scrollable Content Area */
-  .scroll-container { flex: 1; overflow-y: auto; background: #111; padding-bottom: 20px; }
+  .scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  background: inherit;
+  transition: background 0.25s ease;
+  padding-bottom: 20px;
+}
 
   /* Accordion Design */
   .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: none; cursor: pointer; background: #1e1e1e; border-bottom: 1px solid #2e2e2e; color: #fff; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
@@ -512,6 +518,8 @@ const DATASETS = {
     }
 
   ]
+    }
+  }
 };
 
 const BREAD = [
