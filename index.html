@@ -887,25 +887,62 @@ function renderMenuGrid() {
 function createItemButton(item) {
   const btn = document.createElement("button");
   btn.className = "item-btn";
-  
+
   let priceStr = "";
+
   if (item.askSize) {
-    priceStr = "£" + item.prices.Small.toFixed(2) + "–£" + item.prices.Large.toFixed(2);
+
+    priceStr =
+      "£" +
+      item.prices.Small.toFixed(2) +
+      "–£" +
+      item.prices.Large.toFixed(2);
+
   } else if (item.askIceCreamFlavour) {
+
     priceStr = "£3.25 / £3.50";
+
+  } else if (item.askWineSize) {
+
+    const vals = Object.values(item.winePrices);
+    priceStr =
+      "£" +
+      Math.min(...vals).toFixed(2) +
+      "–£" +
+      Math.max(...vals).toFixed(2);
+
+  } else if (
+    item.askCoffeeType ||
+    item.askTeaType ||
+    item.askHotChocolateType ||
+    item.askBeerType
+  ) {
+
+    const vals = Object.values(item.basePrices);
+
+    priceStr =
+      "£" +
+      Math.min(...vals).toFixed(2) +
+      "–£" +
+      Math.max(...vals).toFixed(2);
+
   } else {
+
     priceStr = "£" + item.price.toFixed(2);
+
   }
-  
-  btn.innerHTML = "<span class='item-name'>" + item.name + "</span><span class='item-price'>" + priceStr + "</span>";
+
+  btn.innerHTML =
+    "<span class='item-name'>" +
+    item.name +
+    "</span><span class='item-price'>" +
+    priceStr +
+    "</span>";
+
   btn.addEventListener("click", () => tapItem(item));
+
   return btn;
 }
-
-function lineKey(name, opts) {
-  return name + (opts ? JSON.stringify(opts) : "");
-}
-
 function lineLabel(name, opts) {
   if (!opts) return name;
   const parts = [
