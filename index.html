@@ -891,142 +891,111 @@ function calcPrice(item, opts) {
 }
   
 function tapItem(item) {
+
   if (
-  item.askSize ||
-  item.askBread ||
-  item.baconBreadChoice ||
-  item.askGarnish ||
-  item.askMilk ||
-  item.askSauce ||
-  item.askIceCreamFlavour ||
-  item.askSupremeFlavour ||
-  item.askSqueezeFlavour
-) {
-    modalItem = item;
-   modalOpts = {
-
-  wineSize:
-    item.askWineSize
-      ? Object.keys(item.winePrices)[0]
-      : null,
-
-  coffeeType:
-    item.askCoffeeType
-      ? COFFEE_TYPES[0]
-      : null,
-
-  teaType:
-    item.askTeaType
-      ? TEA_TYPES[0]
-      : null,
-
-  hotChocolateType:
-    item.askHotChocolateType
-      ? HOT_CHOC_TYPES[0]
-      : null,
-
-  beerType:
+    item.askSize ||
+    item.askBread ||
+    item.baconBreadChoice ||
+    item.askGarnish ||
+    item.askMilk ||
+    item.askSauce ||
+    item.askIceCreamFlavour ||
+    item.askSupremeFlavour ||
+    item.askSqueezeFlavour ||
+    item.askWineSize ||
+    item.askCoffeeType ||
+    item.askTeaType ||
+    item.askHotChocolateType ||
     item.askBeerType
-      ? BEER_TYPES[0]
-      : null,
-      size: item.askSize ? SIZES[0] : null,
-     bread:
-  item.askBread
-    ? BREAD[0].label
-    : item.baconBreadChoice
-      ? BACON_BREADS[0].label
-      : null,
-      garnish: item.askGarnish ? GARNISH[0] : null,
-      sauce: item.askSauce ? SAUCES[0] : null,
-      milk: item.askMilk ? MILKS[0].label : null,
-      cone: item.askIceCreamFlavour ? CONE_TYPES[0].label : null,
-      flavour: item.askIceCreamFlavour ? ICE_CREAM_FLAVOURS[0] : (item.askSupremeFlavour ? SUPREME_FLAVOURS[0] : (item.askSqueezeFlavour ? SQUEEZE_FLAVOURS[0] : null)),
-      flake: item.askIceCreamFlavour ? FLAKE_OPTIONS[0].label : null
+  ) {
+
+    modalItem = item;
+
+    modalOpts = {
+
+      wineSize:
+        item.askWineSize
+          ? Object.keys(item.winePrices)[0]
+          : null,
+
+      coffeeType:
+        item.askCoffeeType
+          ? COFFEE_TYPES[0]
+          : null,
+
+      teaType:
+        item.askTeaType
+          ? TEA_TYPES[0]
+          : null,
+
+      hotChocolateType:
+        item.askHotChocolateType
+          ? HOT_CHOC_TYPES[0]
+          : null,
+
+      beerType:
+        item.askBeerType
+          ? BEER_TYPES[0]
+          : null,
+
+      size:
+        item.askSize
+          ? SIZES[0]
+          : null,
+
+      bread:
+        item.askBread
+          ? BREAD[0].label
+          : item.baconBreadChoice
+            ? BACON_BREADS[0].label
+            : null,
+
+      garnish:
+        item.askGarnish
+          ? GARNISH[0]
+          : null,
+
+      sauce:
+        item.askSauce
+          ? SAUCES[0]
+          : null,
+
+      milk:
+        item.askMilk
+          ? MILKS[0].label
+          : null,
+
+      cone:
+        item.askIceCreamFlavour
+          ? CONE_TYPES[0].label
+          : null,
+
+      flavour:
+        item.askIceCreamFlavour
+          ? ICE_CREAM_FLAVOURS[0]
+          : item.askSupremeFlavour
+            ? SUPREME_FLAVOURS[0]
+            : item.askSqueezeFlavour
+              ? SQUEEZE_FLAVOURS[0]
+              : null,
+
+      flake:
+        item.askIceCreamFlavour
+          ? FLAKE_OPTIONS[0].label
+          : null
     };
+
     renderModal();
-    document.getElementById("opt-overlay").classList.add("show");
+
+    document
+      .getElementById("opt-overlay")
+      .classList.add("show");
+
   } else {
+
     addLine(item, null);
+
   }
-  if (modalItem.askWineSize)
-groups.appendChild(
-  makeOptGroup(
-    "SIZE",
-    Object.keys(modalItem.winePrices).map(v => ({
-      label: v,
-      surcharge: 0
-    })),
-    modalOpts.wineSize,
-    v => {
-      modalOpts.wineSize = v;
-      renderModal();
-    }
-  )
-);
-
-if (modalItem.askCoffeeType)
-groups.appendChild(
-  makeOptGroup(
-    "COFFEE",
-    COFFEE_TYPES.map(c => ({
-      label: c,
-      surcharge: 0
-    })),
-    modalOpts.coffeeType,
-    c => {
-      modalOpts.coffeeType = c;
-      renderModal();
-    }
-  )
-);
-
-if (modalItem.askTeaType)
-groups.appendChild(
-  makeOptGroup(
-    "TEA",
-    TEA_TYPES.map(t => ({
-      label: t,
-      surcharge: 0
-    })),
-    modalOpts.teaType,
-    t => {
-      modalOpts.teaType = t;
-      renderModal();
-    }
-  )
-);
-
-if (modalItem.askHotChocolateType)
-groups.appendChild(
-  makeOptGroup(
-    "HOT CHOCOLATE",
-    HOT_CHOC_TYPES.map(t => ({
-      label: t,
-      surcharge: 0
-    })),
-    modalOpts.hotChocolateType,
-    t => {
-      modalOpts.hotChocolateType = t;
-      renderModal();
-    }
-  )
-);
-
-if (modalItem.askBeerType)
-groups.appendChild(
-  makeOptGroup(
-    "BEER",
-    BEER_TYPES.map(b => ({
-      label: b,
-      surcharge: 0
-    })),
-    modalOpts.beerType,
-    b => {
-      modalOpts.beerType = b;
-      renderModal();
-    }
-  )
-);
 }
 
 function renderModal() {
@@ -1034,7 +1003,100 @@ function renderModal() {
   updateModalPrice();
   const groups = document.getElementById("opt-groups");
   groups.innerHTML = "";
+if (modalItem.askWineSize) {
 
+  groups.appendChild(
+    makeOptGroup(
+      "SIZE",
+      Object.keys(modalItem.winePrices).map(v => ({
+        label: v,
+        surcharge: 0
+      })),
+      modalOpts.wineSize,
+      v => {
+        modalOpts.wineSize = v;
+        renderModal();
+      }
+    )
+  );
+
+}
+
+if (modalItem.askCoffeeType) {
+
+  groups.appendChild(
+    makeOptGroup(
+      "COFFEE",
+      COFFEE_TYPES.map(c => ({
+        label: c,
+        surcharge: 0
+      })),
+      modalOpts.coffeeType,
+      c => {
+        modalOpts.coffeeType = c;
+        renderModal();
+      }
+    )
+  );
+
+}
+
+if (modalItem.askTeaType) {
+
+  groups.appendChild(
+    makeOptGroup(
+      "TEA",
+      TEA_TYPES.map(t => ({
+        label: t,
+        surcharge: 0
+      })),
+      modalOpts.teaType,
+      t => {
+        modalOpts.teaType = t;
+        renderModal();
+      }
+    )
+  );
+
+}
+
+if (modalItem.askHotChocolateType) {
+
+  groups.appendChild(
+    makeOptGroup(
+      "HOT CHOCOLATE",
+      HOT_CHOC_TYPES.map(t => ({
+        label: t,
+        surcharge: 0
+      })),
+      modalOpts.hotChocolateType,
+      t => {
+        modalOpts.hotChocolateType = t;
+        renderModal();
+      }
+    )
+  );
+
+}
+
+if (modalItem.askBeerType) {
+
+  groups.appendChild(
+    makeOptGroup(
+      "BEER",
+      BEER_TYPES.map(b => ({
+        label: b,
+        surcharge: 0
+      })),
+      modalOpts.beerType,
+      b => {
+        modalOpts.beerType = b;
+        renderModal();
+      }
+    )
+  );
+
+}
   if (modalItem.isCustom) {
     groups.appendChild(makeNumericEntryPad());
     return;
@@ -1176,30 +1238,32 @@ function updateModalPrice() {
 }
 
 function confirmAdd() {
+
   addLine(
-  modalItem,
-  modalItem.isCustom
-    ? null
-    : {
-        wineSize: modalOpts.wineSize,
-        coffeeType: modalOpts.coffeeType,
-        teaType: modalOpts.teaType,
-        hotChocolateType: modalOpts.hotChocolateType,
-        beerType: modalOpts.beerType,
-        size: modalOpts.size,
-        bread: modalOpts.bread,
-        garnish: modalOpts.garnish,
-        sauce: modalOpts.sauce,
-        milk: modalOpts.milk,
-        cone: modalOpts.cone,
-        flavour: modalOpts.flavour,
-        flake: modalOpts.flake
-      }
-);
-  });
+    modalItem,
+
+    modalItem.isCustom
+      ? null
+      : {
+          wineSize: modalOpts.wineSize,
+          coffeeType: modalOpts.coffeeType,
+          teaType: modalOpts.teaType,
+          hotChocolateType: modalOpts.hotChocolateType,
+          beerType: modalOpts.beerType,
+          size: modalOpts.size,
+          bread: modalOpts.bread,
+          garnish: modalOpts.garnish,
+          sauce: modalOpts.sauce,
+          milk: modalOpts.milk,
+          cone: modalOpts.cone,
+          flavour: modalOpts.flavour,
+          flake: modalOpts.flake
+        }
+  );
+
   closeModal();
 }
-
+  
 function closeModal() {
   document.getElementById("opt-overlay").classList.remove("show");
 }
