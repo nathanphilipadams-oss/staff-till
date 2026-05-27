@@ -497,7 +497,7 @@ const DATASETS = {
     }
 
   ]
-},
+};
 
 const BREAD = [
   { label: "White", surcharge: 0 },
@@ -1176,22 +1176,26 @@ function updateModalPrice() {
 }
 
 function confirmAdd() {
-  addLine(modalItem, modalItem.isCustom ? null : { 
-    {
-  wineSize: modalOpts.wineSize,
-  coffeeType: modalOpts.coffeeType,
-  teaType: modalOpts.teaType,
-  hotChocolateType: modalOpts.hotChocolateType,
-  beerType: modalOpts.beerType,
-  size: modalOpts.size,
-  bread: modalOpts.bread,
-  garnish: modalOpts.garnish,
-  sauce: modalOpts.sauce,
-  milk: modalOpts.milk,
-  cone: modalOpts.cone,
-  flavour: modalOpts.flavour,
-  flake: modalOpts.flake
-}
+  addLine(
+  modalItem,
+  modalItem.isCustom
+    ? null
+    : {
+        wineSize: modalOpts.wineSize,
+        coffeeType: modalOpts.coffeeType,
+        teaType: modalOpts.teaType,
+        hotChocolateType: modalOpts.hotChocolateType,
+        beerType: modalOpts.beerType,
+        size: modalOpts.size,
+        bread: modalOpts.bread,
+        garnish: modalOpts.garnish,
+        sauce: modalOpts.sauce,
+        milk: modalOpts.milk,
+        cone: modalOpts.cone,
+        flavour: modalOpts.flavour,
+        flake: modalOpts.flake
+      }
+);
   });
   closeModal();
 }
