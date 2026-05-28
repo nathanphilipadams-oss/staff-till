@@ -287,7 +287,78 @@
 <div class="scroll-container" id="menu-scroll-view"></div>
 
 <div class="custom-item-bar">
-  <button class="custom-item-btn" id="trigger-custom-btn">+ ADD CUSTOM AMOUNT</button>
+
+  <div style="display:flex; gap:8px; margin-bottom:10px;">
+
+    <button id="table-service-btn"
+      style="
+        flex:1;
+        padding:10px;
+        border:none;
+        border-radius:8px;
+        background:#3b9eff;
+        color:white;
+        font-weight:800;
+        cursor:pointer;
+      ">
+      TABLE
+    </button>
+
+    <button id="takeaway-service-btn"
+      style="
+        flex:1;
+        padding:10px;
+        border:none;
+        border-radius:8px;
+        background:#444;
+        color:white;
+        font-weight:800;
+        cursor:pointer;
+      ">
+      TAKE AWAY
+    </button>
+
+  </div>
+
+  <div id="table-select-wrap" style="margin-bottom:10px;">
+
+    <select id="table-number-select"
+      style="
+        width:100%;
+        padding:10px;
+        border-radius:8px;
+        border:none;
+        background:#222;
+        color:white;
+        font-weight:700;
+      ">
+    </select>
+
+  </div>
+
+  <div id="takeaway-name-wrap"
+    style="display:none; margin-bottom:10px;">
+
+    <input
+      id="takeaway-name-input"
+      placeholder="Customer Name"
+      style="
+        width:100%;
+        padding:10px;
+        border-radius:8px;
+        border:none;
+        background:#222;
+        color:white;
+        font-weight:700;
+      "
+    />
+
+  </div>
+
+  <button class="custom-item-btn" id="trigger-custom-btn">
+    + ADD CUSTOM AMOUNT
+  </button>
+
 </div>
 
 <button id="order-btn">
@@ -678,6 +749,9 @@ let modalItem = null;
 let modalOpts = {};
 let discountApplied = false;
 
+let selectedOrderType = "table"; // "table" or "takeaway"
+let selectedTableNumber = 1;
+let takeawayCustomerName = "";
 let holdTimer = null;
 let holdTargetMenu = null;
 let discountHoldTimer = null;
@@ -695,6 +769,61 @@ document.getElementById("trigger-custom-btn").addEventListener("click", openCust
 document.getElementById("remove-discount-btn").addEventListener("click", removeDiscount);
 document.getElementById("send-to-kitchen-btn").addEventListener("click", sendOrderToKitchen);
 setupDiscountHoldAction();
+  const tableBtn = document.getElementById("table-service-btn");
+const takeawayBtn = document.getElementById("takeaway-service-btn");
+
+const tableWrap = document.getElementById("table-select-wrap");
+const takeawayWrap = document.getElementById("takeaway-name-wrap");
+
+const tableSelect = document.getElementById("table-number-select");
+const takeawayInput = document.getElementById("takeaway-name-input");
+
+for (let i = 1; i <= 15; i++) {
+
+  const opt = document.createElement("option");
+
+  opt.value = i;
+  opt.textContent = "Table " + i;
+
+  tableSelect.appendChild(opt);
+
+}
+
+tableSelect.addEventListener("change", () => {
+
+  tableNumber = tableSelect.value;
+
+});
+
+takeawayInput.addEventListener("input", () => {
+
+  takeawayName = takeawayInput.value;
+
+});
+
+tableBtn.addEventListener("click", () => {
+
+  serviceType = "table";
+
+  tableBtn.style.background = "#3b9eff";
+  takeawayBtn.style.background = "#444";
+
+  tableWrap.style.display = "block";
+  takeawayWrap.style.display = "none";
+
+});
+
+takeawayBtn.addEventListener("click", () => {
+
+  serviceType = "takeaway";
+
+  takeawayBtn.style.background = "#20bf6b";
+  tableBtn.style.background = "#444";
+
+  tableWrap.style.display = "none";
+  takeawayWrap.style.display = "block";
+
+});
 
 function setupHoldToSwitchButton(elementId, menuKey) {
   const btn = document.getElementById(elementId);
@@ -1749,16 +1878,38 @@ async function sendOrderToKitchen() {
     return;
   }
 
- const orderRows = lines.map(line => ({
+  if (serviceType === "takeaway" && takeawayName.trim() === "") {
+
+  alert("Enter customer name for takeaway");
+
+  return;
+
+}
+  
+const orderRows = lines.map(line => ({
   item: line.name,
   category: line.food ? "food" : "drink",
-details:
-  "Qty: " + line.qty +
-  (line.opts?.bread ? " | Bread: " + line.opts.bread : "") +
-  (line.opts?.sauce ? " | Sauce: " + line.opts.sauce : "") +
-  (line.opts?.milk ? " | Milk: " + line.opts.milk : "") +
-  (line.note ? " | NOTE: " + line.note : "") +
-  " | Price: £" + line.price,
+
+  service_type: serviceType,
+
+  table_number:
+    serviceType === "table"
+      ? tableNumber
+      : null,
+
+  customer_name:
+    serviceType === "takeaway"
+      ? takeawayName
+      : null,
+
+  details:
+    "Qty: " + line.qty +
+    (line.opts?.bread ? " | Bread: " + line.opts.bread : "") +
+    (line.opts?.sauce ? " | Sauce: " + line.opts.sauce : "") +
+    (line.opts?.milk ? " | Milk: " + line.opts.milk : "") +
+    (line.note ? " | NOTE: " + line.note : "") +
+    " | Price: £" + line.price,
+
   status: "new",
   created_at: new Date().toISOString()
 }));
