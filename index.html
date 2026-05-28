@@ -1974,62 +1974,106 @@ div.appendChild(priceLabel);
 // Fire the program immediately on page build
 async function sendOrderToKitchen() {
 
+  console.log("SEND CLICKED");
+
   if (lines.length === 0) {
     alert("No items in order");
     return;
   }
 
-  if (serviceType === "takeaway" && takeawayName.trim() === "") {
+  if (
+    serviceType === "takeaway" &&
+    takeawayName.trim() === ""
+  ) {
+    alert("Enter customer name for takeaway");
+    return;
+  }
 
-  alert("Enter customer name for takeaway");
+  try {
 
-  return;
+    const orderGroup =
+      (crypto.randomUUID && crypto.randomUUID()) ||
+      ('xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      }));
 
-}
-const orderGroup = crypto.randomUUID();
-const orderRows = lines.map(line => ({
+    const orderRows = lines.map(line => ({
 
-  order_group: orderGroup,
-  
-  item: line.name,
-  category: line.food ? "food" : "drink",
+      order_group: orderGroup,
 
-  service_type: serviceType,
+      item: line.name,
 
-  table_number:
-    serviceType === "table"
-      ? tableNumber
-      : null,
+      category: line.food
+        ? "food"
+        : "drink",
 
-  customer_name:
-    serviceType === "takeaway"
-      ? takeawayName
-      : null,
+      service_type: serviceType,
 
-  details:
-    "Qty: " + line.qty +
-    (line.opts?.bread ? " | Bread: " + line.opts.bread : "") +
-    (line.opts?.sauce ? " | Sauce: " + line.opts.sauce : "") +
-    (line.opts?.milk ? " | Milk: " + line.opts.milk : "") +
-    (line.note ? " | NOTE: " + line.note : "") +
-    " | Price: £" + line.price,
+      table_number:
+        serviceType === "table"
+          ? tableNumber
+          : null,
 
-  status: "new",
-  created_at: new Date().toISOString()
-}));
+      customer_name:
+        serviceType === "takeaway"
+          ? takeawayName
+          : null,
 
-const { data, error } = await supabaseClient
-  .from("cafe_orders")
-  .insert(orderRows)
-  .select();
+      details:
+        "Qty: " + line.qty +
+        (line.opts?.bread
+          ? " | Bread: " + line.opts.bread
+          : "") +
+        (line.opts?.sauce
+          ? " | Sauce: " + line.opts.sauce
+          : "") +
+        (line.opts?.milk
+          ? " | Milk: " + line.opts.milk
+          : "") +
+        (line.note
+          ? " | NOTE: " + line.note
+          : "") +
+        " | Price: £" + line.price,
 
-console.log(data);
-console.log(error);
+      status: "new",
 
-if (error) {
-  console.error(error);
-  alert("Failed to send order");
-  return;
+      created_at: new Date().toISOString()
+
+    }));
+
+    console.log("INSERTING:", orderRows);
+
+    const { data, error } = await supabaseClient
+      .from("cafe_orders")
+      .insert(orderRows)
+      .select();
+
+    console.log("RESULT:", data);
+    console.log("ERROR:", error);
+
+    if (error) {
+      alert("Supabase Error: " + error.message);
+      return;
+    }
+
+    alert("Order sent successfully");
+
+    lines = [];
+    discountApplied = false;
+
+    updateOrderBtn();
+    renderOrderSheet();
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("Crash: " + err.message);
+
+  }
+
 }
 
   console.log("Order sent");
