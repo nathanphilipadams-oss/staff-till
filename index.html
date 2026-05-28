@@ -271,7 +271,42 @@
   .opt-actions { display: flex; gap: 8px; margin-top: 18px; }
   #opt-cancel { flex: 1; padding: 11px 0; background: #333; color: #f0f0f0; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; }
   #opt-add { flex: 2; padding: 11px 0; background: #3b9eff; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 15px; }
+/* Service + table selector improvements */
+.service-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
 
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.table-btn {
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  background: #222;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.table-btn.active {
+  background: #3b9eff;
+}
+
+.service-btn-active {
+  background: #3b9eff !important;
+}
+
+.service-btn-inactive {
+  background: #444 !important;
+}
   /* Custom Numeric Entry Box Layout */
   .num-input-wrap { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
   .num-display { width: 100%; padding: 12px; background: #111; border: 1px solid #333; border-radius: 6px; font-size: 24px; font-weight: 900; text-align: right; color: #20bf6b; letter-spacing: 1px; }
@@ -294,53 +329,66 @@
 
 <div class="custom-item-bar">
 
-  <div style="display:flex; gap:8px; margin-bottom:10px;">
+  <div class="service-grid">
 
-    <button id="table-service-btn"
-      style="
-        flex:1;
-        padding:10px;
-        border:none;
-        border-radius:8px;
-        background:#3b9eff;
-        color:white;
-        font-weight:800;
-        cursor:pointer;
-      ">
-      TABLE
-    </button>
+  <button id="table-service-btn"
+    class="service-btn-active"
+    style="
+      padding:10px;
+      border:none;
+      border-radius:8px;
+      color:white;
+      font-weight:800;
+      cursor:pointer;
+    ">
+    TABLE
+  </button>
 
-    <button id="takeaway-service-btn"
-      style="
-        flex:1;
-        padding:10px;
-        border:none;
-        border-radius:8px;
-        background:#444;
-        color:white;
-        font-weight:800;
-        cursor:pointer;
-      ">
-      TAKE AWAY
-    </button>
+  <button id="takeaway-service-btn"
+    class="service-btn-inactive"
+    style="
+      padding:10px;
+      border:none;
+      border-radius:8px;
+      color:white;
+      font-weight:800;
+      cursor:pointer;
+    ">
+    TAKE AWAY
+  </button>
 
-  </div>
+</div>
 
-  <div id="table-select-wrap" style="margin-bottom:10px;">
+<div id="table-select-wrap" style="margin-bottom:10px;">
 
-    <select id="table-number-select"
-      style="
-        width:100%;
-        padding:10px;
-        border-radius:8px;
-        border:none;
-        background:#222;
-        color:white;
-        font-weight:700;
-      ">
-    </select>
+  <div class="table-grid" id="table-grid"></div>
 
-  </div>
+</div>
+
+<div id="takeaway-name-wrap"
+  style="display:none; margin-bottom:10px;">
+
+  <input
+    id="takeaway-name-input"
+    placeholder="Customer Name"
+    style="
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:none;
+      background:#222;
+      color:white;
+      font-weight:700;
+    "
+  />
+
+</div>
+
+ <div id="table-select-wrap" style="margin-bottom:10px;">
+
+  <div id="table-grid"></div>
+
+</div>
 
   <div id="takeaway-name-wrap"
     style="display:none; margin-bottom:10px;">
@@ -581,33 +629,39 @@ const DATASETS = {
     {
       label: "Cold Drinks",
       items: [
-        { name: "Orange / Apple Juice", price: 1.70 },
+        { name: "Orange Juice", price: 1.70 },
+        { name: "Apple Juice", price: 1.70 },
         { name: "Ribena", price: 1.90 },
         { name: "Soft Drink Can", price: 3.00 },
         { name: "Elderflower Presse", price: 3.75 },
         { name: "Raspberry Lemonade", price: 3.75 },
-        { name: "Mineral Water", price: 1.90 }
-      ]
-    },
-
-    {
-      label: "Beer & Cider",
-      items: [
-
         {
-          name: "Beer / Ale",
-          basePrices: {
-            "Estrella 330ml": 5.25,
-            "Camden IPA 440ml": 5.00,
-            "Planet Local Lager 500ml": 6.50,
-            "Wight Gold Local Ale": 6.50,
-            "Fuggle Dee Dum Local Ale": 6.50
-          },
-          askBeerType: true
-        }
-
+  name: "Mineral Water",
+  basePrices: {
+    Still: 1.90,
+    Sparkling: 1.90
+  },
+  askWaterType: true
+}
       ]
     },
+
+  {
+  label: "Beer & Cider",
+  items: [
+
+    { name: "Estrella 330ml", price: 5.25 },
+
+    { name: "Camden IPA 440ml", price: 5.00 },
+
+    { name: "Planet Local Lager 500ml", price: 6.50 },
+
+    { name: "Wight Gold Local Ale", price: 6.50 },
+
+    { name: "Fuggle Dee Dum Local Ale", price: 6.50 }
+
+  ]
+}
 
     {
       label: "Wine",
@@ -680,6 +734,11 @@ const SAUCES = [
   "Ketchup"
 ];
 
+  const WATER_TYPES = [
+  "Still",
+  "Sparkling"
+];
+  
 const SIZES = ["Small", "Large"];
 const MILKS = [
   { label: "Normal Milk", surcharge: 0 },
@@ -739,13 +798,6 @@ const HOT_CHOC_TYPES = [
   "Cream & Marshmallows"
 ];
 
-const BEER_TYPES = [
-  "Estrella 330ml",
-  "Camden IPA 440ml",
-  "Planet Local Lager 500ml",
-  "Wight Gold Local Ale",
-  "Fuggle Dee Dum Local Ale"
-];
   
 let activeMainMenu = "morning";
 let activeSubTab = "breakfast";
@@ -781,25 +833,32 @@ const takeawayBtn = document.getElementById("takeaway-service-btn");
 const tableWrap = document.getElementById("table-select-wrap");
 const takeawayWrap = document.getElementById("takeaway-name-wrap");
 
-const tableSelect = document.getElementById("table-number-select");
-const takeawayInput = document.getElementById("takeaway-name-input");
+const tableGrid = document.getElementById("table-grid");
 
 for (let i = 1; i <= 15; i++) {
 
-  const opt = document.createElement("option");
+  const btn = document.createElement("button");
 
-  opt.value = i;
-  opt.textContent = "Table " + i;
+  btn.className =
+    "table-btn" + (i === 1 ? " active" : "");
 
-  tableSelect.appendChild(opt);
+  btn.textContent = i;
+
+  btn.addEventListener("click", () => {
+
+    tableNumber = i;
+
+    document
+      .querySelectorAll(".table-btn")
+      .forEach(b => b.classList.remove("active"));
+
+    btn.classList.add("active");
+
+  });
+
+  tableGrid.appendChild(btn);
 
 }
-
-tableSelect.addEventListener("change", () => {
-
-  tableNumber = parseInt(tableSelect.value);
-
-});
 
 takeawayInput.addEventListener("input", () => {
 
@@ -811,8 +870,11 @@ tableBtn.addEventListener("click", () => {
 
   serviceType = "table";
 
-  tableBtn.style.background = "#3b9eff";
-  takeawayBtn.style.background = "#444";
+  tableBtn.classList.add("service-btn-active");
+  tableBtn.classList.remove("service-btn-inactive");
+
+  takeawayBtn.classList.add("service-btn-inactive");
+  takeawayBtn.classList.remove("service-btn-active");
 
   tableWrap.style.display = "block";
   takeawayWrap.style.display = "none";
@@ -823,8 +885,11 @@ takeawayBtn.addEventListener("click", () => {
 
   serviceType = "takeaway";
 
-  takeawayBtn.style.background = "#20bf6b";
-  tableBtn.style.background = "#444";
+  takeawayBtn.classList.add("service-btn-active");
+  takeawayBtn.classList.remove("service-btn-inactive");
+
+  tableBtn.classList.add("service-btn-inactive");
+  tableBtn.classList.remove("service-btn-active");
 
   tableWrap.style.display = "none";
   takeawayWrap.style.display = "block";
@@ -1050,7 +1115,6 @@ function createItemButton(item) {
     item.askCoffeeType ||
     item.askTeaType ||
     item.askHotChocolateType ||
-    item.askBeerType
   ) {
 
     const vals = Object.values(item.basePrices);
@@ -1079,18 +1143,34 @@ function createItemButton(item) {
   return btn;
 }
 function lineLabel(name, opts) {
+
   if (!opts) return name;
+
   const parts = [
-   opts.flavour,
-opts.cone,
-opts.flake,
-opts.size,
-opts.bread,
-opts.garnish,
-opts.sauce,
-opts.milk
+
+    opts.coffeeType,
+    opts.teaType,
+    opts.hotChocolateType,
+    opts.beerType,
+    opts.waterType,
+    opts.wineSize,
+
+    opts.flavour,
+    opts.cone,
+    opts.flake,
+
+    opts.size,
+    opts.bread,
+    opts.garnish,
+    opts.sauce,
+    opts.milk
+
   ].filter(Boolean);
-  return parts.length ? name + " (" + parts.join(", ") + ")" : name;
+
+  return parts.length
+    ? name + " (" + parts.join(", ") + ")"
+    : name;
+
 }
 
 function calcPrice(item, opts) {
@@ -1112,6 +1192,10 @@ function calcPrice(item, opts) {
     return base + (milk ? milk.surcharge : 0);
   }
 
+  if (item.askWaterType) {
+  return item.basePrices[opts.waterType];
+}
+  
   if (item.askTeaType) {
     return item.basePrices[opts.teaType];
   }
@@ -1120,9 +1204,6 @@ function calcPrice(item, opts) {
     return item.basePrices[opts.hotChocolateType];
   }
 
-  if (item.askBeerType) {
-    return item.basePrices[opts.beerType];
-  }
 
   if (item.askIceCreamFlavour && opts) {
 
@@ -1185,6 +1266,7 @@ function tapItem(item) {
     item.askTeaType ||
     item.askHotChocolateType ||
     item.askBeerType
+    item.askWaterType
   ) {
 
     modalItem = item;
@@ -1243,6 +1325,11 @@ function tapItem(item) {
           ? MILKS[0].label
           : null,
 
+      waterType:
+  item.askWaterType
+    ? WATER_TYPES[0]
+    : null,
+      
       cone:
         item.askIceCreamFlavour
           ? CONE_TYPES[0].label
@@ -1375,6 +1462,26 @@ if (modalItem.askBeerType) {
   );
 
 }
+ 
+  if (modalItem.askWaterType) {
+
+  groups.appendChild(
+    makeOptGroup(
+      "WATER",
+      WATER_TYPES.map(w => ({
+        label: w,
+        surcharge: 0
+      })),
+      modalOpts.waterType,
+      w => {
+        modalOpts.waterType = w;
+        renderModal();
+      }
+    )
+  );
+
+}
+  
   if (modalItem.isCustom) {
     groups.appendChild(makeNumericEntryPad());
     return;
@@ -1534,6 +1641,7 @@ function confirmAdd() {
           garnish: modalOpts.garnish,
           sauce: modalOpts.sauce,
           milk: modalOpts.milk,
+          waterType: modalOpts.waterType,
           cone: modalOpts.cone,
           flavour: modalOpts.flavour,
           flake: modalOpts.flake
@@ -1593,6 +1701,10 @@ function removeLineAtIndex(index) {
   renderOrderSheet();
 }
 
+  function lineKey(name, opts) {
+  return name + JSON.stringify(opts || {});
+}
+  
 function updateLineQtyAtIndex(index, value) {
   const qty = parseInt(value);
   if (isNaN(qty) || qty < 0) return;
@@ -1833,6 +1945,7 @@ editBtn.addEventListener("click", () => {
     garnish: l.opts?.garnish || null,
     sauce: l.opts?.sauce || null,
     milk: l.opts?.milk || null,
+    waterType: l.opts?.waterType || null,
     cone: l.opts?.cone || null,
     flavour: l.opts?.flavour || null,
     flake: l.opts?.flake || null
@@ -1849,8 +1962,11 @@ editBtn.addEventListener("click", () => {
 
     lines[realIdx].opts = { ...modalOpts };
 
-    lines[realIdx].price =
-      calcPrice(modalItem, modalOpts);
+lines[realIdx].price =
+  calcPrice(modalItem, modalOpts);
+
+lines[realIdx].key =
+  lineKey(lines[realIdx].name, modalOpts);
 
     closeModal();
 
