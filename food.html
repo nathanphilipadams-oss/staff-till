@@ -180,12 +180,11 @@ async function completeOrder(id) {
 
 async function trimHistory() {
 
-  const { data } = await supabaseClient
-    .from("cafe_orders")
-    .select("*")
-    .eq("category", "food")
-    .eq("status", "done")
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabaseClient
+  .from("cafe_orders")
+  .select("*")
+  .eq("category", "food")
+  .order("created_at", { ascending: false });
 
   if (!data || data.length <= 5) return;
 
