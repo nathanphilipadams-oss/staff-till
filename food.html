@@ -83,11 +83,11 @@ const supabaseClient = supabase.createClient(
 
 async function loadOrders() {
 
- const { data, error } = await supabaseClient
+const { data, error } = await supabaseClient
   .from("cafe_orders")
   .select("*")
   .eq("category", "food")
-  .order("created_at", { ascending: false });
+  .order("created_at", { ascending: true });
 
 console.log(data);
 console.log(error);
@@ -108,6 +108,30 @@ console.log(error);
 
     return;
   }
+
+  // your EXISTING rendering code continues here...
+}
+
+/* LOAD ON PAGE OPEN */
+loadOrders();
+
+/* LIVE UPDATES */
+supabaseClient
+  .channel("orders")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "cafe_orders"
+    },
+    () => {
+
+      loadOrders();
+
+    }
+  )
+  .subscribe();
 
   data.forEach(order => {
 
