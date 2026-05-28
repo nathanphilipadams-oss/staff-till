@@ -2007,8 +2007,11 @@ async function sendOrderToKitchen() {
   return;
 
 }
-  
+const orderGroup = crypto.randomUUID();
 const orderRows = lines.map(line => ({
+
+  order_group: orderGroup,
+  
   item: line.name,
   category: line.food ? "food" : "drink",
 
