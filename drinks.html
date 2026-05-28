@@ -125,9 +125,11 @@ console.log(error);
     div.innerHTML = `
       <div class="item">${order.item}</div>
 
-      <div class="details">
-        ${order.details}
-      </div>
+     <div class="details">
+  Table: ${order.table_number || "N/A"}
+  <br><br>
+  ${order.details || ""}
+</div>
 
       <div style="
         margin-bottom:12px;
