@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kitchen Orders</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Food Orders</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -21,7 +21,7 @@ h1{
 }
 
 .order{
-  border-left: 6px solid #ffcc00;
+  border-left:6px solid #ffcc00;
   background:#1e1e1e;
   border:1px solid #333;
   border-radius:10px;
@@ -57,9 +57,11 @@ button{
 }
 </style>
 </head>
+
 <body>
 
 <h1>FOOD ORDERS</h1>
+
 <button id="toggle-history-btn" onclick="toggleHistory()">
   SHOW COMPLETED
 </button>
@@ -68,13 +70,16 @@ button{
   <h2 style="margin-top:20px;">Completed Orders</h2>
   <div id="completed-orders"></div>
 </div>
+
 <div id="orders"></div>
 
 <script>
 
-const SUPABASE_URL = "https://mocujtfoyruievyjmjhe.supabase.co";
+const SUPABASE_URL =
+  "https://mocujtfoyruievyjmjhe.supabase.co";
 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
+const SUPABASE_ANON_KEY =
+  "YOUR_SUPABASE_ANON_KEY";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -83,15 +88,15 @@ const supabaseClient = supabase.createClient(
 
 async function loadOrders() {
 
-const { data, error } = await supabaseClient
-  .from("cafe_orders")
-  .select("*")
-  .eq("category", "food")
-  .eq("status", "new");
+  const { data, error } = await supabaseClient
+    .from("cafe_orders")
+    .select("*")
+    .eq("category", "food")
+    .order("created_at", { ascending: false });
 
-console.log(data);
-console.log(error);
-  
+  console.log(data);
+  console.log(error);
+
   const activeContainer =
     document.getElementById("orders");
 
@@ -108,30 +113,6 @@ console.log(error);
 
     return;
   }
-
-  // your EXISTING rendering code continues here...
-}
-
-/* LOAD ON PAGE OPEN */
-loadOrders();
-
-/* LIVE UPDATES */
-supabaseClient
-  .channel("orders")
-  .on(
-    "postgres_changes",
-    {
-      event: "*",
-      schema: "public",
-      table: "cafe_orders"
-    },
-    () => {
-
-      loadOrders();
-
-    }
-  )
-  .subscribe();
 
   data.forEach(order => {
 
@@ -150,7 +131,7 @@ supabaseClient
       <div class="item">${order.item}</div>
 
       <div class="details">
-        ${order.details}
+        ${order.details || ""}
       </div>
 
       <div style="
@@ -200,6 +181,7 @@ async function trimHistory() {
   const { data } = await supabaseClient
     .from("cafe_orders")
     .select("*")
+    .eq("category", "food")
     .eq("status", "done")
     .order("created_at", { ascending: false });
 
@@ -229,21 +211,37 @@ function toggleHistory() {
   if (section.style.display === "none") {
 
     section.style.display = "block";
-
     btn.textContent = "HIDE COMPLETED";
 
   } else {
 
     section.style.display = "none";
-
     btn.textContent = "SHOW COMPLETED";
 
   }
 
 }
 
+/* LOAD ON PAGE OPEN */
 loadOrders();
 
+/* LIVE UPDATES */
+supabaseClient
+  .channel("orders")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "cafe_orders"
+    },
+    () => {
+      loadOrders();
+    }
+  )
+  .subscribe();
+
+/* BACKUP REFRESH */
 setInterval(loadOrders, 3000);
 
 </script>
