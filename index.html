@@ -1125,7 +1125,6 @@ function lineLabel(name, opts) {
     opts.coffeeType,
     opts.teaType,
     opts.hotChocolateType,
-    opts.beerType,
     opts.waterType,
     opts.wineSize,
 
@@ -1239,7 +1238,6 @@ function tapItem(item) {
     item.askCoffeeType ||
     item.askTeaType ||
     item.askHotChocolateType ||
-    item.askBeerType ||
     item.askWaterType
   ) {
 
@@ -1267,11 +1265,7 @@ function tapItem(item) {
           ? HOT_CHOC_TYPES[0]
           : null,
 
-      beerType:
-        item.askBeerType
-          ? BEER_TYPES[0]
-          : null,
-
+      
       size:
         item.askSize
           ? SIZES[0]
@@ -1418,24 +1412,6 @@ if (modalItem.askHotChocolateType) {
 
 }
 
-if (modalItem.askBeerType) {
-
-  groups.appendChild(
-    makeOptGroup(
-      "BEER",
-      BEER_TYPES.map(b => ({
-        label: b,
-        surcharge: 0
-      })),
-      modalOpts.beerType,
-      b => {
-        modalOpts.beerType = b;
-        renderModal();
-      }
-    )
-  );
-
-}
  
   if (modalItem.askWaterType) {
 
@@ -1609,7 +1585,6 @@ function confirmAdd() {
           coffeeType: modalOpts.coffeeType,
           teaType: modalOpts.teaType,
           hotChocolateType: modalOpts.hotChocolateType,
-          beerType: modalOpts.beerType,
           size: modalOpts.size,
           bread: modalOpts.bread,
           garnish: modalOpts.garnish,
@@ -1913,7 +1888,6 @@ editBtn.addEventListener("click", () => {
     coffeeType: l.opts?.coffeeType || null,
     teaType: l.opts?.teaType || null,
     hotChocolateType: l.opts?.hotChocolateType || null,
-    beerType: l.opts?.beerType || null,
     size: l.opts?.size || null,
     bread: l.opts?.bread || null,
     garnish: l.opts?.garnish || null,
