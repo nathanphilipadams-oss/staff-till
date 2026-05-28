@@ -359,30 +359,6 @@
 
 </div>
 
-<div id="table-select-wrap" style="margin-bottom:10px;">
-
-  <div class="table-grid" id="table-grid"></div>
-
-</div>
-
-<div id="takeaway-name-wrap"
-  style="display:none; margin-bottom:10px;">
-
-  <input
-    id="takeaway-name-input"
-    placeholder="Customer Name"
-    style="
-      width:100%;
-      padding:10px;
-      border-radius:8px;
-      border:none;
-      background:#222;
-      color:white;
-      font-weight:700;
-    "
-  />
-
-</div>
 
  <div id="table-select-wrap" style="margin-bottom:10px;">
 
@@ -661,7 +637,7 @@ const DATASETS = {
     { name: "Fuggle Dee Dum Local Ale", price: 6.50 }
 
   ]
-}
+},
 
     {
       label: "Wine",
@@ -859,6 +835,9 @@ for (let i = 1; i <= 15; i++) {
   tableGrid.appendChild(btn);
 
 }
+
+const takeawayInput =
+  document.getElementById("takeaway-name-input");
 
 takeawayInput.addEventListener("input", () => {
 
@@ -1265,7 +1244,7 @@ function tapItem(item) {
     item.askCoffeeType ||
     item.askTeaType ||
     item.askHotChocolateType ||
-    item.askBeerType
+    item.askBeerType ||
     item.askWaterType
   ) {
 
