@@ -86,8 +86,8 @@ async function loadOrders() {
 const { data, error } = await supabaseClient
   .from("cafe_orders")
   .select("*")
-  .eq("category", "food")
-  .order("created_at", { ascending: true });
+  .eq("category", "drink")
+  .eq("status", "new");
 
 console.log(data);
 console.log(error);
@@ -104,7 +104,7 @@ console.log(error);
   if (!data || data.length === 0) {
 
     activeContainer.innerHTML =
-      "<div class='empty'>No food orders</div>";
+      "<div class='empty'>No drink orders</div>";
 
     return;
   }
