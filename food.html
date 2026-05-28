@@ -87,7 +87,7 @@ const { data, error } = await supabaseClient
   .from("cafe_orders")
   .select("*")
   .eq("category", "food")
-  .order("created_at", { ascending: true });
+  .eq("status", "new");
 
 console.log(data);
 console.log(error);
