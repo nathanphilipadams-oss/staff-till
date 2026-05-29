@@ -1117,6 +1117,11 @@ function createItemButton(item) {
       "–£" +
       Math.max(...vals).toFixed(2);
 
+    } else if (item.askTeaServe) {
+  const min = Math.min(...TEA_SERVE_OPTIONS.map(t => t.price));
+  const max = Math.max(...TEA_SERVE_OPTIONS.map(t => t.price));
+  priceStr = "£" + min.toFixed(2) + "–£" + max.toFixed(2);
+
   } else {
 
     priceStr = "£" + item.price.toFixed(2);
