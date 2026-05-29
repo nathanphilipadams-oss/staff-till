@@ -128,12 +128,20 @@ async function loadOrders() {
     }
 
     div.innerHTML = `
-      <div class="item">${order.item}</div>
+    <div style="
+  font-size:28px;
+  font-weight:900;
+  margin-bottom:14px;
+  color:#ffcc00;
+">
+  TABLE ${order.table_number || "N/A"}
+</div>
 
-      <div class="details">
-  Table: ${order.table_number || "N/A"}
-  <br><br>
-  ${order.details || ""}
+<div class="item" style="
+  white-space:pre-line;
+  line-height:1.5;
+">
+  ${formatOrder(order)}
 </div>
 
       <div style="
@@ -165,6 +173,42 @@ async function loadOrders() {
 
 }
 
+function formatOrder(order) {
+
+  if (!order.items) {
+    return order.item || "";
+  }
+
+  let output = "";
+
+  order.items.forEach(i => {
+
+    let line = "";
+
+    if (i.quantity > 1) {
+      line += `${i.quantity}x `;
+    }
+
+    line += i.name;
+
+    if (
+      i.option &&
+      i.option.toLowerCase() !== "normal milk"
+    ) {
+      line += ` ${i.option}`;
+    }
+
+    if (i.notes) {
+      line += `\n- ${i.notes}`;
+    }
+
+    output += line + "\n";
+  });
+
+  return output.trim();
+
+}
+  
 async function completeOrder(id) {
 
   await supabaseClient
