@@ -1697,10 +1697,28 @@ function addLine(item, opts) {
   if (item.isCustom) {
     categorisedAsFood = true; 
   } else {
-    const isBreakfastItem = DATASETS.morning.breakfast.sections[0].items.some(i => i.name === item.name);
-    const isLunchFood = DATASETS.lunch.food.sections.some(s => s.items.some(i => i.name === item.name));
-    categorisedAsFood = isBreakfastItem || isLunchFood;
+   categorisedAsFood = false;
+
+for (const menuKey in DATASETS) {
+
+  const menu = DATASETS[menuKey];
+
+  for (const tabKey in menu) {
+
+    const tab = menu[tabKey];
+
+    if (!tab.sections) continue;
+
+    const found = tab.sections.some(section =>
+      section.items.some(i => i.name === item.name)
+    );
+
+    if (found) {
+      categorisedAsFood = true;
+      break;
+    }
   }
+}
 
   if (idx >= 0) {
     lines[idx].qty++;
@@ -1923,31 +1941,30 @@ editBtn.addEventListener("click", () => {
   // find original menu item definition
   let sourceItem = null;
 
-  for (const menuKey in DATASETS) {
+ for (const menuKey in DATASETS) {
 
-    const menu = DATASETS[menuKey];
+  const menu = DATASETS[menuKey];
 
-    for (const tabKey of menu.tabs) {
+  for (const tabKey in menu) {
 
-      const tab = menu[tabKey];
+    const tab = menu[tabKey];
 
-      for (const section of tab.sections) {
+    if (!tab.sections) continue;
 
-       const found = section.items.find(i =>
-  l.name === i.name ||
-  l.name.startsWith(i.name)
-);
+    for (const section of tab.sections) {
 
-        if (found) {
-          sourceItem = found;
-          break;
-        }
+      const found = section.items.find(i =>
+        l.name === i.name ||
+        l.name.startsWith(i.name)
+      );
 
+      if (found) {
+        sourceItem = found;
+        break;
       }
-
     }
-
   }
+}
 
   if (!sourceItem) {
     alert("Cannot edit this item");
