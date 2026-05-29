@@ -2032,53 +2032,35 @@ editBtn.addEventListener("click", () => {
   document.getElementById("opt-overlay").classList.add("show");
 
   // override add button temporarily
-  const addBtn = document.getElementById("opt-add");
+  const addBtn =
+  document.getElementById("opt-add");
 
 addBtn.onclick = () => {
 
-  const updatedOpts = { ...modalOpts };
+  lines[realIdx].opts = { ...modalOpts };
 
-  const updatedPrice =
-    calcPrice(modalItem, updatedOpts);
+  lines[realIdx].price =
+    calcPrice(modalItem, modalOpts);
 
-  const updatedKey =
-  lineKey(
-    modalItem.askIceCreamFlavour
-      ? updatedOpts.flavour + " Scoop"
-      : modalItem.askSupremeFlavour
-        ? updatedOpts.flavour + " Supreme"
-        : modalItem.askSqueezeFlavour
-          ? updatedOpts.flavour + " Squeeze Up"
-          : modalItem.name,
-    updatedOpts
-  );
+  let updatedName = modalItem.name;
 
-  // check if another line already has same key
-  const existingIdx = lines.findIndex(
-    (l, i) =>
-      i !== realIdx &&
-      l.key === updatedKey
-  );
+  if (modalItem.askIceCreamFlavour) {
+    updatedName =
+      modalOpts.flavour + " Scoop";
 
-  if (existingIdx >= 0) {
+  } else if (modalItem.askSupremeFlavour) {
+    updatedName =
+      modalOpts.flavour + " Supreme";
 
-    // merge quantities
-    lines[existingIdx].qty += lines[realIdx].qty;
-
-    // keep newest price/options
-    lines[existingIdx].opts = updatedOpts;
-    lines[existingIdx].price = updatedPrice;
-
-    // remove old line
-    lines.splice(realIdx, 1);
-
-  } else {
-
-    // normal update
-    lines[realIdx].opts = updatedOpts;
-    lines[realIdx].price = updatedPrice;
-    lines[realIdx].key = updatedKey;
+  } else if (modalItem.askSqueezeFlavour) {
+    updatedName =
+      modalOpts.flavour + " Squeeze Up";
   }
+
+  lines[realIdx].name = updatedName;
+
+  lines[realIdx].key =
+    lineKey(updatedName, modalOpts);
 
   closeModal();
 
@@ -2086,12 +2068,9 @@ addBtn.onclick = () => {
 
   updateOrderBtn();
 
-  // restore default button action
   addBtn.onclick = confirmAdd;
 };
-
-});
-
+  
 div.appendChild(remBtn);
 div.appendChild(textLabel);
 if (l.opts) {
