@@ -181,7 +181,7 @@ Object.keys(groupedOrders).forEach(table => {
 
     ${itemsHTML}
 
-    <button onclick="completeOrder('${orders[0].id}')">
+    <button onclick="completeTable('${table}')">
       COMPLETE
     </button>
 
@@ -190,6 +190,8 @@ Object.keys(groupedOrders).forEach(table => {
   activeContainer.appendChild(div);
 
 });
+
+}
   
 /* LOAD ON PAGE OPEN */
 loadOrders();
@@ -206,7 +208,6 @@ supabaseClient
     },
     () => {
 
-      loadOrders();
 
     }
   )
