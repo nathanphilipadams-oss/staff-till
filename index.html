@@ -1679,63 +1679,83 @@ function closeModal() {
 }
 
 function addLine(item, opts) {
+
   const price = calcPrice(item, opts);
-  
+
   let displayName = item.name;
+
   if (item.askIceCreamFlavour && opts) {
     displayName = opts.flavour + " Scoop";
+
   } else if (item.askSupremeFlavour && opts) {
     displayName = opts.flavour + " Supreme";
+
   } else if (item.askSqueezeFlavour && opts) {
     displayName = opts.flavour + " Squeeze Up";
   }
 
   const key = lineKey(displayName, opts);
-  const idx = lines.findIndex(l => l.key === key);
-  
+
+  const idx =
+    lines.findIndex(l => l.key === key);
+
   let categorisedAsFood = false;
+
+  // Custom items treated as food
   if (item.isCustom) {
-    categorisedAsFood = true; 
+
+    categorisedAsFood = true;
+
   } else {
-   categorisedAsFood = false;
 
-for (const menuKey in DATASETS) {
+    outerLoop:
+    for (const menuKey in DATASETS) {
 
-  const menu = DATASETS[menuKey];
+      const menu = DATASETS[menuKey];
 
-  for (const tabKey in menu) {
+      for (const tabKey in menu) {
 
-    const tab = menu[tabKey];
+        const tab = menu[tabKey];
 
-    if (!tab.sections) continue;
+        if (!tab.sections) continue;
 
-    const found = tab.sections.some(section =>
-      section.items.some(i => i.name === item.name)
-    );
+        for (const section of tab.sections) {
 
-    if (found) {
-      categorisedAsFood = true;
-      break;
+          const found = section.items.some(
+            i => i.name === item.name
+          );
+
+          if (found) {
+
+            categorisedAsFood = true;
+
+            break outerLoop;
+          }
+        }
+      }
     }
   }
-}
 
+  // ADD / UPDATE LINE
   if (idx >= 0) {
+
     lines[idx].qty++;
+
   } else {
-    lines.push({ 
-  key, 
-  name: displayName, 
-  price, 
-  qty: 1, 
-  opts, 
-  food: categorisedAsFood,
-  note: ""
-});
+
+    lines.push({
+      key,
+      name: displayName,
+      price,
+      qty: 1,
+      opts,
+      food: categorisedAsFood,
+      note: ""
+    });
   }
+
   updateOrderBtn();
 }
-
 function removeLineAtIndex(index) {
   lines.splice(index, 1);
   updateOrderBtn();
@@ -1997,25 +2017,52 @@ editBtn.addEventListener("click", () => {
   // override add button temporarily
   const addBtn = document.getElementById("opt-add");
 
-  addBtn.onclick = () => {
+addBtn.onclick = () => {
 
-    lines[realIdx].opts = { ...modalOpts };
+  const updatedOpts = { ...modalOpts };
 
-lines[realIdx].price =
-  calcPrice(modalItem, modalOpts);
+  const updatedPrice =
+    calcPrice(modalItem, updatedOpts);
 
-lines[realIdx].key =
-  lineKey(lines[realIdx].name, modalOpts);
+  const updatedKey =
+    lineKey(lines[realIdx].name, updatedOpts);
 
-    closeModal();
+  // check if another line already has same key
+  const existingIdx = lines.findIndex(
+    (l, i) =>
+      i !== realIdx &&
+      l.key === updatedKey
+  );
 
-    renderOrderSheet();
+  if (existingIdx >= 0) {
 
-    updateOrderBtn();
+    // merge quantities
+    lines[existingIdx].qty += lines[realIdx].qty;
 
-    // restore normal button behaviour
-    addBtn.onclick = confirmAdd;
-  };
+    // keep newest price/options
+    lines[existingIdx].opts = updatedOpts;
+    lines[existingIdx].price = updatedPrice;
+
+    // remove old line
+    lines.splice(realIdx, 1);
+
+  } else {
+
+    // normal update
+    lines[realIdx].opts = updatedOpts;
+    lines[realIdx].price = updatedPrice;
+    lines[realIdx].key = updatedKey;
+  }
+
+  closeModal();
+
+  renderOrderSheet();
+
+  updateOrderBtn();
+
+  // restore default button action
+  addBtn.onclick = confirmAdd;
+};
 
 });
 
@@ -2081,21 +2128,71 @@ async function sendOrderToKitchen() {
           ? takeawayName
           : null,
 
-      details:
-        "Qty: " + line.qty +
-        (line.opts?.bread
-          ? " | Bread: " + line.opts.bread
-          : "") +
-        (line.opts?.sauce
-          ? " | Sauce: " + line.opts.sauce
-          : "") +
-        (line.opts?.milk
-          ? " | Milk: " + line.opts.milk
-          : "") +
-        (line.note
-          ? " | NOTE: " + line.note
-          : "") +
-        " | Price: £" + line.price,
+    details:
+  [
+    "Qty: " + line.qty,
+
+    line.opts?.size
+      ? "Size: " + line.opts.size
+      : null,
+
+    line.opts?.bread
+      ? "Bread: " + line.opts.bread
+      : null,
+
+    line.opts?.garnish
+      ? "Garnish: " + line.opts.garnish
+      : null,
+
+    line.opts?.sauce
+      ? "Sauce: " + line.opts.sauce
+      : null,
+
+    line.opts?.milk
+      ? "Milk: " + line.opts.milk
+      : null,
+
+    line.opts?.coffeeType
+      ? "Coffee: " + line.opts.coffeeType
+      : null,
+
+    line.opts?.teaType
+      ? "Tea: " + line.opts.teaType
+      : null,
+
+    line.opts?.teaServe
+      ? "Serve: " + line.opts.teaServe
+      : null,
+
+    line.opts?.fruitTeaFlavour
+      ? "Fruit Tea: " + line.opts.fruitTeaFlavour
+      : null,
+
+    line.opts?.waterType
+      ? "Water: " + line.opts.waterType
+      : null,
+
+    line.opts?.cone
+      ? "Cone: " + line.opts.cone
+      : null,
+
+    line.opts?.flake
+      ? "Flake: " + line.opts.flake
+      : null,
+
+    line.opts?.flavour
+      ? "Flavour: " + line.opts.flavour
+      : null,
+
+    line.note
+      ? "NOTE: " + line.note
+      : null,
+
+    "Price: £" + line.price
+
+  ]
+  .filter(Boolean)
+  .join(" | "),
 
       status: "new",
 
