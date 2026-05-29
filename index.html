@@ -1973,11 +1973,28 @@ editBtn.addEventListener("click", () => {
 
     for (const section of tab.sections) {
 
-      const found = section.items.find(i =>
-        l.name === i.name ||
-        l.name.startsWith(i.name)
-      );
+     const found = section.items.find(i => {
 
+  if (l.name === i.name) return true;
+
+  if (
+    i.askIceCreamFlavour &&
+    l.name.endsWith(" Scoop")
+  ) return true;
+
+  if (
+    i.askSupremeFlavour &&
+    l.name.endsWith(" Supreme")
+  ) return true;
+
+  if (
+    i.askSqueezeFlavour &&
+    l.name.endsWith(" Squeeze Up")
+  ) return true;
+
+  return false;
+});
+      
       if (found) {
         sourceItem = found;
         break;
@@ -2025,7 +2042,16 @@ addBtn.onclick = () => {
     calcPrice(modalItem, updatedOpts);
 
   const updatedKey =
-    lineKey(lines[realIdx].name, updatedOpts);
+  lineKey(
+    modalItem.askIceCreamFlavour
+      ? updatedOpts.flavour + " Scoop"
+      : modalItem.askSupremeFlavour
+        ? updatedOpts.flavour + " Supreme"
+        : modalItem.askSqueezeFlavour
+          ? updatedOpts.flavour + " Squeeze Up"
+          : modalItem.name,
+    updatedOpts
+  );
 
   // check if another line already has same key
   const existingIdx = lines.findIndex(
