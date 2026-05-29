@@ -114,64 +114,87 @@ async function loadOrders() {
     return;
   }
 
-  data.forEach(order => {
+ const groupedOrders = {};
 
-    const div = document.createElement("div");
+data.forEach(order => {
 
-    div.className = "order";
+  const table = order.table_number || "No Table";
 
-    const isDone = order.status === "done";
+  if (!groupedOrders[table]) {
+    groupedOrders[table] = [];
+  }
 
-    if (isDone) {
-      div.style.opacity = "0.6";
-      div.style.borderLeftColor = "#20bf6b";
-    }
+  groupedOrders[table].push(order);
 
-    div.innerHTML = `
-    <div style="
-  font-size:28px;
-  font-weight:900;
-  margin-bottom:14px;
-  color:#ffcc00;
-">
-  TABLE ${order.table_number || "N/A"}
-</div>
+});
 
-<div class="item" style="
-  white-space:pre-line;
-  line-height:1.5;
-">
-  ${formatOrder(order)}
-</div>
+Object.keys(groupedOrders).forEach(table => {
 
-      <div style="
-        margin-bottom:12px;
-        font-weight:700;
-        color:${isDone ? "#20bf6b" : "#ffcc00"};
-      ">
-        ${isDone ? "COMPLETED" : "NEW ORDER"}
+  const orders = groupedOrders[table];
+
+  const div = document.createElement("div");
+
+  div.className = "order";
+
+  let itemsHTML = "";
+
+  orders.forEach(order => {
+
+    let details = order.details || "";
+
+    details = details.replace(/normal milk/gi, "").trim();
+
+    itemsHTML += `
+      <div style="margin-bottom:16px;">
+
+        <div style="
+          font-size:24px;
+          font-weight:900;
+          margin-bottom:6px;
+        ">
+          ${order.quantity || 1}x ${order.item}
+        </div>
+
+        ${
+          details
+          ?
+          `<div style="
+            color:#ccc;
+            font-size:18px;
+          ">
+            ${details}
+          </div>`
+          :
+          ""
+        }
+
       </div>
-
-      ${
-        !isDone
-        ?
-        `<button onclick="completeOrder('${order.id}')">
-          COMPLETE
-        </button>`
-        :
-        ""
-      }
     `;
-
-    if (isDone) {
-      completedContainer.appendChild(div);
-    } else {
-      activeContainer.appendChild(div);
-    }
 
   });
 
-}
+  div.innerHTML = `
+
+    <div style="
+      font-size:38px;
+      font-weight:900;
+      margin-bottom:20px;
+      color:#ffcc00;
+    ">
+      TABLE ${table}
+    </div>
+
+    ${itemsHTML}
+
+    <button onclick="completeOrder('${orders[0].id}')">
+      COMPLETE
+    </button>
+
+  `;
+
+  activeContainer.appendChild(div);
+
+});
 
 function formatOrder(order) {
 
@@ -222,6 +245,17 @@ async function completeOrder(id) {
 
 }
 
+async function completeTable(tableNumber) {
+
+  await supabaseClient
+    .from("cafe_orders")
+    .update({ status: "done" })
+    .eq("table_number", tableNumber);
+
+  loadOrders();
+
+}
+  
 async function trimHistory() {
 
   const { data, error } = await supabaseClient
