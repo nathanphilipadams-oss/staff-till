@@ -196,6 +196,8 @@ Object.keys(groupedOrders).forEach(table => {
 
 });
 
+}
+  
 function formatOrder(order) {
 
   if (!order.items) {
@@ -241,7 +243,6 @@ async function completeOrder(id) {
 
   await trimHistory();
 
-  loadOrders();
 
 }
 
