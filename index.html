@@ -570,18 +570,21 @@ const DATASETS = {
           askMilk: true
         },
 
-        {
-          name: "Tea",
-          basePrices: {
-            "Regular Tea Mug": 2.95,
-            "Regular Tea Pot": 4.00,
-            "Earl Grey Mug": 3.00,
-            "Earl Grey Pot": 4.10,
-            "Fruit Tea Mug": 3.00,
-            "Fruit Tea Pot": 4.10
-          },
-          askTeaType: true
-        },
+      {
+  name: "Regular Tea",
+  askTeaServe: true
+},
+
+{
+  name: "Earl Grey",
+  askTeaServe: true
+},
+
+{
+  name: "Fruit Tea",
+  askFruitTeaFlavour: true,
+  askTeaServe: true
+},
 
         {
           name: "Hot Chocolate",
@@ -769,6 +772,21 @@ const HOT_CHOC_TYPES = [
   "Cream & Marshmallows"
 ];
 
+  const FRUIT_TEA_FLAVOURS = [
+  "Peppermint",
+  "Green Tea",
+  "Camomile",
+  "Berry Burst",
+  "Lemon & Ginger"
+];
+
+const TEA_SERVE_OPTIONS = [
+  { label: "Mug", price: 3.00 },
+  { label: "Pot (1 Cup)", price: 4.10 },
+  { label: "Pot (2 Cups)", price: 5.10 },
+  { label: "Pot (3 Cups)", price: 6.10 },
+  { label: "Pot (4 Cups)", price: 7.10 }
+];
   
 let activeMainMenu = "morning";
 let activeSubTab = "breakfast";
@@ -1125,6 +1143,8 @@ function lineLabel(name, opts) {
     opts.coffeeType,
     opts.teaType,
     opts.hotChocolateType,
+    opts.teaServe,
+    opts.fruitTeaFlavour,
     opts.waterType,
     opts.wineSize,
 
@@ -1169,9 +1189,15 @@ function calcPrice(item, opts) {
   return item.basePrices[opts.waterType];
 }
   
-  if (item.askTeaType) {
-    return item.basePrices[opts.teaType];
-  }
+ if (item.askTeaServe) {
+
+  const selected =
+    TEA_SERVE_OPTIONS.find(
+      t => t.label === opts.teaServe
+    );
+
+  return selected ? selected.price : 3.00;
+}
 
   if (item.askHotChocolateType) {
     return item.basePrices[opts.hotChocolateType];
@@ -1265,6 +1291,15 @@ function tapItem(item) {
           ? HOT_CHOC_TYPES[0]
           : null,
 
+teaServe:
+  item.askTeaServe
+    ? TEA_SERVE_OPTIONS[0].label
+    : null,
+
+fruitTeaFlavour:
+  item.askFruitTeaFlavour
+    ? FRUIT_TEA_FLAVOURS[0]
+    : null,
       
       size:
         item.askSize
@@ -1412,6 +1447,43 @@ if (modalItem.askHotChocolateType) {
 
 }
 
+  if (modalItem.askFruitTeaFlavour) {
+
+  groups.appendChild(
+    makeOptGroup(
+      "FRUIT TEA",
+      FRUIT_TEA_FLAVOURS.map(f => ({
+        label: f,
+        surcharge: 0
+      })),
+      modalOpts.fruitTeaFlavour,
+      f => {
+        modalOpts.fruitTeaFlavour = f;
+        renderModal();
+      }
+    )
+  );
+
+}
+
+if (modalItem.askTeaServe) {
+
+  groups.appendChild(
+    makeOptGroup(
+      "SERVE",
+      TEA_SERVE_OPTIONS.map(t => ({
+        label: t.label,
+        surcharge: 0
+      })),
+      modalOpts.teaServe,
+      t => {
+        modalOpts.teaServe = t;
+        renderModal();
+      }
+    )
+  );
+
+}
  
   if (modalItem.askWaterType) {
 
@@ -1585,6 +1657,8 @@ function confirmAdd() {
           coffeeType: modalOpts.coffeeType,
           teaType: modalOpts.teaType,
           hotChocolateType: modalOpts.hotChocolateType,
+          teaServe: modalOpts.teaServe,
+          fruitTeaFlavour: modalOpts.fruitTeaFlavour,
           size: modalOpts.size,
           bread: modalOpts.bread,
           garnish: modalOpts.garnish,
