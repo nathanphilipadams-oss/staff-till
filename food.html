@@ -3,243 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drinks</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Kitchen — FOOD</title>
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg:          #080b12;
-    --surface:     #0d1220;
-    --border:      #1a2035;
-    --blue:        #4a9eff;
-    --blue-dim:    rgba(74,158,255,0.10);
-    --blue-glow:   rgba(74,158,255,0.05);
-    --cyan:        #00d4c8;
-    --green:       #2dce6c;
-    --green-dim:   rgba(45,206,108,0.15);
-    --red:         #e84040;
-    --amber:       #f5a623;
-    --text:        #dce8f5;
-    --muted:       #4a5e7a;
-    --faint:       #1a2438;
-    --ticket-bg:   #090d18;
-    --ticket-bdr:  #1e2d44;
-    --header-h:    64px;
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0f0e0b;--surface:#1a1815;--border:#2e2b24;
+    --amber:#f5a623;--amber-dim:rgba(245,166,35,0.12);
+    --green:#2dce6c;--green-dim:rgba(45,206,108,0.15);
+    --red:#e84040;--text:#f0ece0;--muted:#7a7463;--faint:#3d3a30;
+    --ticket-bg:#161410;--ticket-border:#3a3520;
   }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100dvh;
-    overflow-x: hidden;
-  }
-
-  /* ── HEADER ── */
-  header {
-    position: sticky; top: 0; z-index: 100;
-    height: var(--header-h);
-    background: var(--surface);
-    border-bottom: 2px solid var(--blue);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 20px;
-    box-shadow: 0 4px 32px rgba(74,158,255,0.15);
-  }
-  .header-left { display: flex; align-items: center; gap: 14px; }
-  .screen-tag {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 28px; letter-spacing: 3px; color: var(--blue);
-    text-shadow: 0 0 20px rgba(74,158,255,0.5);
-  }
-  .screen-sub {
-    font-size: 10px; letter-spacing: 3px; color: var(--muted);
-    text-transform: uppercase; padding-top: 2px;
-  }
-  .header-right { display: flex; align-items: center; gap: 16px; }
-  .pulse-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%,100% { opacity:1; transform:scale(1); }
-    50% { opacity:0.4; transform:scale(0.8); }
-  }
-  .pulse-dot.error { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
-  .clock {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 22px; letter-spacing: 2px; color: var(--text);
-  }
-  .order-count-badge {
-    background: var(--blue); color: #000;
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 14px; padding: 4px 12px; border-radius: 4px;
-    letter-spacing: 1px;
-  }
-
-  /* ── CATEGORY LEGEND ── */
-  .legend {
-    display: flex; gap: 16px; padding: 8px 20px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: 2px; color: var(--muted); }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .dot-drinks { background: var(--blue); }
-  .dot-sweet  { background: var(--cyan); }
-  .dot-ice    { background: var(--amber); }
-
-  /* ── GRID ── */
-  .tickets-grid {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-    align-items: start;
-    padding-bottom: 50px;
-  }
-
-  /* ── TICKET ── */
-  .ticket {
-    background: var(--ticket-bg);
-    border: 1px solid var(--ticket-bdr);
-    border-radius: 8px;
-    overflow: hidden;
-    animation: slideIn 0.3s ease;
-    position: relative;
-  }
-  @keyframes slideIn {
-    from { opacity:0; transform:translateY(-10px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-  .ticket::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: var(--blue);
-  }
-
-  .ticket-header {
-    padding: 12px 14px;
-    background: var(--blue-dim);
-    border-bottom: 1px solid var(--ticket-bdr);
-    display: flex; justify-content: space-between; align-items: flex-start;
-  }
-  .ticket-header.takeaway-header { background: rgba(45,206,108,0.07); }
-
-  .table-label {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 26px; color: var(--blue);
-    letter-spacing: 1px; line-height: 1;
-  }
-  .takeaway-label {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 18px; color: var(--green);
-    letter-spacing: 1px; line-height: 1.2;
-  }
-  .takeaway-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
-
-  .ticket-meta { text-align: right; }
-  .ticket-time { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
-  .ticket-age {
-    font-size: 10px; letter-spacing: 1px; margin-top: 3px;
-    padding: 2px 7px; border-radius: 3px;
-    display: inline-block;
-  }
-  .age-fresh  { background: rgba(45,206,108,0.15);  color: var(--green); }
-  .age-mid    { background: rgba(245,166,35,0.15); color: var(--amber); }
-  .age-urgent { background: rgba(232,64,64,0.15); color: var(--red); animation: urgentBlink 1s infinite; }
-  @keyframes urgentBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
-
-  /* ── SECTION DIVIDERS ── */
-  .section-divider {
-    font-size: 9px; letter-spacing: 3px; color: var(--muted);
-    text-transform: uppercase;
-    padding: 8px 14px 4px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .section-divider::after {
-    content: ''; flex: 1; height: 1px; background: var(--faint);
-  }
-  .section-divider.drinks-div { color: var(--blue); }
-  .section-divider.sweet-div  { color: var(--cyan); }
-  .section-divider.ice-div    { color: var(--amber); }
-
-  .ticket-body {}
-
-  .item-row {
-    display: flex; align-items: baseline; gap: 8px;
-    padding: 6px 14px;
-    border-bottom: 1px dashed var(--faint);
-  }
-  .item-row:last-child { border-bottom: none; }
-
-  .item-qty {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 17px; color: var(--blue);
-    min-width: 28px; flex-shrink: 0;
-  }
-  .item-qty.sweet-qty { color: var(--cyan); }
-  .item-qty.ice-qty   { color: var(--amber); }
-
-  .item-name { font-size: 13px; color: var(--text); flex: 1; line-height: 1.4; }
-  .item-opts { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
-  .item-note {
-    font-size: 11px; color: #f5c842;
-    display: block; margin-top: 3px;
-    padding: 3px 7px; background: rgba(245,200,66,0.08);
-    border-left: 2px solid #f5c842; border-radius: 2px;
-  }
-
-  .ticket-footer {
-    padding: 10px 14px;
-    border-top: 1px solid var(--faint);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .item-count { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
-
-  .done-btn {
-    padding: 7px 16px; border-radius: 5px; border: none; cursor: pointer;
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: 13px; letter-spacing: 2px;
-    background: var(--green-dim); color: var(--green);
-    border: 1px solid rgba(45,206,108,0.3);
-    transition: all 0.15s;
-  }
-  .done-btn:hover { background: var(--green); color: #000; }
-  .done-btn:active { transform: scale(0.96); }
-
-  /* ── EMPTY ── */
-  .empty-state {
-    grid-column: 1 / -1;
-    text-align: center; padding: 80px 20px;
-  }
-  .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.2; }
-  .empty-text { font-family: 'Black Han Sans', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--faint); }
-
-  /* ── STATUS ── */
-  .status-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--surface); border-top: 1px solid var(--border);
-    padding: 8px 20px;
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 10px; letter-spacing: 2px; color: var(--muted);
-  }
-  .status-ok  { color: var(--green); }
-  .status-err { color: var(--red); }
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100dvh;overflow-x:hidden}
+  header{position:sticky;top:0;z-index:100;height:64px;background:var(--surface);border-bottom:2px solid var(--amber);display:flex;align-items:center;justify-content:space-between;padding:0 20px;box-shadow:0 4px 32px rgba(245,166,35,0.12)}
+  .screen-tag{font-family:'Black Han Sans',sans-serif;font-size:28px;letter-spacing:3px;color:var(--amber);text-shadow:0 0 20px rgba(245,166,35,0.4)}
+  .screen-sub{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;padding-top:2px}
+  .header-right{display:flex;align-items:center;gap:16px}
+  .pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+  .pulse-dot.error{background:var(--red);box-shadow:0 0 8px var(--red);animation:none}
+  .clock{font-family:'Black Han Sans',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text)}
+  .order-count-badge{background:var(--amber);color:#000;font-family:'Black Han Sans',sans-serif;font-size:14px;padding:4px 12px;border-radius:4px;letter-spacing:1px}
+  .tickets-grid{padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start;padding-bottom:50px}
+  .ticket{background:var(--ticket-bg);border:1px solid var(--ticket-border);border-radius:8px;overflow:hidden;animation:slideIn .3s ease;position:relative}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+  .ticket::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--amber)}
+  .ticket-header{padding:12px 14px;background:var(--amber-dim);border-bottom:1px solid var(--ticket-border);display:flex;justify-content:space-between;align-items:flex-start}
+  .ticket-header.takeaway-header{background:rgba(45,206,108,.08)}
+  .table-label{font-family:'Black Han Sans',sans-serif;font-size:26px;color:var(--amber);letter-spacing:1px;line-height:1}
+  .takeaway-label{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--green);letter-spacing:1px;line-height:1.2}
+  .takeaway-sub{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+  .ticket-meta{text-align:right}
+  .ticket-time{font-size:11px;color:var(--muted);letter-spacing:1px}
+  .ticket-age{font-size:10px;letter-spacing:1px;margin-top:3px;padding:2px 7px;border-radius:3px;display:inline-block}
+  .age-fresh{background:var(--green-dim);color:var(--green)}
+  .age-mid{background:rgba(245,166,35,.15);color:var(--amber)}
+  .age-urgent{background:rgba(232,64,64,.15);color:var(--red);animation:urgentBlink 1s infinite}
+  @keyframes urgentBlink{0%,100%{opacity:1}50%{opacity:.5}}
+  .ticket-body{}
+  .item-row{display:flex;align-items:baseline;gap:8px;padding:6px 14px;border-bottom:1px dashed var(--faint)}
+  .item-row:last-child{border-bottom:none}
+  .item-qty{font-family:'Black Han Sans',sans-serif;font-size:17px;color:var(--amber);min-width:32px;flex-shrink:0}
+  .item-name{font-size:13px;color:var(--text);flex:1;line-height:1.4}
+  .item-opts{font-size:11px;color:var(--muted);display:block;margin-top:2px}
+  .item-note{font-size:11px;color:#f5c842;display:block;margin-top:3px;padding:3px 7px;background:rgba(245,200,66,.08);border-left:2px solid #f5c842;border-radius:2px}
+  .ticket-footer{padding:10px 14px;border-top:1px solid var(--faint);display:flex;justify-content:space-between;align-items:center}
+  .item-count{font-size:11px;color:var(--muted);letter-spacing:1px}
+  .done-btn{padding:7px 16px;border-radius:5px;border:none;cursor:pointer;font-family:'Black Han Sans',sans-serif;font-size:13px;letter-spacing:2px;background:var(--green-dim);color:var(--green);border:1px solid rgba(45,206,108,.3);transition:all .15s}
+  .done-btn:hover{background:var(--green);color:#000}
+  .done-btn:active{transform:scale(.96)}
+  .empty-state{grid-column:1/-1;text-align:center;padding:80px 20px}
+  .empty-icon{font-size:64px;margin-bottom:16px;opacity:.3}
+  .empty-text{font-family:'Black Han Sans',sans-serif;font-size:20px;letter-spacing:3px;color:var(--faint)}
+  .status-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 20px;display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:2px;color:var(--muted)}
+  .status-ok{color:var(--green)}
+  .status-err{color:var(--red)}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="header-left">
-    <div>
-      <div class="screen-tag">Drinks</div>
-      <div class="screen-sub">Drinks · Cakes · Ice Cream</div>
-    </div>
+  <div>
+    <div class="screen-tag">🍳 KITCHEN</div>
+    <div class="screen-sub">Food · Soups · Salads · Sandwiches</div>
   </div>
   <div class="header-right">
     <div id="order-count-badge" class="order-count-badge" style="display:none"></div>
@@ -247,249 +73,144 @@
     <div class="pulse-dot" id="pulse-dot"></div>
   </div>
 </header>
-
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot dot-drinks"></div>HOT/COLD DRINKS</div>
-  <div class="legend-item"><div class="legend-dot dot-sweet"></div>CAKES & SNACKS</div>
-  <div class="legend-item"><div class="legend-dot dot-ice"></div>ICE CREAM</div>
-</div>
-
 <div class="tickets-grid" id="tickets-grid">
-  <div class="empty-state">
-    <div class="empty-icon"></div>
-    <div class="empty-text">NO ACTIVE DRINKS ORDERS</div>
-  </div>
+  <div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">NO ACTIVE FOOD ORDERS</div></div>
 </div>
-
 <div class="status-bar">
   <span id="status-text">Connecting…</span>
   <span id="last-refresh">–</span>
 </div>
-
 <script>
-const SUPABASE_URL = "https://mocujtfoyruievyjmjhe.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL="https://mocujtfoyruievyjmjhe.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
-// Items that belong on the BAR screen (drinks + cakes + ice cream)
-const CAKE_KEYWORDS    = ["cake","flapjack","pudding","brownie","shortcake","rock cake","drizzle","cream tea","crisps","slice"];
-const ICE_KEYWORDS     = ["scoop","lolly","tub","vortex","push up","squeeze","jazzie","sorbet","vegan tub","waffle","party","supreme","ripple","salted caramel tub","blackcurrant sorbet","raspberry ripple","iwicc"];
-const DRINK_KEYWORDS   = ["americano","latte","macchiato","cappuccino","flat white","mocha","espresso","decaf","iced coffee","tea","hot chocolate","bovril","juice","ribena","can","presse","lemonade","water","carling","estrella","planet local","wight gold","fuggle","cider","sauvignon","pinot","garnacha","grenache","prosecco","coffee","wine","beer","ale"];
+function isFood(row){return row.category==="food";}
 
-function itemCategory(row) {
-  const cat = (row.category || "").toLowerCase();
-  const name = (row.item || "").toLowerCase();
-
-  if (cat === "drink") return "drink";
-  if (cat === "food") {
-    // Food items on this screen: cakes + ice cream only
-    if (ICE_KEYWORDS.some(k => name.includes(k))) return "ice";
-    if (CAKE_KEYWORDS.some(k => name.includes(k))) return "sweet";
-    return null; // pure food (kitchen screen)
-  }
-  // No category set — infer
-  if (ICE_KEYWORDS.some(k => name.includes(k))) return "ice";
-  if (CAKE_KEYWORDS.some(k => name.includes(k))) return "sweet";
-  if (DRINK_KEYWORDS.some(k => name.includes(k))) return "drink";
-  return null;
+function timeAgo(iso){
+  const d=Math.floor((Date.now()-new Date(iso))/1000);
+  if(d<60)return d+"s ago";
+  if(d<3600)return Math.floor(d/60)+"m ago";
+  return Math.floor(d/3600)+"h ago";
 }
-
-function parseDetails(details) {
-  if (!details) return { opts: [], note: null };
-  const parts = details.split(" | ");
-  const note = parts.find(p => p.startsWith("NOTE:"))?.replace("NOTE:", "").trim() || null;
-  const opts = parts.filter(p => !p.startsWith("Qty:") && !p.startsWith("Price:") && !p.startsWith("NOTE:"));
-  return { opts, note };
+function ageClass(iso){
+  const m=Math.floor((Date.now()-new Date(iso))/60000);
+  return m<5?"age-fresh":m<12?"age-mid":"age-urgent";
 }
+function fmtTime(iso){return new Date(iso).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});}
 
-function getQty(details) {
-  if (!details) return 1;
-  const m = details.match(/Qty:\s*(\d+)/);
-  return m ? parseInt(m[1]) : 1;
-}
-
-function timeAgo(isoStr) {
-  const diff = Math.floor((Date.now() - new Date(isoStr)) / 1000);
-  if (diff < 60) return diff + "s ago";
-  if (diff < 3600) return Math.floor(diff/60) + "m ago";
-  return Math.floor(diff/3600) + "h ago";
-}
-
-function ageClass(isoStr) {
-  const diff = Math.floor((Date.now() - new Date(isoStr)) / 1000 / 60);
-  if (diff < 5) return "age-fresh";
-  if (diff < 12) return "age-mid";
-  return "age-urgent";
-}
-
-function formatTime(isoStr) {
-  return new Date(isoStr).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" });
-}
-
-let allOrders = [];
-
-function groupOrders(rows) {
-  const groups = {};
-  rows.forEach(row => {
-    if (!groups[row.order_group]) groups[row.order_group] = [];
-    groups[row.order_group].push(row);
+// Group rows by order_group, then sort groups:
+// Table orders sorted by table_number asc, then by oldest created_at within group.
+// Takeaway orders after tables, sorted by oldest created_at.
+function groupAndSort(rows){
+  const map={};
+  rows.forEach(r=>{
+    if(!map[r.order_group])map[r.order_group]=[];
+    map[r.order_group].push(r);
   });
-  return Object.values(groups).sort((a, b) => {
-    const aT = a[0].service_type === "table";
-    const bT = b[0].service_type === "table";
-    if (aT && bT) return (a[0].table_number || 0) - (b[0].table_number || 0);
-    if (aT) return -1; if (bT) return 1;
-    return (a[0].customer_name || "").localeCompare(b[0].customer_name || "");
+  // Sort rows within each group oldest first
+  Object.values(map).forEach(g=>g.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)));
+  return Object.values(map).sort((a,b)=>{
+    const aT=a[0].service_type==="table";
+    const bT=b[0].service_type==="table";
+    if(aT&&bT){
+      // Same table? sort by oldest item time
+      if(a[0].table_number!==b[0].table_number)return a[0].table_number-b[0].table_number;
+      return new Date(a[0].created_at)-new Date(b[0].created_at);
+    }
+    if(aT)return -1;
+    if(bT)return 1;
+    return new Date(a[0].created_at)-new Date(b[0].created_at);
   });
 }
 
-function renderTickets(rows) {
-  const grid = document.getElementById("tickets-grid");
-  grid.innerHTML = "";
+let allOrders=[];
 
-  if (rows.length === 0) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">
-    </div><div class="empty-text">NO ACTIVE BAR ORDERS</div></div>`;
-    document.getElementById("order-count-badge").style.display = "none";
+function renderTickets(rows){
+  const grid=document.getElementById("tickets-grid");
+  grid.innerHTML="";
+  if(!rows.length){
+    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">NO ACTIVE FOOD ORDERS</div></div>`;
+    document.getElementById("order-count-badge").style.display="none";
     return;
   }
+  const groups=groupAndSort(rows);
+  const badge=document.getElementById("order-count-badge");
+  badge.style.display="block";
+  badge.textContent=groups.length+(groups.length===1?" ORDER":" ORDERS");
 
-  const groups = groupOrders(rows);
-  const badge = document.getElementById("order-count-badge");
-  badge.style.display = "block";
-  badge.textContent = groups.length + (groups.length === 1 ? " ORDER" : " ORDERS");
+  groups.forEach(group=>{
+    const first=group[0];
+    const isTable=first.service_type==="table";
+    const oldestTime=group[0].created_at; // already sorted oldest first
+    const totalQty=group.reduce((s,r)=>s+(r.qty||1),0);
 
-  groups.forEach(group => {
-    const first = group[0];
-    const isTable = first.service_type === "table";
-    const oldestTime = group.reduce((min, r) => r.created_at < min ? r.created_at : min, group[0].created_at);
-    const totalQty = group.reduce((s, r) => s + getQty(r.details), 0);
+    const ticket=document.createElement("div");
+    ticket.className="ticket";
 
-    // Split into sub-categories for this ticket
-    const drinks = group.filter(r => itemCategory(r) === "drink");
-    const sweets = group.filter(r => itemCategory(r) === "sweet");
-    const ices   = group.filter(r => itemCategory(r) === "ice");
-
-    const ticket = document.createElement("div");
-    ticket.className = "ticket";
-
-    // Header
-    const hdr = document.createElement("div");
-    hdr.className = "ticket-header" + (isTable ? "" : " takeaway-header");
-    if (isTable) {
-      hdr.innerHTML = `
-        <div><div class="table-label">TABLE ${first.table_number}</div></div>
-        <div class="ticket-meta">
-          <div class="ticket-time">${formatTime(oldestTime)}</div>
-          <div class="ticket-age ${ageClass(oldestTime)}">${timeAgo(oldestTime)}</div>
-        </div>`;
-    } else {
-      hdr.innerHTML = `
-        <div>
-          <div class="takeaway-label">🥡 ${(first.customer_name || "UNKNOWN").toUpperCase()}</div>
-          <div class="takeaway-sub">TAKE AWAY</div>
-        </div>
-        <div class="ticket-meta">
-          <div class="ticket-time">${formatTime(oldestTime)}</div>
-          <div class="ticket-age ${ageClass(oldestTime)}">${timeAgo(oldestTime)}</div>
-        </div>`;
-    }
+    const hdr=document.createElement("div");
+    hdr.className="ticket-header"+(isTable?"":" takeaway-header");
+    hdr.innerHTML=isTable
+      ?`<div><div class="table-label">TABLE ${first.table_number}</div></div>
+         <div class="ticket-meta"><div class="ticket-time">${fmtTime(oldestTime)}</div><div class="ticket-age ${ageClass(oldestTime)}">${timeAgo(oldestTime)}</div></div>`
+      :`<div><div class="takeaway-label">🥡 ${(first.customer_name||"UNKNOWN").toUpperCase()}</div><div class="takeaway-sub">TAKE AWAY</div></div>
+         <div class="ticket-meta"><div class="ticket-time">${fmtTime(oldestTime)}</div><div class="ticket-age ${ageClass(oldestTime)}">${timeAgo(oldestTime)}</div></div>`;
     ticket.appendChild(hdr);
 
-    // Body
-    const body = document.createElement("div");
-    body.className = "ticket-body";
-
-    function addSection(items, label, divClass, qtyClass) {
-      if (!items.length) return;
-      const div = document.createElement("div");
-      div.className = `section-divider ${divClass}`;
-      div.textContent = label;
-      body.appendChild(div);
-      items.forEach(row => {
-        const qty = getQty(row.details);
-        const { opts, note } = parseDetails(row.details);
-        const row_el = document.createElement("div");
-        row_el.className = "item-row";
-        const optsHtml = opts.length ? `<span class="item-opts">${opts.join(" · ")}</span>` : "";
-        const noteHtml = note ? `<span class="item-note">⚠ ${note}</span>` : "";
-        row_el.innerHTML = `
-          <div class="item-qty ${qtyClass}">${qty}×</div>
-          <div class="item-name">${row.item}${optsHtml}${noteHtml}</div>`;
-        body.appendChild(row_el);
-      });
-    }
-
-    addSection(drinks, "DRINKS",     "drinks-div", "");
-    addSection(sweets, "CAKES & SNACKS", "sweet-div",  "sweet-qty");
-    addSection(ices,   "ICE CREAM",   "ice-div",    "ice-qty");
-
+    const body=document.createElement("div");
+    body.className="ticket-body";
+    group.forEach(row=>{
+      const qty=row.qty||1;
+      const el=document.createElement("div");
+      el.className="item-row";
+      const optsHtml=row.options?`<span class="item-opts">${row.options}</span>`:"";
+      const noteHtml=row.note?`<span class="item-note">⚠ ${row.note}</span>`:"";
+      el.innerHTML=`<div class="item-qty">${qty}×</div><div class="item-name">${row.item}${optsHtml}${noteHtml}</div>`;
+      body.appendChild(el);
+    });
     ticket.appendChild(body);
 
-    // Footer
-    const footer = document.createElement("div");
-    footer.className = "ticket-footer";
-    footer.innerHTML = `<span class="item-count">${totalQty} ITEM${totalQty !== 1 ? "S" : ""}</span>`;
-    const doneBtn = document.createElement("button");
-    doneBtn.className = "done-btn";
-    doneBtn.textContent = "✓ DONE";
-    doneBtn.addEventListener("click", () => markGroupDone(group.map(r => r.id)));
+    const footer=document.createElement("div");
+    footer.className="ticket-footer";
+    footer.innerHTML=`<span class="item-count">${totalQty} ITEM${totalQty!==1?"S":""}</span>`;
+    const doneBtn=document.createElement("button");
+    doneBtn.className="done-btn";
+    doneBtn.textContent="✓ DONE";
+    doneBtn.addEventListener("click",()=>markDone(group.map(r=>r.id)));
     footer.appendChild(doneBtn);
     ticket.appendChild(footer);
-
     grid.appendChild(ticket);
   });
 }
 
-async function markGroupDone(ids) {
-  const { error } = await sb.from("cafe_orders").update({ status: "done" }).in("id", ids);
-  if (!error) fetchOrders();
+async function markDone(ids){
+  await sb.from("cafe_orders").update({status:"done"}).in("id",ids);
+  fetchOrders();
 }
 
-async function fetchOrders() {
-  try {
-    const { data, error } = await sb
-      .from("cafe_orders")
-      .select("*")
-      .eq("status", "new")
-      .order("created_at", { ascending: true });
-
-    if (error) throw error;
-
-    // Keep only rows that belong on the bar screen
-    const barRows = (data || []).filter(r => {
-      const cat = itemCategory(r);
-      return cat === "drink" || cat === "sweet" || cat === "ice";
-    });
-
-    allOrders = barRows;
-    renderTickets(barRows);
-
-    document.getElementById("status-text").textContent = "LIVE · AUTO-REFRESH 15s";
-    document.getElementById("status-text").className = "status-ok";
-    document.getElementById("last-refresh").textContent = "Last: " + new Date().toLocaleTimeString("en-GB");
+async function fetchOrders(){
+  try{
+    const{data,error}=await sb.from("cafe_orders").select("*").eq("status","new").order("created_at",{ascending:true});
+    if(error)throw error;
+    allOrders=(data||[]).filter(isFood);
+    renderTickets(allOrders);
+    document.getElementById("status-text").textContent="LIVE · AUTO-REFRESH 15s";
+    document.getElementById("status-text").className="status-ok";
+    document.getElementById("last-refresh").textContent="Last: "+new Date().toLocaleTimeString("en-GB");
     document.getElementById("pulse-dot").classList.remove("error");
-  } catch (e) {
-    document.getElementById("status-text").textContent = "ERROR: " + e.message;
-    document.getElementById("status-text").className = "status-err";
+  }catch(e){
+    document.getElementById("status-text").textContent="ERROR: "+e.message;
+    document.getElementById("status-text").className="status-err";
     document.getElementById("pulse-dot").classList.add("error");
   }
 }
 
-function updateClock() {
-  document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-setInterval(() => { if (allOrders.length > 0) renderTickets(allOrders); }, 30000);
-
+function updateClock(){document.getElementById("clock").textContent=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
+setInterval(updateClock,1000);updateClock();
+setInterval(()=>{if(allOrders.length)renderTickets(allOrders);},30000);
 fetchOrders();
-setInterval(fetchOrders, 15000);
-
-sb.channel("bar-screen")
-  .on("postgres_changes", { event: "*", schema: "public", table: "cafe_orders" }, () => fetchOrders())
-  .subscribe();
+setInterval(fetchOrders,15000);
+sb.channel("food-screen").on("postgres_changes",{event:"*",schema:"public",table:"cafe_orders"},()=>fetchOrders()).subscribe();
 </script>
 </body>
 </html>
