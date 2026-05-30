@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bar — DRINKS & SWEET</title>
+<title>Drinks</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -237,7 +237,7 @@
 <header>
   <div class="header-left">
     <div>
-      <div class="screen-tag">☕ BAR</div>
+      <div class="screen-tag">Drinks</div>
       <div class="screen-sub">Drinks · Cakes · Ice Cream</div>
     </div>
   </div>
@@ -256,8 +256,8 @@
 
 <div class="tickets-grid" id="tickets-grid">
   <div class="empty-state">
-    <div class="empty-icon">☕</div>
-    <div class="empty-text">NO ACTIVE BAR ORDERS</div>
+    <div class="empty-icon"></div>
+    <div class="empty-text">NO ACTIVE DRINKS ORDERS</div>
   </div>
 </div>
 
@@ -348,7 +348,8 @@ function renderTickets(rows) {
   grid.innerHTML = "";
 
   if (rows.length === 0) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">☕</div><div class="empty-text">NO ACTIVE BAR ORDERS</div></div>`;
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">
+    </div><div class="empty-text">NO ACTIVE BAR ORDERS</div></div>`;
     document.getElementById("order-count-badge").style.display = "none";
     return;
   }
