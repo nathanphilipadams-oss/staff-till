@@ -5,87 +5,300 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Beach Shack Till</title>
 <style>
-  #send-to-kitchen-btn { background: #20bf6b; color: white; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px; margin-left: 12px; }
-  #send-to-kitchen-btn:hover { opacity: 0.9; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #ffffff; color: #000000; font-family: system-ui, sans-serif; font-size: 14px; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; user-select: none; -webkit-user-select: none; transition: background 0.25s ease, color 0.25s ease; }
+
+  /* ─── THEME VARIABLES ─────────────────────────────────────────── */
+  body.morning {
+    --bg:           #f5f5f0;
+    --bg-secondary: #ebebе6;
+    --surface:      #ffffff;
+    --surface-2:    #f0f0eb;
+    --border:       #d8d8d2;
+    --text:         #1a1a1a;
+    --text-muted:   #666660;
+    --text-faint:   #999993;
+    --accent:       #1a6fd4;
+    --accent-light: rgba(26,111,212,0.10);
+    --acc-open-bg:  #e8e8e3;
+    --acc-open-text:#1a1a1a;
+    --item-bg:      #ffffff;
+    --item-border:  #dcdcd7;
+    --tab-bar-border: #d0d0ca;
+  }
+  body.lunch {
+    --bg:           #3D3C3F;
+    --bg-secondary: #343337;
+    --surface:      #2e2d30;
+    --surface-2:    #383639;
+    --border:       #4a4850;
+    --text:         #f0eef5;
+    --text-muted:   #b0adb8;
+    --text-faint:   #787580;
+    --accent:       #7c6af5;
+    --accent-light: rgba(124,106,245,0.15);
+    --acc-open-bg:  #4a4850;
+    --acc-open-text:#f0eef5;
+    --item-bg:      #2e2d30;
+    --item-border:  #4a4850;
+    --tab-bar-border: rgba(255,255,255,0.06);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
+    font-size: 14px;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
   button { font-family: inherit; }
-  .menu-toggle-container { display: flex; background: #f2f2f2; border-bottom: 1px solid #dcdcdc; flex-shrink: 0; }
-  .menu-toggle-btn { flex: 1; padding: 14px 0; border: none; cursor: pointer; font-weight: 900; font-size: 14px; letter-spacing: 2px; background: transparent; color: #888; text-align: center; position: relative; overflow: hidden; }
-  .menu-toggle-btn::before { content: ''; position: absolute; bottom: 0; left: 0; height: 100%; width: 0%; background: rgba(0, 168, 255, 0.15); transition: width 0s linear; z-index: 1; }
+
+  /* ─── TOP MENU TOGGLE BAR ─────────────────────────────────────── */
+  .menu-toggle-container {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .menu-toggle-btn {
+    flex: 1; padding: 14px 0; border: none; cursor: pointer;
+    font-weight: 900; font-size: 13px; letter-spacing: 2px;
+    background: transparent; color: var(--text-faint);
+    text-align: center; position: relative; overflow: hidden;
+    transition: color 0.2s;
+  }
+  .menu-toggle-btn::before {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    height: 100%; width: 0%;
+    background: var(--accent-light);
+    transition: width 0s linear; z-index: 1;
+  }
   .menu-toggle-btn.holding::before { width: 100%; transition: width 0.5s linear; }
   .menu-toggle-btn span { position: relative; z-index: 2; }
-  .menu-toggle-btn.active { background: #ffffff; color: #000000; border-bottom: 3px solid #3b9eff; }
-  #menu-toggle-lunch.active { background: #3D3C3F; color: #ffffff; border-bottom: 3px solid #ffffff; }
-  #menu-toggle-lunch.holding::before { background: rgba(32, 191, 107, 0.15); }
-  .tabs-container { display: flex; background: inherit; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-  .tab-btn { flex: 1; padding: 13px 0; border: none; cursor: pointer; font-weight: 800; font-size: 13px; letter-spacing: 2px; background: transparent; color: inherit; opacity: 0.6; border-bottom: 3px solid transparent; text-align: center; }
-  .scroll-container { flex: 1; overflow-y: auto; background: inherit; padding-bottom: 20px; transition: background 0.25s ease; }
-  .acc-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: none; cursor: pointer; background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.08); color: inherit; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
-  .acc-btn.open { background: #d9d9d9; color: #000000; }
-  .acc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px; background: transparent; }
-  .item-btn { padding: 12px 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; cursor: pointer; color: inherit; text-align: center; line-height: 1.3; font-size: 12px; }
-  .item-name { display: block; font-weight: 600; }
-  .item-price { display: block; color: #3b9eff; font-weight: 700; margin-top: 3px; font-size: 13px; }
-  .custom-item-bar { background: #1f1f1f; border-top: 1px solid #2e2e2e; padding: 8px 12px; flex-shrink: 0; }
-  .custom-item-btn { width: 100%; padding: 10px 0; border: 1px dashed #555; background: #262626; color: #aaa; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; letter-spacing: 1px; text-align: center; transition: background 0.2s; }
-  .custom-item-btn:hover { background: #333; color: #fff; border-color: #888; }
-  #order-btn { width: 100%; flex-shrink: 0; padding: 16px 20px; border: none; cursor: pointer; background: #333; color: #fff; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #444; }
-  #order-btn.has-items { background: #3b9eff; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50; display: none; align-items: flex-end; }
+
+  /* Morning active tab */
+  body.morning .menu-toggle-btn.active {
+    background: var(--bg);
+    color: var(--text);
+    border-bottom: 3px solid var(--accent);
+  }
+  body.morning #menu-toggle-morning { border-right: 1px solid var(--border); }
+
+  /* Lunch active tab */
+  body.lunch #menu-toggle-lunch.active {
+    background: var(--bg);
+    color: var(--text);
+    border-bottom: 3px solid var(--accent);
+  }
+  body.lunch #menu-toggle-morning {
+    color: var(--text-faint);
+    border-right: 1px solid var(--border);
+  }
+
+  /* ─── SUB TABS ────────────────────────────────────────────────── */
+  .tabs-container {
+    display: flex;
+    background: var(--surface);
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--tab-bar-border);
+  }
+  .tab-btn {
+    flex: 1; padding: 12px 0; border: none; cursor: pointer;
+    font-weight: 800; font-size: 12px; letter-spacing: 2px;
+    background: transparent; color: var(--text-muted);
+    border-bottom: 3px solid transparent; text-align: center;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn.active-tab {
+    color: var(--text);
+    border-bottom: 3px solid var(--accent);
+  }
+
+  /* ─── SCROLL AREA ─────────────────────────────────────────────── */
+  .scroll-container {
+    flex: 1; overflow-y: auto;
+    background: var(--bg);
+    padding-bottom: 20px;
+    transition: background 0.25s ease;
+  }
+
+  /* ─── ACCORDION ───────────────────────────────────────────────── */
+  .acc-btn {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; border: none; cursor: pointer;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 700; font-size: 12px; letter-spacing: 1.5px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .acc-btn.open {
+    background: var(--acc-open-bg);
+    color: var(--acc-open-text);
+    border-bottom: 1px solid var(--border);
+  }
+  .acc-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; padding: 10px;
+    background: var(--bg);
+  }
+
+  /* ─── ITEM BUTTONS ────────────────────────────────────────────── */
+  .item-btn {
+    padding: 12px 6px;
+    background: var(--item-bg);
+    border: 1px solid var(--item-border);
+    border-radius: 10px; cursor: pointer;
+    color: var(--text);
+    text-align: center; line-height: 1.3; font-size: 12px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .item-btn:active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+  .item-name { display: block; font-weight: 600; color: var(--text); }
+  .item-price { display: block; color: var(--accent); font-weight: 700; margin-top: 3px; font-size: 13px; }
+
+  /* ─── BOTTOM CONTROL BAR (always dark) ───────────────────────── */
+  .custom-item-bar {
+    background: #1c1b1e;
+    border-top: 1px solid #2e2d32;
+    padding: 8px 12px;
+    flex-shrink: 0;
+  }
+  .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .service-btn-active  { background: var(--accent) !important; color: #fff !important; }
+  .service-btn-inactive { background: #2e2d32 !important; color: #888 !important; }
+
+  .table-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .table-btn {
+    padding: 11px 0; border: none; border-radius: 7px;
+    background: #2a292d; color: #aaa;
+    font-weight: 800; cursor: pointer; font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .table-btn.active { background: var(--accent); color: #fff; }
+
+  #takeaway-name-input {
+    width: 100%; padding: 10px; border-radius: 8px;
+    border: 1px solid #3a3940; background: #252428;
+    color: #f0eef5; font-weight: 700; font-size: 14px;
+  }
+  #takeaway-name-input::placeholder { color: #666; }
+
+  .custom-item-btn {
+    width: 100%; padding: 10px 0;
+    border: 1px dashed #444; background: #252428;
+    color: #888; border-radius: 6px;
+    font-weight: 700; font-size: 13px; cursor: pointer;
+    letter-spacing: 1px; text-align: center; transition: all 0.2s;
+  }
+  .custom-item-btn:hover { background: #333; color: #fff; border-color: #777; }
+
+  /* ─── VIEW ORDER BUTTON ───────────────────────────────────────── */
+  #order-btn {
+    width: 100%; flex-shrink: 0; padding: 16px 20px; border: none;
+    cursor: pointer; background: #1c1b1e; color: #555;
+    font-weight: 800; font-size: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid #2e2d32;
+    transition: background 0.2s, color 0.2s;
+  }
+  #order-btn.has-items { background: var(--accent); color: #fff; }
+
+  /* ─── ORDER SHEET OVERLAY ─────────────────────────────────────── */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 50; display: none; align-items: flex-end; }
   .overlay.show { display: flex; }
-  .sheet { background: #1e1e1e; width: 100%; max-height: 85vh; display: flex; flex-direction: column; border-radius: 14px 14px 0 0; }
-  .sheet-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #2e2e2e; flex-shrink: 0; }
-  .sheet-head span { font-weight: 800; font-size: 16px; }
-  .sheet-btns { display: flex; gap: 10px; }
-  .btn-clear { background: #cc3333; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-weight: 700; font-size: 13px; }
-  .btn-close { background: #444; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-weight: 700; font-size: 13px; }
+  .sheet { background: #1c1b1e; width: 100%; max-height: 85vh; display: flex; flex-direction: column; border-radius: 16px 16px 0 0; }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #2e2d32; flex-shrink: 0; }
+  .sheet-head span { font-weight: 800; font-size: 16px; color: #f0eef5; }
+  .sheet-btns { display: flex; gap: 8px; }
+  .btn-clear { background: #7a1f1f; color: #ffaaaa; border: none; border-radius: 6px; padding: 7px 14px; cursor: pointer; font-weight: 700; font-size: 13px; }
+  .btn-close { background: #2e2d32; color: #ccc; border: none; border-radius: 6px; padding: 7px 14px; cursor: pointer; font-weight: 700; font-size: 13px; }
   .sheet-body { overflow-y: auto; flex: 1; padding: 0 14px; }
-  .order-section-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #888; padding: 10px 0 4px; }
-  .order-line { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #2e2e2e; }
-  .order-line .remove { background: none; border: none; color: #cc3333; cursor: pointer; font-size: 16px; padding: 0; flex-shrink: 0; width: 24px; height: 24px; }
-  .order-line .lname { flex: 1; font-size: 14px; line-height: 1.3; }
-  .order-line input { width: 44px; text-align: center; background: #2a2a2a; border: 1px solid #2e2e2e; border-radius: 4px; color: #fff; padding: 4px 0; font-size: 14px; }
-  .order-line .lprice { min-width: 52px; text-align: right; color: #3b9eff; font-weight: 700; font-size: 14px; }
-  .empty-msg { color: #555; text-align: center; padding: 40px 0; }
-  .discount-row-active { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #2a1b1b; border-top: 1px solid #4a2323; color: #ff6b6b; font-size: 13px; font-weight: 700; }
-  .discount-row-active button { background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 14px; font-weight: 800; }
-  .sheet-total-container { background: #000; border-top: 2px solid #2e2e2e; flex-shrink: 0; display: flex; flex-direction: column; }
-  .discount-hold-btn { width: 100%; padding: 10px 0; border: none; background: #222; color: #e67e22; font-weight: 800; font-size: 12px; letter-spacing: 1px; cursor: pointer; text-align: center; position: relative; overflow: hidden; border-bottom: 1px solid #2e2e2e; }
-  .discount-hold-btn::before { content: ''; position: absolute; bottom: 0; left: 0; height: 100%; width: 0%; background: rgba(230, 126, 34, 0.2); transition: width 0s linear; z-index: 1; }
+  .order-section-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #666; padding: 10px 0 4px; }
+  .order-line { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #2a292d; }
+  .order-line .remove { background: none; border: none; color: #cc4444; cursor: pointer; font-size: 16px; padding: 0; flex-shrink: 0; width: 24px; height: 24px; }
+  .order-line .lname { flex: 1; font-size: 13px; line-height: 1.3; color: #dddbe2; }
+  .order-line input { width: 44px; text-align: center; background: #252428; border: 1px solid #3a3940; border-radius: 4px; color: #fff; padding: 4px 0; font-size: 14px; }
+  .order-line .lprice { min-width: 52px; text-align: right; color: #7c6af5; font-weight: 700; font-size: 14px; }
+  .empty-msg { color: #444; text-align: center; padding: 40px 0; font-size: 15px; }
+
+  /* ─── DISCOUNT ROW ────────────────────────────────────────────── */
+  .discount-row-active { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #2a1a1a; border-top: 1px solid #4a2222; color: #ff7070; font-size: 13px; font-weight: 700; }
+  .discount-row-active button { background: none; border: none; color: #ff7070; cursor: pointer; font-size: 14px; font-weight: 800; }
+
+  /* ─── TOTAL BAR ───────────────────────────────────────────────── */
+  .sheet-total-container { background: #111013; border-top: 2px solid #2a292d; flex-shrink: 0; display: flex; flex-direction: column; }
+  .discount-hold-btn {
+    width: 100%; padding: 10px 0; border: none;
+    background: #1c1b1e; color: #d4894a;
+    font-weight: 800; font-size: 12px; letter-spacing: 1px;
+    cursor: pointer; text-align: center;
+    position: relative; overflow: hidden; border-bottom: 1px solid #2e2d32;
+  }
+  .discount-hold-btn::before { content: ''; position: absolute; bottom: 0; left: 0; height: 100%; width: 0%; background: rgba(212,137,74,0.18); transition: width 0s linear; z-index: 1; }
   .discount-hold-btn.holding::before { width: 100%; transition: width 1s linear; }
   .discount-hold-btn span { position: relative; z-index: 2; }
+
   .sheet-total { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .sheet-total span:first-child { color: #666; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
-  .sheet-total span:last-child { font-size: 36px; font-weight: 900; color: #3b9eff; }
-  #opt-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .sheet-total div { display: flex; flex-direction: column; gap: 2px; }
+  .sheet-total div span:first-child { color: #555; font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+  .sheet-total div span:last-child { font-size: 36px; font-weight: 900; color: #7c6af5; }
+
+  #send-to-kitchen-btn {
+    background: #20bf6b; color: white; border: none;
+    padding: 12px 16px; border-radius: 10px;
+    font-weight: 800; cursor: pointer; font-size: 13px;
+    letter-spacing: 0.5px;
+    transition: opacity 0.15s;
+  }
+  #send-to-kitchen-btn:hover { opacity: 0.88; }
+
+  /* ─── OPTIONS MODAL ───────────────────────────────────────────── */
+  #opt-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 99; display: none; align-items: center; justify-content: center; padding: 20px; }
   #opt-overlay.show { display: flex; }
-  #opt-box { background: #1e1e1e; border-radius: 10px; padding: 20px; width: 100%; max-width: 350px; border: 1px solid #2e2e2e; max-height: 80vh; overflow-y: auto; }
-  #opt-title { font-weight: 800; font-size: 15px; margin-bottom: 2px; }
-  #opt-price { color: #3b9eff; font-weight: 700; font-size: 20px; margin-bottom: 16px; }
+  #opt-box { background: #1c1b1e; border-radius: 12px; padding: 20px; width: 100%; max-width: 360px; border: 1px solid #2e2d32; max-height: 80vh; overflow-y: auto; }
+  #opt-title { font-weight: 800; font-size: 16px; margin-bottom: 2px; color: #f0eef5; }
+  #opt-price { color: #7c6af5; font-weight: 800; font-size: 22px; margin-bottom: 16px; }
   .opt-group { margin-bottom: 14px; }
-  .opt-label { font-size: 11px; color: #666; letter-spacing: 1px; margin-bottom: 8px; }
-  .opt-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .opt-btn { flex: 1; min-width: 70px; padding: 10px 4px; border-radius: 6px; border: none; cursor: pointer; font-weight: 700; font-size: 12px; background: #333; color: #fff; line-height: 1.4; }
-  .opt-btn.selected { background: #3b9eff; }
+  .opt-label { font-size: 10px; color: #666; letter-spacing: 1.5px; margin-bottom: 8px; text-transform: uppercase; }
+  .opt-row { display: flex; gap: 7px; flex-wrap: wrap; }
+  .opt-btn { flex: 1; min-width: 70px; padding: 10px 4px; border-radius: 7px; border: 1px solid #3a3940; cursor: pointer; font-weight: 700; font-size: 12px; background: #252428; color: #ccc; line-height: 1.4; transition: background 0.12s, color 0.12s; }
+  .opt-btn.selected { background: #7c6af5; color: #fff; border-color: #7c6af5; }
   .opt-actions { display: flex; gap: 8px; margin-top: 18px; }
-  #opt-cancel { flex: 1; padding: 11px 0; background: #333; color: #f0f0f0; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; }
-  #opt-add { flex: 2; padding: 11px 0; background: #3b9eff; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 15px; }
-  .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-  .table-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-  .table-btn { padding: 12px 0; border: none; border-radius: 8px; background: #222; color: white; font-weight: 800; cursor: pointer; font-size: 13px; }
-  .table-btn.active { background: #3b9eff; }
-  .service-btn-active { background: #3b9eff !important; }
-  .service-btn-inactive { background: #444 !important; }
+  #opt-cancel { flex: 1; padding: 12px 0; background: #252428; color: #aaa; border: 1px solid #3a3940; border-radius: 7px; cursor: pointer; font-weight: 700; }
+  #opt-add { flex: 2; padding: 12px 0; background: #7c6af5; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-weight: 800; font-size: 15px; transition: opacity 0.15s; }
+  #opt-add:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ─── NUMERIC PAD ─────────────────────────────────────────────── */
   .num-input-wrap { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-  .num-display { width: 100%; padding: 12px; background: #111; border: 1px solid #333; border-radius: 6px; font-size: 24px; font-weight: 900; text-align: right; color: #20bf6b; letter-spacing: 1px; }
+  .num-display { width: 100%; padding: 12px; background: #111013; border: 1px solid #2e2d32; border-radius: 8px; font-size: 26px; font-weight: 900; text-align: right; color: #20bf6b; letter-spacing: 1px; }
   .num-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .num-btn { padding: 14px 0; background: #2a2a2a; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; }
-  .num-btn:active { background: #3b9eff; }
+  .num-btn { padding: 14px 0; background: #252428; color: #ddd; border: none; border-radius: 7px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.1s; }
+  .num-btn:active { background: #7c6af5; color: #fff; }
+
+  /* ─── ICE CREAM SUBHEADING ────────────────────────────────────── */
+  .ice-subheading {
+    grid-column: span 3;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-weight: 800; font-size: 10px;
+    padding: 6px 10px; margin-top: 4px;
+    border-radius: 5px; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-left: 3px solid var(--accent);
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
+<body class="morning">
 
 <div class="menu-toggle-container">
   <button class="menu-toggle-btn active" id="menu-toggle-morning"><span>MORNING MENU</span></button>
@@ -97,13 +310,13 @@
 <div class="custom-item-bar">
   <div class="service-grid">
     <button id="table-service-btn" class="service-btn-active" style="padding:10px;border:none;border-radius:8px;color:white;font-weight:800;cursor:pointer;">TABLE</button>
-    <button id="takeaway-service-btn" class="service-btn-inactive" style="padding:10px;border:none;border-radius:8px;color:white;font-weight:800;cursor:pointer;">TAKE AWAY</button>
+    <button id="takeaway-service-btn" class="service-btn-inactive" style="padding:10px;border:none;border-radius:8px;font-weight:800;cursor:pointer;">TAKE AWAY</button>
   </div>
-  <div id="table-select-wrap" style="margin-bottom:10px;">
+  <div id="table-select-wrap" style="margin-bottom:8px;">
     <div id="table-grid" class="table-grid"></div>
   </div>
-  <div id="takeaway-name-wrap" style="display:none; margin-bottom:10px;">
-    <input id="takeaway-name-input" placeholder="Customer Name" style="width:100%;padding:10px;border-radius:8px;border:none;background:#222;color:white;font-weight:700;" />
+  <div id="takeaway-name-wrap" style="display:none; margin-bottom:8px;">
+    <input id="takeaway-name-input" placeholder="Customer Name" />
   </div>
   <button class="custom-item-btn" id="trigger-custom-btn">+ ADD CUSTOM AMOUNT</button>
 </div>
@@ -164,35 +377,29 @@ const DATASETS = {
     tabs: ["breakfast","beverages"],
     tabLabels: { breakfast:"BREAKFAST", beverages:"HOT DRINKS" },
     breakfast: { sections: [{ label:"Morning Breakfast", items:[
-      { name:"Fruited Tea Cake", price:2.45 },
-      { name:"Crumpets", price:2.45 },
+      { name:"Fruited Tea Cake", price:2.45, askPreserves:true },
+      { name:"Crumpets", price:2.45, askPreserves:true },
       { name:"Bacon Sandwich", price:6.30, baconBreadChoice:true, askSauce:true },
-      { name:"Croissant & Butter", price:3.60 },
-      { name:"Toast & Butter", price:2.45 },
-      { name:"Preserves Extra", price:1.10 }
+      { name:"Croissant & Butter", price:3.60, askPreserves:true },
+      { name:"Toast & Butter", price:2.45, askPreserves:true },
     ]}]},
     beverages: { sections: [
       { label:"Lavazza Coffee", items:[
-        { name:"Americano", price:3.60, askMilk:true },
-        { name:"Cafe Latte", price:3.80, askMilk:true },
-        { name:"Macchiato", price:3.80, askMilk:true },
-        { name:"Cappuccino", price:3.80, askMilk:true },
-        { name:"Flat White", price:3.80, askMilk:true },
-        { name:"Mocha", price:4.15, askMilk:true },
+        { name:"Americano", price:3.60, askMilk:true, askExtraShot:true, askSyrup:true },
+        { name:"Cafe Latte", price:3.80, askMilk:true, askExtraShot:true, askSyrup:true },
+        { name:"Macchiato", price:3.80, askMilk:true, askExtraShot:true, askSyrup:true },
+        { name:"Cappuccino", price:3.80, askMilk:true, askExtraShot:true, askSyrup:true },
+        { name:"Flat White", price:3.80, askMilk:true, askExtraShot:true, askSyrup:true },
+        { name:"Mocha", price:4.15, askMilk:true, askExtraShot:true, askSyrup:true },
         { name:"Espresso", price:2.50 },
-        { name:"Instant Decaf Coffee", price:2.40, askMilk:true },
-        { name:"Extra Shot of Coffee", price:1.25 },
-        { name:"Flavoured Coffee Syrup", price:1.00 }
+        { name:"Instant Decaf Coffee", price:2.40, askMilk:true, askExtraShot:true, askSyrup:true },
+        { name:"Jimmy's Iced Coffee", price:3.60 }
       ]},
       { label:"Teas & Others", items:[
-        { name:"Regular Tea - Mug", price:2.95 },
-        { name:"Regular Tea - Pot (for 1)", price:4.00 },
-        { name:"Earl Grey - Mug", price:3.00 },
-        { name:"Earl Grey - Pot (for 1)", price:4.10 },
-        { name:"Fruit Teas - Mug", price:3.00 },
-        { name:"Fruit Teas - Pot (for 1)", price:4.10 },
-        { name:"Hot Chocolate", price:3.95 },
-        { name:"Hot Choc with Cream & Marsh", price:4.20 },
+        { name:"Regular Tea", askTeaServe:true },
+        { name:"Earl Grey", askTeaServe:true },
+        { name:"Fruit Tea", askFruitTeaFlavour:true, askTeaServe:true },
+        { name:"Hot Chocolate", basePrices:{Regular:3.95,"Cream & Marshmallows":4.20}, askHotChocolateType:true },
         { name:"Bovril", price:3.20 }
       ]}
     ]}
@@ -219,7 +426,7 @@ const DATASETS = {
         { name:"Egg Mayo", price:8.95, askBread:true },
         { name:"Chicken", price:9.95, askBread:true },
         { name:"Ham", price:9.95, askBread:true },
-        { name:"Cheddar Cheese", price:8.45, askBread:true },
+        { name:"Cheddar Cheese", price:9.95, askBread:true },
         { name:"Salad Sandwich", price:8.45, askBread:true }
       ]},
       { label:"Handmade Goodies & Snacks", items:[
@@ -248,12 +455,13 @@ const DATASETS = {
     ]},
     drinks: { sections: [
       { label:"Hot Drinks", items:[
-        { name:"Coffee", basePrices:{Americano:3.60,"Cafe Latte":3.80,Macchiato:3.80,Cappuccino:3.80,Espresso:2.50,Mocha:4.15,"Instant Decaf Coffee":2.40}, askCoffeeType:true, askMilk:true },
+        { name:"Coffee", basePrices:{Americano:3.60,"Cafe Latte":3.80,Macchiato:3.80,Cappuccino:3.80,Espresso:2.50,Mocha:4.15,"Instant Decaf Coffee":2.40}, askCoffeeType:true, askMilk:true, askExtraShot:true, askSyrup:true },
         { name:"Regular Tea", askTeaServe:true },
         { name:"Earl Grey", askTeaServe:true },
         { name:"Fruit Tea", askFruitTeaFlavour:true, askTeaServe:true },
         { name:"Hot Chocolate", basePrices:{Regular:3.95,"Cream & Marshmallows":4.20}, askHotChocolateType:true },
-        { name:"Bovril", price:3.20 }
+        { name:"Bovril", price:3.20 },
+        { name:"Jimmy's Iced Coffee", price:3.60 }
       ]},
       { label:"Cold Drinks", items:[
         { name:"Orange Juice", price:1.70 },
@@ -265,11 +473,12 @@ const DATASETS = {
         { name:"Mineral Water", basePrices:{Still:1.90,Sparkling:1.90}, askWaterType:true }
       ]},
       { label:"Beer & Cider", items:[
+        { name:"Carling Can 440ml", price:5.00 },
         { name:"Estrella 330ml", price:5.25 },
-        { name:"Camden IPA 440ml", price:5.00 },
         { name:"Planet Local Lager 500ml", price:6.50 },
         { name:"Wight Gold Local Ale", price:6.50 },
-        { name:"Fuggle Dee Dum Local Ale", price:6.50 }
+        { name:"Fuggle Dee Dum Local Ale", price:6.50 },
+        { name:"Cider / Fruit Cider", price:6.50 }
       ]},
       { label:"Wine", items:[
         { name:"Sauvignon Blanc", winePrices:{"125ml":4.95,"175ml":6.25,Bottle:24.75}, askWineSize:true },
@@ -298,7 +507,10 @@ const COFFEE_TYPES = ["Americano","Cafe Latte","Macchiato","Cappuccino","Espress
 const TEA_TYPES = ["Regular Tea Mug","Regular Tea Pot","Earl Grey Mug","Earl Grey Pot","Fruit Tea Mug","Fruit Tea Pot"];
 const HOT_CHOC_TYPES = ["Regular","Cream & Marshmallows"];
 const FRUIT_TEA_FLAVOURS = ["Peppermint","Green Tea","Camomile","Berry Burst","Lemon & Ginger"];
-const TEA_SERVE_OPTIONS = [{label:"Mug",price:3.00},{label:"Pot (1 Cup)",price:4.10},{label:"Pot (2 Cups)",price:5.10},{label:"Pot (3 Cups)",price:6.10},{label:"Pot (4 Cups)",price:7.10}];
+const EXTRA_SHOT_OPTIONS = [{label:"No Extra Shot",surcharge:0},{label:"Add Extra Shot",surcharge:1.25}];
+const PRESERVES_OPTIONS = [{label:"No Preserves",surcharge:0},{label:"Add Preserves",surcharge:1.10}];
+const SYRUP_OPTIONS = [{label:"No Syrup",surcharge:0},{label:"Add Flavoured Syrup",surcharge:1.00}];
+const TEA_SERVE_OPTIONS = [{label:"Mug",price:2.95},{label:"Pot (1 Cup)",price:4.10},{label:"Pot (2 Cups)",price:5.10},{label:"Pot (3 Cups)",price:6.10},{label:"Pot (4 Cups)",price:7.10}];
 
 let activeMainMenu="morning", activeSubTab="breakfast", openSections={}, lines=[], modalItem=null, modalOpts={};
 let discountApplied=false, serviceType="table", tableNumber=1, takeawayName="";
@@ -343,7 +555,6 @@ tableBtn.addEventListener("click",()=>{
   takeawayBtn.classList.add("service-btn-inactive"); takeawayBtn.classList.remove("service-btn-active");
   tableWrap.style.display="block"; takeawayWrap.style.display="none";
 });
-
 takeawayBtn.addEventListener("click",()=>{
   serviceType="takeaway";
   takeawayBtn.classList.add("service-btn-active"); takeawayBtn.classList.remove("service-btn-inactive");
@@ -369,8 +580,8 @@ function setupHoldToSwitchButton(elementId,menuKey){
 
 function switchMainMenu(menuKey){
   activeMainMenu=menuKey;
-  if(menuKey==="morning"){document.body.style.background="#ffffff";document.body.style.color="#000000";}
-  else{document.body.style.background="#3D3C3F";document.body.style.color="#ffffff";}
+  // Use body class for theming instead of inline styles
+  document.body.className=menuKey;
   activeSubTab=DATASETS[menuKey].tabs[0];
   document.getElementById("menu-toggle-morning").classList.toggle("active",menuKey==="morning");
   document.getElementById("menu-toggle-lunch").classList.toggle("active",menuKey==="lunch");
@@ -380,10 +591,15 @@ function switchMainMenu(menuKey){
 function renderSubTabsBar(){
   const container=document.getElementById("sub-tabs-bar"); container.innerHTML="";
   const dataset=DATASETS[activeMainMenu];
-  dataset.tabs.forEach(tabKey=>{
+  dataset.tabs.forEach((tabKey,i)=>{
     const btn=document.createElement("button"); btn.className="tab-btn";
+    if(i===0)btn.classList.add("active-tab");
     btn.textContent=dataset.tabLabels[tabKey];
-    btn.addEventListener("click",()=>switchSubTab(tabKey));
+    btn.addEventListener("click",()=>{
+      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active-tab"));
+      btn.classList.add("active-tab");
+      switchSubTab(tabKey);
+    });
     container.appendChild(btn);
   });
 }
@@ -408,10 +624,9 @@ function renderMenuGrid(){
     if(isSectionOpen){
       const grid=document.createElement("div"); grid.className="acc-grid";
       if(section.label==="Ice Cream Selection"){
-        const subStyle="grid-column:span 3;background:#222;color:#aaa;font-weight:800;font-size:11px;padding:6px 10px;margin-top:5px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;";
-        const sub1=document.createElement("div"); sub1.style.cssText=subStyle; sub1.textContent="Cones & Tubs"; grid.appendChild(sub1);
+        const sub1=document.createElement("div"); sub1.className="ice-subheading"; sub1.textContent="Cones & Tubs"; grid.appendChild(sub1);
         section.items.filter(i=>i.subHeading==="Cones & Tubs").forEach(item=>grid.appendChild(createItemButton(item)));
-        const sub2=document.createElement("div"); sub2.style.cssText=subStyle+"margin-top:12px;"; sub2.textContent="Packaged Lollies & Tubs"; grid.appendChild(sub2);
+        const sub2=document.createElement("div"); sub2.className="ice-subheading"; sub2.textContent="Packaged Lollies & Tubs"; grid.appendChild(sub2);
         section.items.filter(i=>i.subHeading==="Packaged Lollies & Tubs").forEach(item=>grid.appendChild(createItemButton(item)));
       } else {
         section.items.forEach(item=>grid.appendChild(createItemButton(item)));
@@ -435,7 +650,6 @@ function createItemButton(item){
     const vals=Object.values(item.basePrices);
     priceStr="£"+Math.min(...vals).toFixed(2)+"–£"+Math.max(...vals).toFixed(2);
   } else if(item.askTeaServe){
-    // FIX: Tea items have no fixed price - show range from TEA_SERVE_OPTIONS
     const min=Math.min(...TEA_SERVE_OPTIONS.map(t=>t.price));
     const max=Math.max(...TEA_SERVE_OPTIONS.map(t=>t.price));
     priceStr="£"+min.toFixed(2)+"–£"+max.toFixed(2);
@@ -449,7 +663,11 @@ function createItemButton(item){
 
 function lineLabel(name,opts){
   if(!opts)return name;
-  const parts=[opts.coffeeType,opts.teaType,opts.hotChocolateType,opts.teaServe,opts.fruitTeaFlavour,opts.waterType,opts.wineSize,opts.flavour,opts.cone,opts.flake,opts.size,opts.bread,opts.garnish,opts.sauce,opts.milk].filter(Boolean);
+  const parts=[opts.coffeeType,opts.teaType,opts.hotChocolateType,opts.teaServe,opts.fruitTeaFlavour,opts.waterType,opts.wineSize,opts.flavour,opts.cone,opts.flake,opts.size,opts.bread,opts.garnish,opts.sauce,opts.milk,
+    opts.extraShot&&opts.extraShot!=="No Extra Shot"?opts.extraShot:null,
+    opts.syrup&&opts.syrup!=="No Syrup"?opts.syrup:null,
+    opts.preserves&&opts.preserves!=="No Preserves"?opts.preserves:null
+  ].filter(Boolean);
   return parts.length?name+" ("+parts.join(", ")+")":name;
 }
 
@@ -459,7 +677,9 @@ function calcPrice(item,opts){
   if(item.askCoffeeType){
     const base=item.basePrices[opts.coffeeType];
     const milk=opts.milk?MILKS.find(m=>m.label===opts.milk):null;
-    return base+(milk?milk.surcharge:0);
+    const shot=opts.extraShot?EXTRA_SHOT_OPTIONS.find(e=>e.label===opts.extraShot):null;
+    const syrup=opts.syrup?SYRUP_OPTIONS.find(s=>s.label===opts.syrup):null;
+    return base+(milk?milk.surcharge:0)+(shot?shot.surcharge:0)+(syrup?syrup.surcharge:0);
   }
   if(item.askWaterType)return item.basePrices[opts.waterType];
   if(item.askTeaServe){
@@ -476,11 +696,14 @@ function calcPrice(item,opts){
   const base=item.price||0;
   const bread=opts&&opts.bread?BREAD.find(b=>b.label===opts.bread):null;
   const milk=opts&&opts.milk?MILKS.find(m=>m.label===opts.milk):null;
-  return base+(bread?bread.surcharge:0)+(milk?milk.surcharge:0);
+  const shot=opts&&opts.extraShot?EXTRA_SHOT_OPTIONS.find(e=>e.label===opts.extraShot):null;
+  const syrup=opts&&opts.syrup?SYRUP_OPTIONS.find(s=>s.label===opts.syrup):null;
+  const preserves=opts&&opts.preserves?PRESERVES_OPTIONS.find(p=>p.label===opts.preserves):null;
+  return base+(bread?bread.surcharge:0)+(milk?milk.surcharge:0)+(shot?shot.surcharge:0)+(syrup?syrup.surcharge:0)+(preserves?preserves.surcharge:0);
 }
 
 function tapItem(item){
-  if(item.askSize||item.askBread||item.baconBreadChoice||item.askGarnish||item.askMilk||item.askSauce||item.askIceCreamFlavour||item.askSupremeFlavour||item.askSqueezeFlavour||item.askWineSize||item.askCoffeeType||item.askTeaType||item.askHotChocolateType||item.askWaterType||item.askTeaServe||item.askFruitTeaFlavour){
+  if(item.askSize||item.askBread||item.baconBreadChoice||item.askGarnish||item.askMilk||item.askSauce||item.askIceCreamFlavour||item.askSupremeFlavour||item.askSqueezeFlavour||item.askWineSize||item.askCoffeeType||item.askTeaType||item.askHotChocolateType||item.askWaterType||item.askTeaServe||item.askFruitTeaFlavour||item.askExtraShot||item.askPreserves||item.askSyrup){
     modalItem=item;
     modalOpts={
       wineSize:item.askWineSize?Object.keys(item.winePrices)[0]:null,
@@ -497,7 +720,10 @@ function tapItem(item){
       waterType:item.askWaterType?WATER_TYPES[0]:null,
       cone:item.askIceCreamFlavour?CONE_TYPES[0].label:null,
       flavour:item.askIceCreamFlavour?ICE_CREAM_FLAVOURS[0]:item.askSupremeFlavour?SUPREME_FLAVOURS[0]:item.askSqueezeFlavour?SQUEEZE_FLAVOURS[0]:null,
-      flake:item.askIceCreamFlavour?FLAKE_OPTIONS[0].label:null
+      flake:item.askIceCreamFlavour?FLAKE_OPTIONS[0].label:null,
+      extraShot:item.askExtraShot?EXTRA_SHOT_OPTIONS[0].label:null,
+      preserves:item.askPreserves?PRESERVES_OPTIONS[0].label:null,
+      syrup:item.askSyrup?SYRUP_OPTIONS[0].label:null
     };
     renderModal();
     document.getElementById("opt-overlay").classList.add("show");
@@ -530,6 +756,9 @@ function renderModal(){
   if(modalItem.askGarnish) groups.appendChild(makeOptGroup("SERVED WITH",GARNISH.map(g=>({label:g,surcharge:0})),modalOpts.garnish,g=>{modalOpts.garnish=g;renderModal();}));
   if(modalItem.askSauce) groups.appendChild(makeOptGroup("SAUCE",SAUCES.map(s=>({label:s,surcharge:0})),modalOpts.sauce,s=>{modalOpts.sauce=s;renderModal();}));
   if(modalItem.askMilk) groups.appendChild(makeOptGroup("MILK OPTION",MILKS,modalOpts.milk,m=>{modalOpts.milk=m;renderModal();}));
+  if(modalItem.askExtraShot) groups.appendChild(makeOptGroup("EXTRA SHOT",EXTRA_SHOT_OPTIONS,modalOpts.extraShot,v=>{modalOpts.extraShot=v;renderModal();}));
+  if(modalItem.askSyrup) groups.appendChild(makeOptGroup("FLAVOURED SYRUP",SYRUP_OPTIONS,modalOpts.syrup,v=>{modalOpts.syrup=v;renderModal();}));
+  if(modalItem.askPreserves) groups.appendChild(makeOptGroup("PRESERVES",PRESERVES_OPTIONS,modalOpts.preserves,v=>{modalOpts.preserves=v;renderModal();}));
 }
 
 function makeOptGroup(label,options,selected,onSelect){
@@ -595,7 +824,8 @@ function confirmAdd(){
     hotChocolateType:modalOpts.hotChocolateType, teaServe:modalOpts.teaServe,
     fruitTeaFlavour:modalOpts.fruitTeaFlavour, size:modalOpts.size, bread:modalOpts.bread,
     garnish:modalOpts.garnish, sauce:modalOpts.sauce, milk:modalOpts.milk,
-    waterType:modalOpts.waterType, cone:modalOpts.cone, flavour:modalOpts.flavour, flake:modalOpts.flake
+    waterType:modalOpts.waterType, cone:modalOpts.cone, flavour:modalOpts.flavour, flake:modalOpts.flake,
+    extraShot:modalOpts.extraShot, syrup:modalOpts.syrup, preserves:modalOpts.preserves
   });
   closeModal();
 }
@@ -700,12 +930,12 @@ function createLineRowElement(l,realIdx){
   const numInput=document.createElement("input"); numInput.type="number"; numInput.min="0"; numInput.value=l.qty;
   numInput.addEventListener("change",(e)=>updateLineQtyAtIndex(realIdx,e.target.value));
   const noteBtn=document.createElement("button"); noteBtn.textContent="NOTE";
-  noteBtn.style.cssText="background:#666;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;";
+  noteBtn.style.cssText="background:#2a292d;color:#aaa;border:1px solid #3a3940;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:11px;font-weight:700;";
   noteBtn.addEventListener("click",()=>{const n=prompt("Chef note:",l.note||"");if(n!==null){lines[realIdx].note=n;renderOrderSheet();}});
   const priceLabel=document.createElement("span"); priceLabel.className="lprice";
   priceLabel.textContent="£"+(l.price*l.qty).toFixed(2);
   const editBtn=document.createElement("button"); editBtn.textContent="EDIT";
-  editBtn.style.cssText="background:#3b9eff;border:none;color:white;padding:4px 8px;border-radius:4px;cursor:pointer;";
+  editBtn.style.cssText="background:#2a292d;border:1px solid #3a3940;color:#aaa;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700;";
   editBtn.addEventListener("click",()=>{
     let sourceItem=null;
     for(const menuKey in DATASETS){
@@ -733,7 +963,8 @@ function createLineRowElement(l,realIdx){
       teaServe:l.opts?.teaServe||null, fruitTeaFlavour:l.opts?.fruitTeaFlavour||null,
       size:l.opts?.size||null, bread:l.opts?.bread||null, garnish:l.opts?.garnish||null,
       sauce:l.opts?.sauce||null, milk:l.opts?.milk||null, waterType:l.opts?.waterType||null,
-      cone:l.opts?.cone||null, flavour:l.opts?.flavour||null, flake:l.opts?.flake||null
+      cone:l.opts?.cone||null, flavour:l.opts?.flavour||null, flake:l.opts?.flake||null,
+      extraShot:l.opts?.extraShot||null, syrup:l.opts?.syrup||null, preserves:l.opts?.preserves||null
     };
     renderModal(); document.getElementById("opt-overlay").classList.add("show");
     const addBtn=document.getElementById("opt-add");
@@ -780,6 +1011,9 @@ async function sendOrderToKitchen(){
         line.opts?.cone?"Cone: "+line.opts.cone:null,
         line.opts?.flake?"Flake: "+line.opts.flake:null,
         line.opts?.flavour?"Flavour: "+line.opts.flavour:null,
+        line.opts?.extraShot&&line.opts.extraShot!=="No Extra Shot"?"Extra Shot: Yes":null,
+        line.opts?.syrup&&line.opts.syrup!=="No Syrup"?"Syrup: Yes":null,
+        line.opts?.preserves&&line.opts.preserves!=="No Preserves"?"Preserves: Yes":null,
         line.note?"NOTE: "+line.note:null,
         "Price: £"+line.price
       ].filter(Boolean).join(" | "),
