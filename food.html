@@ -88,10 +88,12 @@ const supabaseClient = supabase.createClient(
 
 async function loadOrders() {
 
+  // Filtered to only bring in orders that aren't marked 'done'
   const { data, error } = await supabaseClient
     .from("cafe_orders")
     .select("*")
     .eq("category", "food")
+    .neq("status", "done")
     .order("created_at", { ascending: false });
 
   console.log(data);
@@ -151,7 +153,7 @@ Object.keys(groupedOrders).forEach(table => {
           font-size:24px;
           font-weight:900;
           margin-bottom:6px;
-        ">
+         ">
           ${order.quantity || 1}x ${order.item}
         </div>
 
@@ -173,6 +175,7 @@ Object.keys(groupedOrders).forEach(table => {
 
   });
 
+  // Updated to call completeTable dynamically passing the current table identifier
   div.innerHTML = `
 
     <div style="
@@ -186,7 +189,7 @@ Object.keys(groupedOrders).forEach(table => {
 
     ${itemsHTML}
 
-    <button onclick="completeOrder('${orders[0].id}')">
+    <button onclick="completeTable('${table}')">
       COMPLETE
     </button>
 
@@ -242,7 +245,7 @@ async function completeOrder(id) {
     .eq("id", id);
 
   await trimHistory();
-
+  loadOrders();
 
 }
 
@@ -253,6 +256,7 @@ async function completeTable(tableNumber) {
     .update({ status: "done" })
     .eq("table_number", tableNumber);
 
+  await trimHistory();
   loadOrders();
 
 }
