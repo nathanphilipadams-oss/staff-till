@@ -1,334 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Food Orders</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitchen — FOOD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-body{
-  margin:0;
-  background:#111;
-  color:white;
-  font-family:system-ui;
-  padding:20px;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-h1{
-  margin-bottom:20px;
-}
+  :root {
+    --bg:        #0f0e0b;
+    --surface:   #1a1815;
+    --border:    #2e2b24;
+    --amber:     #f5a623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --amber-glow:rgba(245,166,35,0.04);
+    --green:     #2dce6c;
+    --green-dim: rgba(45,206,108,0.15);
+    --red:       #e84040;
+    --text:      #f0ece0;
+    --muted:     #7a7463;
+    --faint:     #3d3a30;
+    --ticket-bg: #161410;
+    --ticket-border: #3a3520;
+    --header-h:  64px;
+  }
 
-.order{
-  border-left:6px solid #ffcc00;
-  background:#1e1e1e;
-  border:1px solid #333;
-  border-radius:10px;
-  padding:16px;
-  margin-bottom:14px;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
 
-.item{
-  font-size:22px;
-  font-weight:800;
-  margin-bottom:8px;
-}
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 2px solid var(--amber);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 4px 32px rgba(245,166,35,0.12);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .screen-tag {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 28px; letter-spacing: 3px; color: var(--amber);
+    text-shadow: 0 0 20px rgba(245,166,35,0.4);
+  }
+  .screen-sub {
+    font-size: 10px; letter-spacing: 3px; color: var(--muted);
+    text-transform: uppercase; padding-top: 2px;
+  }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .pulse-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.4; transform:scale(0.8); }
+  }
+  .pulse-dot.error { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
+  .clock {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 22px; letter-spacing: 2px; color: var(--text);
+  }
+  .order-count-badge {
+    background: var(--amber); color: #000;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 14px; padding: 4px 12px; border-radius: 4px;
+    letter-spacing: 1px;
+  }
 
-.details{
-  color:#aaa;
-  margin-bottom:12px;
-}
+  /* ── GRID ── */
+  .tickets-grid {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
 
-button{
-  background:#20bf6b;
-  border:none;
-  color:white;
-  padding:10px 16px;
-  border-radius:8px;
-  font-weight:700;
-  cursor:pointer;
-}
+  /* ── TICKET ── */
+  .ticket {
+    background: var(--ticket-bg);
+    border: 1px solid var(--ticket-border);
+    border-radius: 8px;
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+    position: relative;
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform:translateY(-10px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .ticket::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--amber);
+  }
+  .ticket.done::before { background: var(--green); }
 
-.empty{
-  color:#666;
-  text-align:center;
-  margin-top:40px;
-}
+  .ticket-header {
+    padding: 12px 14px;
+    background: var(--amber-dim);
+    border-bottom: 1px solid var(--ticket-border);
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .ticket-header.takeaway-header { background: rgba(45,206,108,0.08); }
+
+  .table-label {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 26px; color: var(--amber);
+    letter-spacing: 1px; line-height: 1;
+  }
+  .takeaway-label {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 18px; color: var(--green);
+    letter-spacing: 1px; line-height: 1.2;
+  }
+  .takeaway-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+
+  .ticket-meta { text-align: right; }
+  .ticket-time { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+  .ticket-age {
+    font-size: 10px; letter-spacing: 1px; margin-top: 3px;
+    padding: 2px 7px; border-radius: 3px;
+    display: inline-block;
+  }
+  .age-fresh  { background: var(--green-dim);  color: var(--green); }
+  .age-mid    { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .age-urgent { background: rgba(232,64,64,0.15); color: var(--red); animation: urgentBlink 1s infinite; }
+  @keyframes urgentBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .ticket-body { padding: 10px 14px; }
+
+  .item-row {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--faint);
+  }
+  .item-row:last-child { border-bottom: none; }
+
+  .item-qty {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 17px; color: var(--amber);
+    min-width: 28px; flex-shrink: 0;
+  }
+  .item-name { font-size: 13px; color: var(--text); flex: 1; line-height: 1.4; }
+  .item-opts { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+  .item-note {
+    font-size: 11px; color: #f5c842;
+    display: block; margin-top: 3px;
+    padding: 3px 7px; background: rgba(245,200,66,0.08);
+    border-left: 2px solid #f5c842; border-radius: 2px;
+  }
+
+  .ticket-footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--faint);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .item-count { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+
+  .done-btn {
+    padding: 7px 16px; border-radius: 5px; border: none; cursor: pointer;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 13px; letter-spacing: 2px;
+    background: var(--green-dim); color: var(--green);
+    border: 1px solid rgba(45,206,108,0.3);
+    transition: all 0.15s;
+  }
+  .done-btn:hover { background: var(--green); color: #000; }
+  .done-btn:active { transform: scale(0.96); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center; padding: 80px 20px;
+    color: var(--faint);
+  }
+  .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+  .empty-text { font-family: 'Black Han Sans', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--faint); }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 8px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10px; letter-spacing: 2px; color: var(--muted);
+  }
+  .status-ok   { color: var(--green); }
+  .status-err  { color: var(--red); }
+
+  /* ── SECTION DIVIDER inside tickets (multi-group orders) ── */
+  .section-label {
+    font-size: 9px; letter-spacing: 2.5px; color: var(--muted);
+    text-transform: uppercase; padding: 6px 0 2px;
+  }
 </style>
 </head>
-
 <body>
 
-<h1>FOOD ORDERS</h1>
+<header>
+  <div class="header-left">
+    <div>
+      <div class="screen-tag">🍳 KITCHEN</div>
+      <div class="screen-sub">Food · Soups · Salads · Sandwiches</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div id="order-count-badge" class="order-count-badge" style="display:none"></div>
+    <div class="clock" id="clock">--:--</div>
+    <div class="pulse-dot" id="pulse-dot"></div>
+  </div>
+</header>
 
-<button id="toggle-history-btn" onclick="toggleHistory()">
-  SHOW COMPLETED
-</button>
-
-<div id="history-section" style="display:none;">
-  <h2 style="margin-top:20px;">Completed Orders</h2>
-  <div id="completed-orders"></div>
+<div class="tickets-grid" id="tickets-grid">
+  <div class="empty-state">
+    <div class="empty-icon">🍽️</div>
+    <div class="empty-text">NO ACTIVE FOOD ORDERS</div>
+  </div>
 </div>
 
-<div id="orders"></div>
+<div class="status-bar">
+  <span id="status-text">Connecting…</span>
+  <span id="last-refresh">–</span>
+</div>
 
 <script>
+const SUPABASE_URL = "https://mocujtfoyruievyjmjhe.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const SUPABASE_URL =
-  "https://mocujtfoyruievyjmjhe.supabase.co";
+// Which categories count as FOOD on this screen
+const FOOD_SECTIONS = ["soups & salads","sandwiches","handmade goodies & snacks","ice cream selection","morning breakfast","food"];
+const FOOD_KEYWORDS = ["soup","salad","sandwich","crab","prawn","tuna","egg mayo","chicken","ham","cheddar","cake","flapjack","pudding","brownie","shortcake","rock cake","drizzle","cream tea","crisps","scoop","lolly","tub","vortex","push up","squeeze","jazzie","sorbet","vegan tub","bacon","crumpet","tea cake","croissant","toast","waffle","party"];
 
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
+function isFood(row) {
+  const cat = (row.category || "").toLowerCase();
+  if (cat === "food") return true;
+  if (cat === "drink") return false;
+  // fallback: keyword match on item name
+  const name = (row.item || "").toLowerCase();
+  return FOOD_KEYWORDS.some(k => name.includes(k));
+}
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+// Parse the details string back into structured opts
+function parseDetails(details) {
+  if (!details) return { opts: [], note: null };
+  const parts = details.split(" | ");
+  const note = parts.find(p => p.startsWith("NOTE:"))?.replace("NOTE:", "").trim() || null;
+  const opts = parts.filter(p =>
+    !p.startsWith("Qty:") &&
+    !p.startsWith("Price:") &&
+    !p.startsWith("NOTE:")
+  );
+  return { opts, note };
+}
 
-async function loadOrders() {
+function getQty(details) {
+  if (!details) return 1;
+  const m = details.match(/Qty:\s*(\d+)/);
+  return m ? parseInt(m[1]) : 1;
+}
 
-  // Filtered to only bring in orders that aren't marked 'done'
-  const { data, error } = await supabaseClient
-    .from("cafe_orders")
-    .select("*")
-    .eq("category", "food")
-    .neq("status", "done")
-    .order("created_at", { ascending: false });
+function timeAgo(isoStr) {
+  const diff = Math.floor((Date.now() - new Date(isoStr)) / 1000);
+  if (diff < 60) return diff + "s ago";
+  if (diff < 3600) return Math.floor(diff/60) + "m ago";
+  return Math.floor(diff/3600) + "h ago";
+}
 
-  console.log(data);
-  console.log(error);
+function ageClass(isoStr) {
+  const diff = Math.floor((Date.now() - new Date(isoStr)) / 1000 / 60);
+  if (diff < 5) return "age-fresh";
+  if (diff < 12) return "age-mid";
+  return "age-urgent";
+}
 
-  const activeContainer =
-    document.getElementById("orders");
+function formatTime(isoStr) {
+  return new Date(isoStr).toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" });
+}
 
-  const completedContainer =
-    document.getElementById("completed-orders");
+let allOrders = [];
 
-  activeContainer.innerHTML = "";
-  completedContainer.innerHTML = "";
+function groupOrders(rows) {
+  // Group by order_group
+  const groups = {};
+  rows.forEach(row => {
+    if (!groups[row.order_group]) groups[row.order_group] = [];
+    groups[row.order_group].push(row);
+  });
 
-  if (!data || data.length === 0) {
+  // Sort each group: table orders first (by table number), then takeaway
+  const sorted = Object.values(groups).sort((a, b) => {
+    const aIsTable = a[0].service_type === "table";
+    const bIsTable = b[0].service_type === "table";
+    if (aIsTable && bIsTable) return (a[0].table_number || 0) - (b[0].table_number || 0);
+    if (aIsTable) return -1;
+    if (bIsTable) return 1;
+    return (a[0].customer_name || "").localeCompare(b[0].customer_name || "");
+  });
+  return sorted;
+}
 
-    activeContainer.innerHTML =
-      "<div class='empty'>No food orders</div>";
+function renderTickets(rows) {
+  const grid = document.getElementById("tickets-grid");
+  grid.innerHTML = "";
 
+  if (rows.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">NO ACTIVE FOOD ORDERS</div></div>`;
+    document.getElementById("order-count-badge").style.display = "none";
     return;
   }
 
- const groupedOrders = {};
+  const groups = groupOrders(rows);
+  const badge = document.getElementById("order-count-badge");
+  badge.style.display = "block";
+  badge.textContent = groups.length + (groups.length === 1 ? " ORDER" : " ORDERS");
 
-data.forEach(order => {
+  groups.forEach(group => {
+    const first = group[0];
+    const isTable = first.service_type === "table";
+    const oldestTime = group.reduce((min, r) => r.created_at < min ? r.created_at : min, group[0].created_at);
+    const totalQty = group.reduce((s, r) => s + getQty(r.details), 0);
 
-  const table = order.table_number || "No Table";
+    const ticket = document.createElement("div");
+    ticket.className = "ticket";
 
-  if (!groupedOrders[table]) {
-    groupedOrders[table] = [];
-  }
-
-  groupedOrders[table].push(order);
-
-});
-
-Object.keys(groupedOrders).forEach(table => {
-
-  const orders = groupedOrders[table];
-
-  const div = document.createElement("div");
-
-  div.className = "order";
-
-  let itemsHTML = "";
-
-  orders.forEach(order => {
-
-    let details = order.details || "";
-
-    details = details.replace(/normal milk/gi, "").trim();
-
-    itemsHTML += `
-      <div style="margin-bottom:16px;">
-
-        <div style="
-          font-size:24px;
-          font-weight:900;
-          margin-bottom:6px;
-         ">
-          ${order.quantity || 1}x ${order.item}
+    // Header
+    const hdr = document.createElement("div");
+    hdr.className = "ticket-header" + (isTable ? "" : " takeaway-header");
+    if (isTable) {
+      hdr.innerHTML = `
+        <div>
+          <div class="table-label">TABLE ${first.table_number}</div>
         </div>
+        <div class="ticket-meta">
+          <div class="ticket-time">${formatTime(oldestTime)}</div>
+          <div class="ticket-age ${ageClass(oldestTime)}">${timeAgo(oldestTime)}</div>
+        </div>`;
+    } else {
+      hdr.innerHTML = `
+        <div>
+          <div class="takeaway-label">🥡 ${(first.customer_name || "UNKNOWN").toUpperCase()}</div>
+          <div class="takeaway-sub">TAKE AWAY</div>
+        </div>
+        <div class="ticket-meta">
+          <div class="ticket-time">${formatTime(oldestTime)}</div>
+          <div class="ticket-age ${ageClass(oldestTime)}">${timeAgo(oldestTime)}</div>
+        </div>`;
+    }
+    ticket.appendChild(hdr);
 
-        ${
-          details
-          ?
-          `<div style="
-            color:#ccc;
-            font-size:18px;
-          ">
-            ${details}
-          </div>`
-          :
-          ""
-        }
+    // Body
+    const body = document.createElement("div");
+    body.className = "ticket-body";
 
-      </div>
-    `;
+    group.forEach(row => {
+      const qty = getQty(row.details);
+      const { opts, note } = parseDetails(row.details);
+      const row_el = document.createElement("div");
+      row_el.className = "item-row";
+      const optsHtml = opts.length ? `<span class="item-opts">${opts.join(" · ")}</span>` : "";
+      const noteHtml = note ? `<span class="item-note">⚠ ${note}</span>` : "";
+      row_el.innerHTML = `
+        <div class="item-qty">${qty}×</div>
+        <div class="item-name">${row.item}${optsHtml}${noteHtml}</div>`;
+      body.appendChild(row_el);
+    });
+    ticket.appendChild(body);
 
+    // Footer
+    const footer = document.createElement("div");
+    footer.className = "ticket-footer";
+    footer.innerHTML = `<span class="item-count">${totalQty} ITEM${totalQty !== 1 ? "S" : ""}</span>`;
+    const doneBtn = document.createElement("button");
+    doneBtn.className = "done-btn";
+    doneBtn.textContent = "✓ DONE";
+    doneBtn.addEventListener("click", () => markGroupDone(group.map(r => r.id)));
+    footer.appendChild(doneBtn);
+    ticket.appendChild(footer);
+
+    grid.appendChild(ticket);
   });
-
-  // Updated to call completeTable dynamically passing the current table identifier
-  div.innerHTML = `
-
-    <div style="
-      font-size:38px;
-      font-weight:900;
-      margin-bottom:20px;
-      color:#ffcc00;
-    ">
-      TABLE ${table}
-    </div>
-
-    ${itemsHTML}
-
-    <button onclick="completeTable('${table}')">
-      COMPLETE
-    </button>
-
-  `;
-
-  activeContainer.appendChild(div);
-
-});
-
-}
-  
-function formatOrder(order) {
-
-  if (!order.items) {
-    return order.item || "";
-  }
-
-  let output = "";
-
-  order.items.forEach(i => {
-
-    let line = "";
-
-    if (i.quantity > 1) {
-      line += `${i.quantity}x `;
-    }
-
-    line += i.name;
-
-    if (
-      i.option &&
-      i.option.toLowerCase() !== "normal milk"
-    ) {
-      line += ` ${i.option}`;
-    }
-
-    if (i.notes) {
-      line += `\n- ${i.notes}`;
-    }
-
-    output += line + "\n";
-  });
-
-  return output.trim();
-
-}
-  
-async function completeOrder(id) {
-
-  await supabaseClient
-    .from("cafe_orders")
-    .update({ status: "done" })
-    .eq("id", id);
-
-  await trimHistory();
-  loadOrders();
-
 }
 
-async function completeTable(tableNumber) {
-
-  await supabaseClient
-    .from("cafe_orders")
-    .update({ status: "done" })
-    .eq("table_number", tableNumber);
-
-  await trimHistory();
-  loadOrders();
-
+async function markGroupDone(ids) {
+  const { error } = await sb.from("cafe_orders").update({ status: "done" }).in("id", ids);
+  if (!error) fetchOrders();
 }
-  
-async function trimHistory() {
 
-  const { data, error } = await supabaseClient
-  .from("cafe_orders")
-  .select("*")
-  .eq("category", "food")
-  .order("created_at", { ascending: false });
-
-  if (!data || data.length <= 5) return;
-
-  const oldOrders = data.slice(5);
-
-  for (const order of oldOrders) {
-
-    await supabaseClient
+async function fetchOrders() {
+  try {
+    const { data, error } = await sb
       .from("cafe_orders")
-      .delete()
-      .eq("id", order.id);
+      .select("*")
+      .eq("status", "new")
+      .order("created_at", { ascending: true });
 
+    if (error) throw error;
+
+    const foodRows = (data || []).filter(isFood);
+    allOrders = foodRows;
+    renderTickets(foodRows);
+
+    document.getElementById("status-text").textContent = "LIVE · AUTO-REFRESH 15s";
+    document.getElementById("status-text").className = "status-ok";
+    document.getElementById("last-refresh").textContent = "Last: " + new Date().toLocaleTimeString("en-GB");
+    document.getElementById("pulse-dot").classList.remove("error");
+  } catch (e) {
+    document.getElementById("status-text").textContent = "ERROR: " + e.message;
+    document.getElementById("status-text").className = "status-err";
+    document.getElementById("pulse-dot").classList.add("error");
   }
-
 }
 
-function toggleHistory() {
-
-  const section =
-    document.getElementById("history-section");
-
-  const btn =
-    document.getElementById("toggle-history-btn");
-
-  if (section.style.display === "none") {
-
-    section.style.display = "block";
-    btn.textContent = "HIDE COMPLETED";
-
-  } else {
-
-    section.style.display = "none";
-    btn.textContent = "SHOW COMPLETED";
-
-  }
-
+// Clock
+function updateClock() {
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
 }
+setInterval(updateClock, 1000);
+updateClock();
 
-/* LOAD ON PAGE OPEN */
-loadOrders();
+// Re-render age badges every 30s without re-fetching
+setInterval(() => {
+  if (allOrders.length > 0) renderTickets(allOrders);
+}, 30000);
 
-/* LIVE UPDATES */
-supabaseClient
-  .channel("orders")
-  .on(
-    "postgres_changes",
-    {
-      event: "*",
-      schema: "public",
-      table: "cafe_orders"
-    },
-    () => {
-      loadOrders();
-    }
-  )
+// Fetch every 15 seconds
+fetchOrders();
+setInterval(fetchOrders, 15000);
+
+// Supabase realtime
+sb.channel("food-screen")
+  .on("postgres_changes", { event: "*", schema: "public", table: "cafe_orders" }, () => fetchOrders())
   .subscribe();
-
-/* BACKUP REFRESH */
-setInterval(loadOrders, 3000);
-
 </script>
-
 </body>
 </html>
