@@ -367,7 +367,7 @@ function buildCard(groupKey, rows) {
   const btn = document.createElement("button");
   btn.className = "btn-done";
   btn.textContent = "DONE";
-  btn.onclick = () => markDone(first.order_group, rows.map(r => r.id));
+  btn.onclick = () => markDone(null, rows.map(r => r.id));
   foot.appendChild(btn);
   card.appendChild(foot);
 
@@ -395,10 +395,10 @@ async function load() {
     knownKeys = incoming;
     firstLoad = false;
 
-    // Group and sort by table number (takeaways at end)
+    // Group by table_number (or customer_name for takeaways), sorted numerically
     const grouped = {};
     active.forEach(r => {
-      const k = r.order_group || ("_" + r.id);
+      const k = r.table_number != null ? ("t_" + r.table_number) : ("tw_" + (r.customer_name || "takeaway"));
       if (!grouped[k]) grouped[k] = [];
       grouped[k].push(r);
     });
@@ -423,7 +423,7 @@ async function load() {
     histBody.innerHTML = "";
     const compGrouped = {};
     completed.forEach(r => {
-      const k = r.order_group || ("_" + r.id);
+      const k = r.table_number != null ? ("t_" + r.table_number) : ("tw_" + (r.customer_name || "takeaway"));
       if (!compGrouped[k]) compGrouped[k] = [];
       compGrouped[k].push(r);
     });
@@ -445,7 +445,7 @@ async function load() {
             <div class="hist-lbl">&#10003; ${lbl}</div>
             <div class="hist-items">${rows.map(r => r.item).join(", ")}</div>
           </div>
-          <button class="btn-undo" onclick="markNew('${f.order_group}', ${JSON.stringify(rows.map(r=>r.id))})">UNDO</button>`;
+          <button class="btn-undo" onclick="markNew(null, ${JSON.stringify(rows.map(r=>r.id))})">UNDO</button>`;
         histBody.appendChild(div);
       });
     }
