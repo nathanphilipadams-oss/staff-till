@@ -1,478 +1,507 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bar — DRINKS & SWEET</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kitchen Display</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: #1a1a1a;
-    color: #f0f0f0;
-    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    font-family: system-ui, sans-serif;
     min-height: 100vh;
+    padding: 14px;
   }
 
   /* ── TOP BAR ── */
-  .topbar {
-    background: #111;
-    border-bottom: 4px solid #4a9eff;
-    padding: 14px 24px;
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .top-bar h1 {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #ffcc00;
+  }
+  .top-right {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .topbar-left { display: flex; align-items: center; gap: 20px; }
-  .screen-title {
-    font-size: 26px;
-    font-weight: 900;
-    color: #4a9eff;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  .order-pill {
-    background: #4a9eff;
-    color: #000;
-    font-size: 15px;
-    font-weight: 900;
-    padding: 5px 16px;
-    border-radius: 20px;
-    letter-spacing: 1px;
-  }
-  .topbar-right { display: flex; align-items: center; gap: 20px; }
-  .clock {
-    font-size: 22px;
-    font-weight: 700;
-    color: #ccc;
-    font-variant-numeric: tabular-nums;
+    gap: 10px;
   }
   .live-dot {
-    width: 12px; height: 12px;
+    width: 9px; height: 9px;
     border-radius: 50%;
-    background: #2dce6c;
-    box-shadow: 0 0 8px #2dce6c;
-    animation: blink 2s infinite;
+    background: #20bf6b;
+    animation: pulse 2s infinite;
   }
-  .live-dot.dead { background: #e84040; box-shadow: 0 0 8px #e84040; animation: none; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .live-dot.stale { background: #cc4444; animation: none; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .live-lbl { font-size: 11px; font-weight: 700; color: #555; letter-spacing: 1px; }
 
-  /* ── LEGEND ── */
-  .legend {
-    background: #141414;
-    border-bottom: 1px solid #2a2a2a;
-    padding: 8px 24px;
-    display: flex;
-    gap: 24px;
-    align-items: center;
+  .btn-sm {
+    background: #1e1e1e;
+    border: 1px solid #2e2e2e;
+    color: #888;
+    padding: 7px 13px;
+    border-radius: 7px;
+    font-weight: 700;
+    font-size: 11px;
+    cursor: pointer;
+    letter-spacing: 1px;
   }
-  .leg { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
-  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .ld-drink { background: #4a9eff; }
-  .ld-cake  { background: #c084fc; }
-  .ld-ice   { background: #e8a020; }
+  .btn-sm:active { background: #2a2a2a; }
 
   /* ── GRID ── */
   .grid {
-    padding: 20px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 20px;
-    align-items: start;
-    padding-bottom: 50px;
-  }
-
-  /* ── TICKET ── */
-  .ticket {
-    background: #242424;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 2px solid #333;
-    animation: pop 0.25s ease;
-  }
-  @keyframes pop { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
-
-  .ticket-stripe { height: 6px; background: #4a9eff; }
-  .ticket-stripe.takeaway { background: #2dce6c; }
-
-  /* head */
-  .ticket-head {
-    padding: 14px 16px 12px;
-    background: #2c2c2c;
-    border-bottom: 2px solid #333;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  .table-num {
-    font-size: 32px;
-    font-weight: 900;
-    color: #4a9eff;
-    line-height: 1;
-    letter-spacing: 1px;
-  }
-  .takeaway-name {
-    font-size: 22px;
-    font-weight: 900;
-    color: #2dce6c;
-    line-height: 1;
-  }
-  .takeaway-tag {
-    font-size: 11px;
-    color: #888;
-    letter-spacing: 2px;
-    margin-top: 3px;
-    text-transform: uppercase;
-  }
-  .ticket-time-col { text-align: right; }
-  .ticket-time { font-size: 13px; color: #999; }
-  .age-badge {
-    display: inline-block;
-    margin-top: 5px;
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-  .age-fresh { background: rgba(45,206,108,0.15); color: #2dce6c; }
-  .age-mid   { background: rgba(74,158,255,0.15);  color: #4a9eff; }
-  .age-old   { background: rgba(232,64,64,0.15);   color: #e84040; animation: urgBlink 1s infinite; }
-  @keyframes urgBlink { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-  /* section headings within a ticket */
-  .section-head {
-    padding: 7px 16px 4px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border-bottom: 1px solid #333;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-head::before {
-    content: '';
-    display: inline-block;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .sh-drink { color: #4a9eff; }
-  .sh-drink::before { background: #4a9eff; }
-  .sh-cake  { color: #c084fc; }
-  .sh-cake::before  { background: #c084fc; }
-  .sh-ice   { color: #e8a020; }
-  .sh-ice::before   { background: #e8a020; }
-
-  /* items */
-  .item-row {
-    padding: 10px 16px;
-    border-bottom: 1px solid #2e2e2e;
-    display: flex;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
     gap: 12px;
-    align-items: flex-start;
-  }
-  .item-row:last-child { border-bottom: none; }
-
-  .item-qty {
-    font-size: 22px;
-    font-weight: 900;
-    min-width: 36px;
-    line-height: 1.2;
-    flex-shrink: 0;
-  }
-  .qty-drink { color: #4a9eff; }
-  .qty-cake  { color: #c084fc; }
-  .qty-ice   { color: #e8a020; }
-
-  .item-detail { flex: 1; }
-  .item-name {
-    font-size: 17px;
-    font-weight: 700;
-    color: #f0f0f0;
-    line-height: 1.3;
-  }
-  .item-options {
-    font-size: 13px;
-    color: #aaa;
-    margin-top: 3px;
-    line-height: 1.4;
-  }
-  .item-note {
-    margin-top: 5px;
-    background: rgba(255,200,50,0.1);
-    border-left: 3px solid #ffc832;
-    padding: 4px 8px;
-    font-size: 13px;
-    color: #ffc832;
-    border-radius: 0 4px 4px 0;
   }
 
-  /* foot */
-  .ticket-foot {
-    padding: 10px 16px;
-    background: #2c2c2c;
-    border-top: 2px solid #333;
+  /* ── ORDER CARD ── */
+  .card {
+    background: #1a1a1a;
+    border: 2px solid #2a2a2a;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .card.urgent { border-color: #cc3333; animation: urg 1.2s infinite; }
+  .card.takeaway { border-color: #3a6fff; }
+  @keyframes urg { 0%,100%{border-color:#cc3333} 50%{border-color:#ff5555} }
+
+  /* Card header */
+  .card-head {
+    padding: 11px 14px;
+    background: #202020;
+    border-bottom: 1px solid #2a2a2a;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .item-total {
-    font-size: 12px;
-    color: #666;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .done-btn {
-    background: #1e4d2e;
-    color: #2dce6c;
-    border: 2px solid #2dce6c;
-    padding: 8px 22px;
-    border-radius: 6px;
-    font-size: 15px;
-    font-weight: 900;
-    cursor: pointer;
-    letter-spacing: 2px;
-    transition: background 0.15s, color 0.15s;
-  }
-  .done-btn:hover { background: #2dce6c; color: #000; }
-  .done-btn:active { transform: scale(0.97); }
+  .card-head.tw { background: #151e35; }
 
-  /* empty */
+  .tbl-lbl { font-size: 28px; font-weight: 900; color: #ffcc00; }
+  .tw-lbl  { font-size: 20px; font-weight: 900; color: #5588ff; }
+
+  .card-meta { text-align: right; }
+  .card-age { font-size: 12px; font-weight: 700; color: #555; }
+  .card-age.w { color: #e67e22; }
+  .card-age.l { color: #cc3333; }
+  .card-cnt { font-size: 11px; color: #444; margin-top: 2px; }
+
+  /* Card body */
+  .card-body {
+    flex: 1;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .row {
+    border-bottom: 1px solid #222;
+    padding-bottom: 9px;
+  }
+  .row:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .row-name {
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 5px;
+  }
+  .row-qty { color: #ffcc00; margin-right: 3px; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag {
+    background: #242424;
+    border: 1px solid #303030;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #bbb;
+  }
+  .tag.hi { background: #1e1a08; border-color: #ffcc00; color: #ffcc00; }   /* note */
+  .tag.add { background: #0d1e10; border-color: #20bf6b; color: #20bf6b; } /* additions */
+
+  /* Card footer */
+  .card-foot {
+    padding: 9px 12px;
+    background: #161616;
+    border-top: 1px solid #222;
+  }
+  .btn-done {
+    width: 100%;
+    padding: 12px 0;
+    background: #20bf6b;
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    letter-spacing: 1px;
+  }
+  .btn-done:active { opacity: 0.75; }
+
+  /* ── EMPTY ── */
   .empty {
     grid-column: 1/-1;
     text-align: center;
-    padding: 100px 20px;
-    color: #444;
-  }
-  .empty-icon { font-size: 80px; margin-bottom: 20px; }
-  .empty-msg { font-size: 22px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
-
-  /* status */
-  .statusbar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: #111;
-    border-top: 1px solid #2a2a2a;
-    padding: 7px 24px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #555;
+    color: #333;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 60px 0;
     letter-spacing: 1px;
   }
-  .s-ok  { color: #2dce6c; }
-  .s-err { color: #e84040; }
+
+  /* ── HISTORY ── */
+  .hist-section {
+    margin-top: 28px;
+    border-top: 1px solid #1e1e1e;
+    padding-top: 18px;
+  }
+  .hist-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  .hist-row {
+    background: #141414;
+    border: 1px solid #1e1e1e;
+    border-radius: 8px;
+    padding: 9px 13px;
+    margin-bottom: 7px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .hist-lbl { font-size: 13px; font-weight: 800; color: #555; }
+  .hist-items { font-size: 12px; color: #333; margin-top: 2px; }
+  .btn-undo {
+    background: #1a1a1a;
+    border: 1px solid #252525;
+    color: #555;
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-undo:active { color: #fff; }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="screen-title">☕ Bar — Drinks &amp; Sweet</div>
-    <div class="order-pill" id="order-pill" style="display:none">0 orders</div>
+<div class="top-bar">
+  <h1>&#127379; BAR</h1>
+  <div class="top-right">
+    <div class="live-dot" id="ldot"></div>
+    <span class="live-lbl" id="llbl">LIVE</span>
+    <button class="btn-sm" onclick="toggleHist()">SHOW COMPLETED</button>
   </div>
-  <div class="topbar-right">
-    <div class="clock" id="clock">00:00:00</div>
-    <div class="live-dot" id="live-dot"></div>
-  </div>
-</div>
-
-<div class="legend">
-  <div class="leg"><div class="leg-dot ld-drink"></div>Drinks</div>
-  <div class="leg"><div class="leg-dot ld-cake"></div>Cakes &amp; Snacks</div>
-  <div class="leg"><div class="leg-dot ld-ice"></div>Ice Cream</div>
 </div>
 
 <div class="grid" id="grid"></div>
 
-<div class="statusbar">
-  <span id="status-msg">Connecting…</span>
-  <span id="last-fetch">–</span>
+<div class="hist-section" id="hist-section" style="display:none;">
+  <div class="hist-title">COMPLETED</div>
+  <div id="hist-body"></div>
 </div>
 
 <script>
-const URL = "https://mocujtfoyruievyjmjhe.supabase.co";
-const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
-const sb  = supabase.createClient(URL, KEY);
+const BASE = "https://mocujtfoyruievyjmjhe.supabase.co/rest/v1/cafe_orders";
+const KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY3VqdGZveXJ1aWV2eWptamhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MDg0MTksImV4cCI6MjA5NTM4NDQxOX0.3WRjeNo0zabDGLrEMrxavM5rnz9evMvC8b-8YVu8X5g";
+const H    = { "apikey": KEY, "Authorization": "Bearer " + KEY, "Content-Type": "application/json" };
 
-function fmt(iso){ return new Date(iso).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}); }
-function ago(iso){
-  const s = Math.floor((Date.now() - new Date(iso)) / 1000);
-  if(s < 60)   return s + "s ago";
-  if(s < 3600) return Math.floor(s/60) + "m ago";
-  return Math.floor(s/3600) + "h ago";
-}
-function ageClass(iso){
-  const m = Math.floor((Date.now() - new Date(iso)) / 60000);
-  return m < 5 ? "age-fresh" : m < 12 ? "age-mid" : "age-old";
-}
+let lastOk     = Date.now();
+let knownKeys  = new Set();
+let firstLoad  = true;
+let audioCtx   = null;
 
-function groupAndSort(rows){
-  // Group by table_number for table orders, by customer_name for takeaways
-  const map = {};
-  rows.forEach(r => {
-    const key = r.service_type === "table"
-      ? "table_" + r.table_number
-      : "takeaway_" + (r.customer_name || "unknown");
-    if(!map[key]) map[key] = [];
-    map[key].push(r);
-  });
-  // Sort items within each group oldest → newest
-  Object.values(map).forEach(g => g.sort((a,b) => new Date(a.created_at) - new Date(b.created_at)));
-  // Sort groups: tables first by table number asc, then takeaways by oldest item
-  return Object.values(map).sort((a,b) => {
-    const aT = a[0].service_type === "table";
-    const bT = b[0].service_type === "table";
-    if(aT && bT) return a[0].table_number - b[0].table_number;
-    if(aT) return -1;
-    if(bT) return 1;
-    return new Date(a[0].created_at) - new Date(b[0].created_at);
-  });
+/* ── helpers ─────────────────────────────────────────── */
+function age(ts) {
+  const m = Math.floor((Date.now() - new Date(ts)) / 60000);
+  if (m < 1)  return { text: "just now", cls: "" };
+  if (m < 5)  return { text: m + "m",    cls: "" };
+  if (m < 10) return { text: m + "m",    cls: "w" };
+  return               { text: m + "m",  cls: "l" };
 }
 
-let cached = [];
+function ping() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+    o.start(); o.stop(audioCtx.currentTime + 0.4);
+  } catch(e) {}
+}
 
-function render(rows){
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
+/* ── build tag list from proper columns ──────────────── */
+function buildTags(row) {
+  const SUPPRESS_MILK = ["normal milk", ""];
+  const tags = [], additions = [];
 
-  if(!rows.length){
-    grid.innerHTML = `<div class="empty"><div class="empty-icon">☕</div><div class="empty-msg">No bar orders</div></div>`;
-    document.getElementById("order-pill").style.display = "none";
-    return;
+  // Options shown as plain tags
+  if (row.size)              tags.push(row.size);
+  if (row.bread)             tags.push(row.bread);
+  if (row.sauce && row.sauce.toLowerCase() !== "no sauce") tags.push(row.sauce);
+  if (row.milk  && !SUPPRESS_MILK.includes(row.milk.toLowerCase())) tags.push(row.milk);
+  if (row.garnish)           tags.push(row.garnish);
+  if (row.coffee_type)       tags.push(row.coffee_type);
+  if (row.tea_serve)         tags.push(row.tea_serve);
+  if (row.fruit_tea_flavour) tags.push(row.fruit_tea_flavour);
+  if (row.water_type)        tags.push(row.water_type);
+  if (row.wine_size)         tags.push(row.wine_size);
+  if (row.hot_choc_type)     tags.push(row.hot_choc_type);
+  if (row.cone)              tags.push(row.cone);
+  if (row.flake && row.flake.toLowerCase() !== "no flake") tags.push(row.flake);
+  if (row.flavour)           tags.push(row.flavour);
+
+  // Additions shown in green
+  if (row.extra_shot)  additions.push("+ Extra Shot");
+  if (row.syrup)       additions.push("+ Syrup");
+  if (row.preserves)   additions.push("+ Preserves");
+
+  // Fallback: if new columns don't exist yet, parse details string
+  if (!row.size && !row.bread && !row.milk && !row.coffee_type && !row.tea_serve && row.details) {
+    const SKIP = ["normal milk","milk: normal milk","no extra shot","no syrup","no preserves","no sauce","no flake"];
+    row.details.split(" | ").forEach(p => {
+      const low = p.toLowerCase().trim();
+      if (low.startsWith("qty:") || low.startsWith("price:") || low.startsWith("note:")) return;
+      if (SKIP.includes(low)) return;
+      const cleaned = p.replace(/^(size|bread|sauce|milk|garnish|serve|coffee|tea|water|cone|flake|flavour|fruit tea|extra shot|syrup|preserves):\s*/i, "").trim();
+      if (cleaned) tags.push(cleaned);
+    });
   }
 
-  const groups = groupAndSort(rows);
-  const pill = document.getElementById("order-pill");
-  pill.style.display = "block";
-  pill.textContent = groups.length + (groups.length === 1 ? " order" : " orders");
+  return { tags, additions };
+}
 
-  groups.forEach(group => {
-    const first   = group[0];
-    const isTable = first.service_type === "table";
-    const oldest  = group[0].created_at;
-    const totalQty = group.reduce((s,r) => s + (r.qty||1), 0);
+function getNote(row) {
+  if (row.note) return row.note;
+  // fallback from details string
+  if (row.details) {
+    const m = row.details.match(/NOTE:\s*(.+?)(\s*\|.*)?$/i);
+    if (m) return m[1].trim();
+  }
+  return null;
+}
 
-    // Split into sub-categories
-    const drinks = group.filter(r => r.category === "drink");
-    const cakes  = group.filter(r => r.category === "cake");
-    const ices   = group.filter(r => r.category === "ice");
+function getQty(row) {
+  if (row.qty && row.qty > 1) return row.qty;
+  if (row.details) {
+    const m = row.details.match(/Qty:\s*(\d+)/i);
+    if (m) return parseInt(m[1]);
+  }
+  return 1;
+}
 
-    const t = document.createElement("div");
-    t.className = "ticket";
+/* ── build a card DOM element ────────────────────────── */
+function buildCard(groupKey, rows) {
+  const first  = rows[0];
+  const isTable = !!first.table_number;
+  const label  = isTable ? "TABLE " + first.table_number : (first.customer_name || "TAKEAWAY");
+  const a      = age(first.created_at);
+  const mins   = Math.floor((Date.now() - new Date(first.created_at)) / 60000);
 
-    // stripe
-    const stripe = document.createElement("div");
-    stripe.className = "ticket-stripe" + (isTable ? "" : " takeaway");
-    t.appendChild(stripe);
+  const card = document.createElement("div");
+  card.className = "card" + (mins >= 10 ? " urgent" : "") + (!isTable ? " takeaway" : "");
 
-    // head
-    const head = document.createElement("div");
-    head.className = "ticket-head";
-    if(isTable){
-      head.innerHTML = `
-        <div><div class="table-num">TABLE ${first.table_number}</div></div>
-        <div class="ticket-time-col">
-          <div class="ticket-time">${fmt(oldest)}</div>
-          <div class="age-badge ${ageClass(oldest)}">${ago(oldest)}</div>
-        </div>`;
+  // Header
+  const head = document.createElement("div");
+  head.className = "card-head" + (!isTable ? " tw" : "");
+  head.innerHTML = `
+    <div class="${isTable ? "tbl-lbl" : "tw-lbl"}">${label}</div>
+    <div class="card-meta">
+      <div class="card-age ${a.cls}">${a.text}</div>
+      <div class="card-cnt">${rows.length} item${rows.length !== 1 ? "s" : ""}</div>
+    </div>`;
+  card.appendChild(head);
+
+  // Body
+  const body = document.createElement("div");
+  body.className = "card-body";
+
+  rows.forEach(row => {
+    const qty  = getQty(row);
+    const note = getNote(row);
+    const { tags, additions } = buildTags(row);
+
+    const rowEl = document.createElement("div");
+    rowEl.className = "row";
+
+    let tagsHTML = tags.map(t => `<span class="tag">${t}</span>`).join("");
+    tagsHTML    += additions.map(t => `<span class="tag add">${t}</span>`).join("");
+    if (note)    tagsHTML += `<span class="tag hi">&#128221; ${note}</span>`;
+
+    rowEl.innerHTML = `
+      <div class="row-name">
+        ${qty > 1 ? `<span class="row-qty">${qty}x</span>` : ""}${row.item}
+      </div>
+      ${tagsHTML ? `<div class="tags">${tagsHTML}</div>` : ""}`;
+    body.appendChild(rowEl);
+  });
+  card.appendChild(body);
+
+  // Footer
+  const foot = document.createElement("div");
+  foot.className = "card-foot";
+  const btn = document.createElement("button");
+  btn.className = "btn-done";
+  btn.textContent = "DONE";
+  btn.onclick = () => markDone(first.order_group, rows.map(r => r.id));
+  foot.appendChild(btn);
+  card.appendChild(foot);
+
+  return card;
+}
+
+/* ── main load ───────────────────────────────────────── */
+async function load() {
+  try {
+    const res = await fetch(BASE + "?category=eq.drink&order=created_at.asc&select=*", { headers: H });
+    if (!res.ok) throw new Error(res.status + " " + await res.text());
+    const data = await res.json();
+
+    lastOk = Date.now();
+    setLive(true);
+
+    const active    = data.filter(r => !r.status || r.status === "new");
+    const completed = data.filter(r => r.status === "done");
+
+    // Ping on new
+    const incoming = new Set(active.map(r => r.order_group || r.id));
+    let hasNew = false;
+    incoming.forEach(k => { if (!knownKeys.has(k)) hasNew = true; });
+    if (hasNew && !firstLoad) ping();
+    knownKeys = incoming;
+    firstLoad = false;
+
+    // Group and sort by table number (takeaways at end)
+    const grouped = {};
+    active.forEach(r => {
+      const k = r.order_group || ("_" + r.id);
+      if (!grouped[k]) grouped[k] = [];
+      grouped[k].push(r);
+    });
+
+    const sorted = Object.entries(grouped).sort(([, a], [, b]) => {
+      const tA = a[0].table_number ?? 9999;
+      const tB = b[0].table_number ?? 9999;
+      return tA - tB;
+    });
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    if (!sorted.length) {
+      grid.innerHTML = "<div class='empty'>&#10003; All clear</div>";
     } else {
-      head.innerHTML = `
-        <div>
-          <div class="takeaway-name">🥡 ${(first.customer_name||"UNKNOWN").toUpperCase()}</div>
-          <div class="takeaway-tag">Take Away</div>
-        </div>
-        <div class="ticket-time-col">
-          <div class="ticket-time">${fmt(oldest)}</div>
-          <div class="age-badge ${ageClass(oldest)}">${ago(oldest)}</div>
-        </div>`;
+      sorted.forEach(([key, rows]) => grid.appendChild(buildCard(key, rows)));
     }
-    t.appendChild(head);
 
-    // helper to add a section
-    function addSection(items, label, shClass, qtyClass){
-      if(!items.length) return;
-      const sh = document.createElement("div");
-      sh.className = `section-head ${shClass}`;
-      sh.textContent = label;
-      t.appendChild(sh);
-      items.forEach(row => {
-        const qty = row.qty || 1;
-        const el  = document.createElement("div");
-        el.className = "item-row";
-        el.innerHTML = `
-          <div class="item-qty ${qtyClass}">${qty}×</div>
-          <div class="item-detail">
-            <div class="item-name">${row.item}</div>
-            ${row.options ? `<div class="item-options">${row.options}</div>` : ""}
-            ${row.note    ? `<div class="item-note">⚠ ${row.note}</div>`    : ""}
-          </div>`;
-        t.appendChild(el);
+    // History
+    const histBody = document.getElementById("hist-body");
+    histBody.innerHTML = "";
+    const compGrouped = {};
+    completed.forEach(r => {
+      const k = r.order_group || ("_" + r.id);
+      if (!compGrouped[k]) compGrouped[k] = [];
+      compGrouped[k].push(r);
+    });
+
+    const compSorted = Object.entries(compGrouped)
+      .sort(([, a], [, b]) => new Date(b[0].created_at) - new Date(a[0].created_at))
+      .slice(0, 15);
+
+    if (!compSorted.length) {
+      histBody.innerHTML = "<div style='color:#333;font-size:12px;'>Nothing completed yet</div>";
+    } else {
+      compSorted.forEach(([, rows]) => {
+        const f = rows[0];
+        const lbl = f.table_number ? "Table " + f.table_number : (f.customer_name || "Takeaway");
+        const div = document.createElement("div");
+        div.className = "hist-row";
+        div.innerHTML = `
+          <div>
+            <div class="hist-lbl">&#10003; ${lbl}</div>
+            <div class="hist-items">${rows.map(r => r.item).join(", ")}</div>
+          </div>
+          <button class="btn-undo" onclick="markNew('${f.order_group}', ${JSON.stringify(rows.map(r=>r.id))})">UNDO</button>`;
+        histBody.appendChild(div);
       });
     }
 
-    addSection(drinks, "Drinks",          "sh-drink", "qty-drink");
-    addSection(cakes,  "Cakes & Snacks",  "sh-cake",  "qty-cake");
-    addSection(ices,   "Ice Cream",       "sh-ice",   "qty-ice");
-
-    // foot
-    const foot = document.createElement("div");
-    foot.className = "ticket-foot";
-    foot.innerHTML = `<div class="item-total">${totalQty} item${totalQty!==1?"s":""}</div>`;
-    const btn = document.createElement("button");
-    btn.className = "done-btn";
-    btn.textContent = "✓  DONE";
-    btn.addEventListener("click", () => markDone(group.map(r => r.id)));
-    foot.appendChild(btn);
-    t.appendChild(foot);
-
-    grid.appendChild(t);
-  });
-}
-
-async function markDone(ids){
-  await sb.from("cafe_orders").update({ status:"done" }).in("id", ids);
-  fetchOrders();
-}
-
-async function fetchOrders(){
-  try {
-    const { data, error } = await sb
-      .from("cafe_orders")
-      .select("*")
-      .eq("status","new")
-      .in("category", ["drink","cake","ice"])
-      .order("created_at", { ascending: true });
-    if(error) throw error;
-    cached = data || [];
-    render(cached);
-    document.getElementById("status-msg").textContent = "Live · refreshes every 15s";
-    document.getElementById("status-msg").className   = "s-ok";
-    document.getElementById("last-fetch").textContent  = "Updated " + new Date().toLocaleTimeString("en-GB");
-    document.getElementById("live-dot").classList.remove("dead");
   } catch(e) {
-    document.getElementById("status-msg").textContent = "Error: " + e.message;
-    document.getElementById("status-msg").className   = "s-err";
-    document.getElementById("live-dot").classList.add("dead");
+    setLive(false);
+    console.error(e);
+    document.getElementById("grid").innerHTML =
+      `<div class='empty' style='color:#cc3333;font-size:13px;'>ERROR: ${e.message}</div>`;
   }
 }
 
-setInterval(() => {
-  document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-GB");
-}, 1000);
+/* ── mark done / undo ────────────────────────────────── */
+async function markDone(group, ids) {
+  await patch(group, ids, "done");
+}
+async function markNew(group, ids) {
+  await patch(group, ids, "new");
+}
+async function patch(group, ids, status) {
+  try {
+    const url = group
+      ? BASE + "?order_group=eq." + encodeURIComponent(group)
+      : BASE + "?id=in.(" + ids.join(",") + ")";
+    const res = await fetch(url, { method: "PATCH", headers: H, body: JSON.stringify({ status }) });
+    if (!res.ok) throw new Error(await res.text());
+    load();
+  } catch(e) { alert("Error: " + e.message); }
+}
 
-setInterval(() => { if(cached.length) render(cached); }, 30000);
+/* ── live indicator ──────────────────────────────────── */
+function setLive(ok) {
+  document.getElementById("ldot").className = "live-dot" + (ok ? "" : " stale");
+  document.getElementById("llbl").textContent = ok ? "LIVE" : "RECONNECTING...";
+}
 
-fetchOrders();
-setInterval(fetchOrders, 15000);
+/* ── history toggle ──────────────────────────────────── */
+function toggleHist() {
+  const s = document.getElementById("hist-section");
+  const b = document.querySelector(".btn-sm");
+  const hidden = s.style.display === "none";
+  s.style.display = hidden ? "block" : "none";
+  b.textContent = hidden ? "HIDE COMPLETED" : "SHOW COMPLETED";
+}
 
-sb.channel("bar").on("postgres_changes",{ event:"*", schema:"public", table:"cafe_orders" },() => fetchOrders()).subscribe();
+/* ── stale check ─────────────────────────────────────── */
+setInterval(() => { if (Date.now() - lastOk > 15000) setLive(false); }, 10000);
+
+/* ── age refresh every 30s ───────────────────────────── */
+setInterval(load, 30000);
+
+/* ── poll every 5s ───────────────────────────────────── */
+setInterval(load, 5000);
+
+load();
 </script>
 </body>
 </html>
+
