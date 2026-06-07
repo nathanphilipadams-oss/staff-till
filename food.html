@@ -125,11 +125,11 @@
   .tag {
     background: #242424;
     border: 1px solid #303030;
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #bbb;
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ccc;
   }
   .tag.hi { background: #1e1a08; border-color: #ffcc00; color: #ffcc00; }   /* note */
   .tag.add { background: #0d1e10; border-color: #20bf6b; color: #20bf6b; } /* additions */
@@ -467,13 +467,31 @@ async function markNew(group, ids) {
 }
 async function patch(group, ids, status) {
   try {
-    const url = group
-      ? BASE + "?order_group=eq." + encodeURIComponent(group)
-      : BASE + "?id=in.(" + ids.join(",") + ")";
-    const res = await fetch(url, { method: "PATCH", headers: H, body: JSON.stringify({ status }) });
-    if (!res.ok) throw new Error(await res.text());
-    load();
-  } catch(e) { alert("Error: " + e.message); }
+    const patchHeaders = Object.assign({}, H, { "Prefer": "return=representation" });
+    let allOk = true;
+
+    for (const id of ids) {
+      const url = BASE + "?id=eq." + id;
+      console.log("PATCHING:", url, "status ->", status);
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: patchHeaders,
+        body: JSON.stringify({ status: status })
+      });
+      const text = await res.text();
+      console.log("PATCH result:", res.status, text);
+      if (!res.ok) {
+        allOk = false;
+        alert("Supabase error " + res.status + ": " + text);
+        return;
+      }
+    }
+
+    if (allOk) load();
+  } catch(e) {
+    console.error("patch crash:", e);
+    alert("Error: " + e.message);
+  }
 }
 
 /* ── live indicator ──────────────────────────────────── */
